@@ -1,1 +1,1 @@
-# Bash shell script examples as NNSTreamer applications
+# Bash shell script examples as NNStreamer applications
