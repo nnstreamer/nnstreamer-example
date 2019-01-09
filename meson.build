@@ -34,11 +34,21 @@ libdl_dep = cc.find_library('dl') # DL library
 libpthread_dep = cxx.find_library('pthread') # pthread for tensorflow-lite
 
 # Dependency for tensorflow example
-tf_dep = dependency('tensorflow')
-protobuf_dep = dependency('protobuf', version: '>= 3.4.0')
+tf_dep = dependency('tensorflow', required: false)
+protobuf_dep = dependency('protobuf', version: '>= 3.4.0', required: false)
+
+have_tensorflow = false
+if tf_dep.found() and protobuf_dep.found()
+  have_tensorflow = true
+endif
 
 # Dependency for tensorflow-lite example
-tflite_dep = dependency('tensorflow-lite')
+tflite_dep = dependency('tensorflow-lite', required: false)
+
+have_tensorflow_lite = false
+if tflite_dep.found()
+  have_tensorflow_lite = true
+endif
 
 # Build and install nnstreamer native examples
 subdir('native')
