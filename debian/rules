@@ -1,0 +1,16 @@
+#!/usr/bin/make -f
+
+export LC_ALL=C.UTF-8
+export DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
+
+%:
+	dh $@ --parallel
+
+override_dh_auto_configure:
+	meson --buildtype=plain --werror --prefix=/usr --libdir=lib/$(DEB_HOST_MULTIARCH) --bindir=lib/nnstreamer/bin debian/build
+
+override_dh_auto_build:
+	ninja -C debian/build
+
+override_dh_install:
+	DESTDIR=${CURDIR}/debian/nnstreamer-example ninja -C debian/build install

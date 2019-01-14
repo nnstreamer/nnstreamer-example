@@ -1,0 +1,5 @@
+nnstreamer-example (0.1.0-1rc1) stable; urgency=medium
+
+  * Initial debian dist files added
+
+ -- Jaeyun Jung <jy1210.jung@samsung.com>  Mon, 14 Jan 2019 12:00:00 +0900
