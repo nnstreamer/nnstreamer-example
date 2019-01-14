@@ -1,0 +1,17 @@
+Source: nnstreamer-example
+Maintainer: MyungJoo Ham <myungjoo.ham@samsung.com>
+Build-Depends:
+ debhelper (>=9), meson (>=0.40),
+ libglib2.0-dev, libgstreamer1.0-dev, libgstreamer-plugins-base1.0-dev,
+ gstreamer1.0-plugins-base, gstreamer1.0-plugins-good,
+ libcairo2-dev, libopencv-dev,
+ tensorflow-lite-dev, tensorflow-dev [amd64 arm64], libprotobuf-dev [amd64 arm64]
+Standards-Version: 3.9.6
+Homepage: https://github.com/nnsuite/nnstreamer-example
+
+Package: nnstreamer-example
+Architecture: any
+Multi-Arch: same
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Examples of nnstreamer
+ This package contains the examples of nnstreamer.
