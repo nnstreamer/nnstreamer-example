@@ -1,12 +1,12 @@
-Name:		nnstreamer_example
+Name:		nnstreamer-example
 Summary:	examples of nnstreamer (gstremaer plugins for neural networks)
 Version:	0.1.0
 Release:	1rc1
 Group:		Applications/Multimedia
 Packager:	MyungJoo Ham <myungjoo.ham@samsung.com>
 License:	LGPL-2.1
-Source0:	nnstreamer_example-%{version}.tar.gz
-Source1001:	nnstreamer.manifest
+Source0:	nnstreamer-example-%{version}.tar.gz
+Source1001:	nnstreamer-example.manifest
 
 Requires:	nnstreamer
 Requires:	gstreamer >= 1.8.0
@@ -55,7 +55,7 @@ ninja -C build %{?_smp_mflags}
 DESTDIR=%{buildroot} ninja -C build %{?_smp_mflags} install
 
 %files
-%manifest nnstreamer.manifest
+%manifest nnstreamer-example.manifest
 %defattr(-,root,root,-)
 %license LICENSE
 %{nnstexampledir}/*
