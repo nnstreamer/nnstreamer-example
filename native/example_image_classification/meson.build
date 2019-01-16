@@ -4,3 +4,8 @@ nnstreamer_example_image_classification = executable('nnstreamer_example_image_c
   install: true,
   install_dir: examples_install_dir
 )
+
+# Install python example
+install_data('nnstreamer_example_image_classification.py',
+  install_dir: examples_install_dir
+)
