@@ -436,14 +436,16 @@ main (int argc, char **argv)
   /* init pipeline */
   str_pipeline =
       g_strdup_printf
-      ("v4l2src name=cam_src ! videoscale ! "
+      ("v4l2src name=cam_src ! videoconvert ! videoscale ! "
       "video/x-raw,width=640,height=480,format=RGB ! tee name=t_raw "
       "t_raw. ! queue ! textoverlay name=tensor_res font-desc=Sans,24 ! "
       "videoconvert ! ximagesink name=img_tensor "
       "t_raw. ! queue leaky=2 max-size-buffers=2 ! videoscale ! tensor_converter ! "
       "tensor_filter framework=tensorflow-lite model=%s ! "
-      "tensor_sink name=tensor_sink",
-      g_app.tflite_info.model_path);
+      "tensor_sink name=tensor_sink", g_app.tflite_info.model_path);
+
+  _print_log ("%s\n", str_pipeline);
+
   g_app.pipeline = gst_parse_launch (str_pipeline, NULL);
   g_free (str_pipeline);
   _check_cond_err (g_app.pipeline != NULL);

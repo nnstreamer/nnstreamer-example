@@ -31,7 +31,7 @@ gst_app_dep = dependency('gstreamer-app-1.0')
 cairo_dep = dependency('cairo')
 libm_dep = cc.find_library('m') # cmath library
 libdl_dep = cc.find_library('dl') # DL library
-libpthread_dep = cxx.find_library('pthread') # pthread for tensorflow-lite
+thread_dep = dependency('threads') # pthread for tensorflow-lite
 
 # Dependency for tensorflow example
 tf_dep = dependency('tensorflow', required: false)
