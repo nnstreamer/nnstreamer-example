@@ -190,7 +190,7 @@ main (int argc, char **argv)
   /* init pipeline */
   str_pipeline =
       g_strdup_printf
-      ("v4l2src name=cam_src ! videoscale ! "
+      ("v4l2src name=cam_src ! videoconvert ! videoscale ! "
       "video/x-raw,width=%d,height=%d,format=RGB ! tee name=t_raw "
       "videomixer name=mix "
       "sink_0::xpos=0 sink_0::ypos=0 sink_0::zorder=0 "
@@ -200,6 +200,9 @@ main (int argc, char **argv)
       "t_raw. ! queue ! tensor_converter ! tensor_decoder mode=direct_video ! videoscale ! video/x-raw,width=%d,height=%d ! mix.sink_1 "
       "t_raw. ! queue ! videoconvert ! ximagesink name=img_origin",
       width, height, width / 2, height / 2);
+
+  _print_log ("%s\n", str_pipeline);
+
   g_app.pipeline = gst_parse_launch (str_pipeline, NULL);
   g_free (str_pipeline);
   _check_cond_err (g_app.pipeline != NULL);

@@ -526,7 +526,7 @@ main (int argc, char ** argv)
   /* init pipeline */
   str_pipeline =
       g_strdup_printf
-      ("v4l2src name=src ! videoscale ! video/x-raw,width=%d,height=%d,format=RGB ! tee name=t_raw "
+      ("v4l2src name=src ! videoconvert ! videoscale ! video/x-raw,width=%d,height=%d,format=RGB ! tee name=t_raw "
       "t_raw. ! queue ! videoconvert ! cairooverlay name=tensor_res ! ximagesink name=img_tensor "
       "t_raw. ! queue leaky=2 max-size-buffers=2 ! videoscale ! tensor_converter ! "
       "tensor_filter framework=tensorflow model=%s "
@@ -536,6 +536,9 @@ main (int argc, char ** argv)
       "outputtype=float32,float32,float32,float32 ! "
       "tensor_sink name=tensor_sink ",
       VIDEO_WIDTH, VIDEO_HEIGHT, g_app.tf_info.model_path);
+
+  _print_log ("%s\n", str_pipeline);
+
   g_app.pipeline = gst_parse_launch (str_pipeline, NULL);
   g_free (str_pipeline);
   _check_cond_err (g_app.pipeline != NULL);
