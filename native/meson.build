@@ -10,4 +10,5 @@ if have_tensorflow_lite
   subdir('example_object_detection_tensorflow_lite')
   subdir('example_decoder_image_labelling')
   subdir('example_filter_performance_profile')
+  subdir('example_speech_command_tensorflow_lite')
 endif
