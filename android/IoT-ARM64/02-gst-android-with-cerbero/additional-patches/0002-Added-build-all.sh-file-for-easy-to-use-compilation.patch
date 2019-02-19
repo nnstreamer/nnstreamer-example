@@ -1,0 +1,36 @@
+From 322be361bfe3a9943b91f703e614bb238b0f64ed Mon Sep 17 00:00:00 2001
+From: Ubuntu <ubuntu@ip-172-31-27-164.ap-northeast-2.compute.internal>
+Date: Tue, 29 Jan 2019 19:39:51 +0900
+Subject: [PATCH 2/3] Added build-all.sh file for easy-to-use compilation
+
+This commit is to append build-all.sh file to do all procedures at once.
+
+Signed-off-by: Geunsik Lim <geunsik.lim@samsung.com>
+Signed-off-by: Geunsik Lim <leemgs@gmail.com>
+---
+ build-all.sh | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
+ create mode 100755 build-all.sh
+
+diff --git a/build-all.sh b/build-all.sh
+new file mode 100755
+index 0000000..dc035b5
+--- /dev/null
++++ b/build-all.sh
+@@ -0,0 +1,13 @@
++#!/usr/bin/env bash
++
++echo -e "Generating Bootstrapping files..."
++time ./cerbero-uninstalled  -c config/cross-android-universal.cbc bootstrap
++
++echo -e "Generating Gstreamer files with NDK r12b for Android software stack..."
++time ./cerbero-uninstalled  -c config/cross-android-universal.cbc package gstreamer-1.0
++
++if [[ $? -eq 0 ]]; then
++    echo -e "Congratulations. The all tasks are successfully completed."
++else
++    echo -e "Ooooops. The some tasks are failed. Please try to run $0 after fixing the issues."
++fi
+-- 
+2.7.4
+

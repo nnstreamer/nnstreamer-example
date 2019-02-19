@@ -1,0 +1,32 @@
+From 7a34b0f288ee9e459a7f012e3cc3b0c40b187a55 Mon Sep 17 00:00:00 2001
+From: Geunsik Lim <geunsik.lim@samsung.com>
+Date: Mon, 18 Feb 2019 19:04:27 +0900
+Subject: [PATCH] [Build] Fixed unsupported reloc 43 error while building
+ sources
+
+This commit is to fix an unexpected build error such as "unsupported reloc 43"
+because the older prebuilt toolchain have some problems with newer version of 'as'
+in the native environment. This error will show up when your environment is Ubuntu 16.04
+and AOSP before May-07-2106. In order to solve this problem, Please modify the below file.
+ * build/core/clang/HOST_x86_common.mk
+
+Signed-off-by: Geunsik Lim <geunsik.lim@samsung.com>
+---
+ core/clang/HOST_x86_common.mk | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/core/clang/HOST_x86_common.mk b/core/clang/HOST_x86_common.mk
+index 0241cb6..77547b7 100644
+--- a/core/clang/HOST_x86_common.mk
++++ b/core/clang/HOST_x86_common.mk
+@@ -8,6 +8,7 @@ ifeq ($(HOST_OS),linux)
+ CLANG_CONFIG_x86_LINUX_HOST_EXTRA_ASFLAGS := \
+   --gcc-toolchain=$($(clang_2nd_arch_prefix)HOST_TOOLCHAIN_FOR_CLANG) \
+   --sysroot=$($(clang_2nd_arch_prefix)HOST_TOOLCHAIN_FOR_CLANG)/sysroot \
++  -B$($(clang_2nd_arch_prefix)HOST_TOOLCHAIN_FOR_CLANG)/x86_64-linux/bin \
+   -no-integrated-as
+ 
+ CLANG_CONFIG_x86_LINUX_HOST_EXTRA_CFLAGS := \
+-- 
+2.7.4
+

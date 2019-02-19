@@ -1,0 +1,46 @@
+From 664e592c6992d02ae3c018586595cfe6560f527d Mon Sep 17 00:00:00 2001
+From: Geunsik Lim <geunsik.lim@samsung.com>
+Date: Mon, 18 Feb 2019 15:22:31 +0900
+Subject: [PATCH] [arm64] Change a linker64 location and rpath check
+
+This commit is to support Android application that has to be run in /data/ folder
+instead of /system/ folder. We assume that ramdisk (rootfs) and system partitions
+have to be mounted read-only privilege for security and storage space.
+
+**Changes**
+1. Changed default location of linker64 as following:
+   - From /system/bin/ to /data/nnstreamer/libandroid folder.
+
+2. Changed a check routine of unused Dynamic array Tag (DT)  entry such as DT_RPATH.
+   - From DL_WARN to DEBUG
+
+Signed-off-by: Geunsik Lim <geunsik.lim@samsung.com>
+---
+ linker/linker.cpp | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/linker/linker.cpp b/linker/linker.cpp
+index a287cf4..3a24a4a 100644
+--- a/linker/linker.cpp
++++ b/linker/linker.cpp
+@@ -3843,7 +3843,7 @@ bool soinfo::prelink_image() {
+ 
+       default:
+         if (!relocating_linker) {
+-          DL_WARN("%s: unused DT entry: type %p arg %p", get_realpath(),
++          DEBUG("%s: unused DT entry: type %p arg %p", get_realpath(),
+               reinterpret_cast<void*>(d->d_tag), reinterpret_cast<void*>(d->d_un.d_val));
+         }
+         break;
+@@ -4094,7 +4094,7 @@ static void add_vdso(KernelArgumentBlock& args __unused) {
+ static void init_linker_info_for_gdb(ElfW(Addr) linker_base) {
+   static link_map linker_link_map_for_gdb;
+ #if defined(__LP64__)
+-  static char kLinkerPath[] = "/system/bin/linker64";
++  static char kLinkerPath[] = "/data/nnstreamer/libandroid/linker64";
+ #else
+   static char kLinkerPath[] = "/system/bin/linker";
+ #endif
+-- 
+2.7.4
+

@@ -1,0 +1,3 @@
+[submodule "TAOS-CI"]
+	path = TAOS-CI
+	url = https://github.com/nnsuite/TAOS-CI.git
