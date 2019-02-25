@@ -6,6 +6,12 @@ In order to deploy NNstreamer on Android devices, you have to execute four steps
  * Build NNstreamer full source with ndk-build
  * Build NNstreamer-based test applications
 
+We assume that you want to deploy a NNstreamer-based application on you own Android/ARM64bit target device.
+ * Host PC: Ubuntu 16.04 x86_64 LTS
+ * CPU Architecture: ARM 64bit (aarch64)
+ * Android platform: 7.0 (Nougat)
+ * Android NDK: r12b
+ * Android API level: 24
 
 ## Build Android full source
 We describe how to build Android full source in case that developers have to bring up NNstreamer
@@ -40,15 +46,24 @@ ls -al ./out/
 
 
 ## Build Gstreamer full source based Android rootFS with Cerbero
- * TODO 
+You can cross-compile GStreamer for Android from a Linux host using the configuration file 'config/cross-android.cbc'.
+```bash
+git clone https://gitlab.freedesktop.org/gstreamer/cerbero
+cd cerbero
+time ./cerbero-uninstalled  -c config/cross-android-arm64.cbc wipe
+time ./cerbero-uninstalled -c config/cross-android-arm64.cbc bootstrap
+time ./cerbero-uninstalled -c config/cross-android-arm64.cbc package gstreamer-1.0
+ls -al *.tar.bz2
+```
+
+For more details, please refer to the below websites.
+ * https://gitlab.freedesktop.org/gstreamer/cerbero
+ * https://github.com/centricular/cerbero-docs/blob/master/start.md
 
 
 ## Build NNstreamer full source with ndk-build
  * TODO 
 
-
-## Build NNstreamer full source with ndk-build
- * TODO 
 
 
 ## Build NNstreamer-based test applications
