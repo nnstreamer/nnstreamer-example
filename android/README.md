@@ -62,8 +62,17 @@ For more details, please refer to the below websites.
 
 
 ## Build NNstreamer full source with ndk-build
- * TODO 
+We recommend that you read a Android NDK manual at https://developer.android.com/studio/build/building-cmdline.
+If you have to compile just C/C++ source code for Android platform, please use 'ndk-build' command.
+Note that You must use 'gradlew' command on the Ubuntu terminal, if you have to compile JNI-based Java source code
+as well as C/C++ JNI source code.  The 'ndk-build' command uses jni/Android.mk by dfault.
+However, the 'gradlew' command uses the 'build.gradle' file instead of the existing 'jni/Android.mk'.
 
+```bash
+cd jni
+ndk-build
+```
+For more details, please refer to https://github.com/nnsuite/nnstreamer/tree/master/jni.
 
 
 ## Build NNstreamer-based test applications
