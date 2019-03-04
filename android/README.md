@@ -17,6 +17,20 @@ We assume that you want to deploy a NNstreamer-based application on you own Andr
 We describe how to build Android full source in case that developers have to bring up NNstreamer
 on Android 7.0 (Nougat) on Ubuntu 16.04 x86_64 destkop PC.
 
+For more details, please refer to the below websites.
+ * https://source.android.com/setup/build/building
+ * https://android.googlesource.com
+
+## Build Gstreamer full source based Android rootFS with Cerbero
+You can cross-compile GStreamer for Android from a Linux host using the configuration file 'config/cross-android.cbc'.
+```bash
+git clone https://gitlab.freedesktop.org/gstreamer/cerbero
+cd cerbero
+time ./cerbero-uninstalled  -c config/cross-android-arm64.cbc wipe
+time ./cerbero-uninstalled -c config/cross-android-arm64.cbc bootstrap
+time ./cerbero-uninstalled -c config/cross-android-arm64.cbc package gstreamer-1.0
+ls -al *.tar.bz2
+
 Install required packages
 ```bash
 sudo apt install adb repo
@@ -32,28 +46,15 @@ mkdir WORKING_DIRECTORY
 cd WORKING_DIRECTORY
 repo init -u https://android.googlesource.com/platform/manifest -b android-7.0.0_r35   
 time repo sync -j$(nproc)
-
 ```
 
-Compild Androud full source. From our experience, you need to wait for 60 minutes to compile all source codes.
+Compile Android full source. From our experience, you need to wait for 60 minutes to compile all source codes.
 ```bash
 make clobber
 source build/envsetup.sh
 lunch
 time make -j$(nproc)
 ls -al ./out/
-```
-
-
-## Build Gstreamer full source based Android rootFS with Cerbero
-You can cross-compile GStreamer for Android from a Linux host using the configuration file 'config/cross-android.cbc'.
-```bash
-git clone https://gitlab.freedesktop.org/gstreamer/cerbero
-cd cerbero
-time ./cerbero-uninstalled  -c config/cross-android-arm64.cbc wipe
-time ./cerbero-uninstalled -c config/cross-android-arm64.cbc bootstrap
-time ./cerbero-uninstalled -c config/cross-android-arm64.cbc package gstreamer-1.0
-ls -al *.tar.bz2
 ```
 
 For more details, please refer to the below websites.
@@ -73,6 +74,7 @@ git clone https://github.com/nnsuite/nnstreamer.git
 cd ./nnstreamer/jni
 ndk-build NDK_PROJECT_PATH=.  APP_BUILD_SCRIPT=./Android-nnstreamer.mk NDK_APPLICATION_MK=./Application.mk -j$(nproc)
 ```
+
 For more details, please refer to https://github.com/nnsuite/nnstreamer/tree/master/jni.
 
 
@@ -85,5 +87,6 @@ git clone https://github.com/nnsuite/nnstreamer.git
 cd ./nnstreamer/jni
 ndk-build NDK_PROJECT_PATH=.  APP_BUILD_SCRIPT=./Android-app.mk NDK_APPLICATION_MK=./Application.mk -j$(nproc)
 ls -al ../libs/arm64-v8a/
-
 ```
+
+For more details on test applications, please refer to https://github.com/nnsuite/nnstreamer/tree/master/tests
