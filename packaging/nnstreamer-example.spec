@@ -48,7 +48,7 @@ cp %{SOURCE1001} .
 %build
 mkdir -p build
 
-meson --buildtype=plain --werror --prefix=%{_prefix} --libdir=%{_libdir} --bindir=%{nnstexampledir} --includedir=%{_includedir} build
+meson --buildtype=plain --prefix=%{_prefix} --libdir=%{_libdir} --bindir=%{nnstexampledir} --includedir=%{_includedir} build
 ninja -C build %{?_smp_mflags}
 
 %install
