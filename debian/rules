@@ -7,7 +7,7 @@ export DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
 	dh $@ --parallel
 
 override_dh_auto_configure:
-	meson --buildtype=plain --werror --prefix=/usr --libdir=lib/$(DEB_HOST_MULTIARCH) --bindir=lib/nnstreamer/bin debian/build
+	meson --buildtype=plain --prefix=/usr --libdir=lib/$(DEB_HOST_MULTIARCH) --bindir=lib/nnstreamer/bin debian/build
 
 override_dh_auto_build:
 	ninja -C debian/build
