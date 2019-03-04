@@ -69,12 +69,21 @@ as well as C/C++ JNI source code.  The 'ndk-build' command uses jni/Android.mk b
 However, the 'gradlew' command uses the 'build.gradle' file instead of the existing 'jni/Android.mk'.
 
 ```bash
-cd jni
-ndk-build
+git clone https://github.com/nnsuite/nnstreamer.git
+cd ./nnstreamer/jni
+ndk-build NDK_PROJECT_PATH=.  APP_BUILD_SCRIPT=./Android-nnstreamer.mk NDK_APPLICATION_MK=./Application.mk -j$(nproc)
 ```
 For more details, please refer to https://github.com/nnsuite/nnstreamer/tree/master/jni.
 
 
 ## Build NNstreamer-based test applications
- * TODO 
+In order to understand how developers implement a NNstreamer-based application,
+You can build simple test applications that is located in ./tests/ directory of the NNstreamer repository as following:
 
+```bash
+git clone https://github.com/nnsuite/nnstreamer.git
+cd ./nnstreamer/jni
+ndk-build NDK_PROJECT_PATH=.  APP_BUILD_SCRIPT=./Android-app.mk NDK_APPLICATION_MK=./Application.mk -j$(nproc)
+ls -al ../libs/arm64-v8a/
+
+```
