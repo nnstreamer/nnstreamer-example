@@ -1,0 +1,8 @@
+# This is a comment.
+# Each line is a file pattern followed by one or more owners.
+# For more details, visit https://help.github.com/articles/about-codeowners/
+# The lists of people and groups are for github.com
+
+# All members of nnstreamer-team are supposed to review each other
+*           @jaeyun-jung @myungjoo @jijoongmoon @again4you @leemgs @wooksong @helloahn @kparichay
+
