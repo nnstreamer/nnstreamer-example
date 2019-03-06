@@ -21,15 +21,6 @@ For more details, please refer to the below websites.
  * https://source.android.com/setup/build/building
  * https://android.googlesource.com
 
-## Build Gstreamer full source based Android rootFS with Cerbero
-You can cross-compile GStreamer for Android from a Linux host using the configuration file 'config/cross-android.cbc'.
-```bash
-git clone https://gitlab.freedesktop.org/gstreamer/cerbero
-cd cerbero
-time ./cerbero-uninstalled  -c config/cross-android-arm64.cbc wipe
-time ./cerbero-uninstalled -c config/cross-android-arm64.cbc bootstrap
-time ./cerbero-uninstalled -c config/cross-android-arm64.cbc package gstreamer-1.0
-ls -al *.tar.bz2
 
 Install required packages
 ```bash
@@ -57,10 +48,25 @@ time make -j$(nproc)
 ls -al ./out/
 ```
 
+
+## Build Gstreamer full source based Android rootFS with Cerbero
+First of all, you need to understand the entire operation flow of Cerbero enough before making a custom
+gst-android binary for yourself as the below picture is shown to you. You can cross-compile GStreamer
+for Android software platform from a Linux host using the configuration file 'config/cross-android.cbc'.
+![Cerbero: The entire build sequence](cerbero-build-flow.png)
+
+```bash
+git clone https://gitlab.freedesktop.org/gstreamer/cerbero
+cd cerbero
+time ./cerbero-uninstalled  -c config/cross-android-arm64.cbc wipe
+time ./cerbero-uninstalled -c config/cross-android-arm64.cbc bootstrap
+time ./cerbero-uninstalled -c config/cross-android-arm64.cbc package gstreamer-1.0
+ls -al *.tar.bz2
+```
+
 For more details, please refer to the below websites.
  * https://gitlab.freedesktop.org/gstreamer/cerbero
  * https://github.com/centricular/cerbero-docs/blob/master/start.md
-
 
 ## Build NNstreamer full source with ndk-build
 We recommend that you read a Android NDK manual at https://developer.android.com/studio/build/building-cmdline.
