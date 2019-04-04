@@ -624,7 +624,7 @@ draw_overlay_cb (GstElement * overlay, cairo_t * cr, guint64 timestamp,
     x = iter->x * VIDEO_WIDTH / MODEL_WIDTH;
     y = iter->y * VIDEO_HEIGHT / MODEL_HEIGHT;
     width = iter->width * VIDEO_WIDTH / MODEL_WIDTH;
-    height = iter->height * VIDEO_WIDTH / MODEL_HEIGHT;
+    height = iter->height * VIDEO_HEIGHT / MODEL_HEIGHT;
 
     /* draw rectangle */
     cairo_rectangle (cr, x, y, width, height);
