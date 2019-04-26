@@ -38,6 +38,9 @@ thread_dep = dependency('threads') # pthread for tensorflow-lite
 tf_dep = dependency('tensorflow', required: false)
 protobuf_dep = dependency('protobuf', version: '>= 3.4.0', required: false)
 
+# Dependency for custom filter examples
+nns_dep = dependency('nnstreamer', required: false)
+
 have_tensorflow = false
 if tf_dep.found() and protobuf_dep.found()
   have_tensorflow = true
