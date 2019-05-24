@@ -19,9 +19,10 @@
 #include <math.h>
 #include "nnstreamer-ssd.h"
 
-ssd_model_info_s ssd_model_info;
-GMutex ssd_mutex;
-std::vector<ssd_detected_object_s> ssd_detected_objects;
+static ssd_model_info_s ssd_model_info;
+static gboolean is_initialized = FALSE;
+static GMutex ssd_mutex;
+static std::vector<ssd_detected_object_s> ssd_detected_objects;
 
 /**
  * @brief Read strings from file.
@@ -96,11 +97,49 @@ load_labels (void)
 }
 
 /**
+ * @brief Load SSD model files info.
+ */
+static gboolean
+load_model (void)
+{
+  const gchar model_path[] = "/sdcard/nnstreamer/tflite_ssd";
+  const gchar ssd_model[] = "ssd_mobilenet_v2_coco.tflite";
+  const gchar ssd_label[] = "coco_labels_list.txt";
+  const gchar ssd_box_priors[] = "box_priors.txt";
+
+  memset (&ssd_model_info, 0, sizeof (ssd_model_info_s));
+
+  ssd_model_info.model_path = g_strdup_printf ("%s/%s", model_path, ssd_model);
+  ssd_model_info.label_path = g_strdup_printf ("%s/%s", model_path, ssd_label);
+  ssd_model_info.box_prior_path = g_strdup_printf ("%s/%s", model_path, ssd_box_priors);
+
+  /* Check model and label files */
+  if (!g_file_test (ssd_model_info.model_path, G_FILE_TEST_EXISTS) ||
+      !g_file_test (ssd_model_info.label_path, G_FILE_TEST_EXISTS) ||
+      !g_file_test (ssd_model_info.box_prior_path, G_FILE_TEST_EXISTS)) {
+      GST_ERROR ("Failed to init model info");
+      return FALSE;
+  }
+
+  /* Load labels */
+  if (!load_box_priors () || !load_labels ()) {
+      GST_ERROR ("Failed to load labels");
+      return FALSE;
+  }
+
+  return TRUE;
+}
+
+/**
  * @brief Free SSD model info.
  */
 extern "C" void
 ssd_free (void)
 {
+  if (!is_initialized) {
+    return;
+  }
+
   if (ssd_model_info.model_path) {
     g_free (ssd_model_info.model_path);
     ssd_model_info.model_path = NULL;
@@ -123,6 +162,7 @@ ssd_free (void)
 
   g_mutex_clear (&ssd_mutex);
   ssd_detected_objects.clear ();
+  is_initialized = FALSE;
 }
 
 /**
@@ -131,38 +171,15 @@ ssd_free (void)
 extern "C" gboolean
 ssd_init (void)
 {
-  const gchar model_path[] = "/sdcard/nnstreamer/tflite_ssd";
-  const gchar ssd_model[] = "ssd_mobilenet_v2_coco.tflite";
-  const gchar ssd_label[] = "coco_labels_list.txt";
-  const gchar ssd_box_priors[] = "box_priors.txt";
-
-  memset (&ssd_model_info, 0, sizeof (ssd_model_info_s));
-
-  ssd_model_info.model_path = g_strdup_printf ("%s/%s", model_path, ssd_model);
-  ssd_model_info.label_path = g_strdup_printf ("%s/%s", model_path, ssd_label);
-  ssd_model_info.box_prior_path = g_strdup_printf ("%s/%s", model_path, ssd_box_priors);
-
-  /* Check model and label files */
-  if (!g_file_test (ssd_model_info.model_path, G_FILE_TEST_IS_REGULAR) ||
-      !g_file_test (ssd_model_info.label_path, G_FILE_TEST_IS_REGULAR) ||
-      !g_file_test (ssd_model_info.box_prior_path, G_FILE_TEST_IS_REGULAR)) {
-    GST_ERROR ("Failed to init model info");
-    goto error;
-  }
-
-  /* Load labels */
-  if (!load_box_priors () || !load_labels ()) {
-    GST_ERROR ("Failed to load labels");
-    goto error;
+  if (!is_initialized && !load_model()) {
+    ssd_free();
+    return FALSE;
   }
 
   g_mutex_init (&ssd_mutex);
   ssd_detected_objects.clear ();
+  is_initialized = TRUE;
   return TRUE;
-
-error:
-  ssd_free ();
-  return FALSE;
 }
 
 /**

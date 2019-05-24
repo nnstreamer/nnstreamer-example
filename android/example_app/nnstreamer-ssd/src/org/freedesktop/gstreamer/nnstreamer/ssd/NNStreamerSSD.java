@@ -2,13 +2,16 @@ package org.freedesktop.gstreamer.nnstreamer.ssd;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.CountDownTimer;
+import android.os.Environment;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
@@ -18,12 +21,20 @@ import android.support.v4.content.ContextCompat;
 import org.freedesktop.gstreamer.GStreamer;
 import org.freedesktop.gstreamer.GStreamerSurfaceView;
 
-public class NNStreamerSSD extends Activity implements SurfaceHolder.Callback {
-    private static final String TAG = "NNStreamer-SSD";
+import java.io.File;
+import java.util.ArrayList;
+
+public class NNStreamerSSD extends Activity implements
+        SurfaceHolder.Callback,
+        View.OnClickListener {
+    private static final String TAG = "NNStreamer";
     private static final int PERMISSION_REQUEST_ALL = 3;
+    private static final String downloadPath = Environment.getExternalStorageDirectory().getPath() + "/nnstreamer/tflite_ssd";
 
     private native void nativeInit(int w, int h); /* Initialize native code, build pipeline, etc */
     private native void nativeFinalize(); /* Destroy pipeline and shutdown native code */
+    private native void nativeStart();    /* Start pipeline with id */
+    private native void nativeStop();     /* Stop the pipeline */
     private native void nativePlay();     /* Set pipeline to PLAYING */
     private native void nativePause();    /* Set pipeline to PAUSED */
     private static native boolean nativeClassInit(); /* Initialize native class: cache Method IDs for callbacks */
@@ -31,7 +42,13 @@ public class NNStreamerSSD extends Activity implements SurfaceHolder.Callback {
     private native void nativeSurfaceFinalize();
     private long native_custom_data;      /* Native code will use this to keep private data */
 
-    private boolean mIsPlaying = false;   /* Whether the user asked to go to PLAYING */
+    private boolean initialized = false;
+    private CountDownTimer pipelineTimer = null;
+    private DownloadModel downloadTask = null;
+    private ArrayList<String> downloadList = new ArrayList<>();
+
+    ImageButton buttonPlay;
+    ImageButton buttonStop;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -39,13 +56,17 @@ public class NNStreamerSSD extends Activity implements SurfaceHolder.Callback {
 
         /* Check permissions */
         if (!checkPermission(Manifest.permission.CAMERA) ||
+            !checkPermission(Manifest.permission.INTERNET) ||
             !checkPermission(Manifest.permission.READ_EXTERNAL_STORAGE) ||
-            !checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            !checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) ||
+            !checkPermission(Manifest.permission.WAKE_LOCK)) {
             ActivityCompat.requestPermissions(this,
                 new String[] {
                     Manifest.permission.CAMERA,
+                    Manifest.permission.INTERNET,
                     Manifest.permission.READ_EXTERNAL_STORAGE,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    Manifest.permission.WAKE_LOCK
                 }, PERMISSION_REQUEST_ALL);
             return;
         }
@@ -56,13 +77,31 @@ public class NNStreamerSSD extends Activity implements SurfaceHolder.Callback {
     @Override
     public void onPause() {
         super.onPause();
-        finish();
+
+        stopPipelineTimer();
+        nativePause();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        /* Start pipeline */
+        if (initialized) {
+            if (downloadTask != null && downloadTask.isProgress()) {
+                Log.d(TAG, "Now downloading model files");
+            } else {
+                startPipeline();
+            }
+        }
     }
 
     @Override
     protected void onDestroy() {
-        nativeFinalize();
         super.onDestroy();
+
+        stopPipelineTimer();
+        nativeFinalize();
     }
 
     /**
@@ -84,12 +123,18 @@ public class NNStreamerSSD extends Activity implements SurfaceHolder.Callback {
      */
     private void onGStreamerInitialized() {
         /* Re-enable buttons, now that GStreamer is initialized. */
-        final Activity activity = this;
-
         runOnUiThread(new Runnable() {
             public void run() {
-                activity.findViewById(R.id.button_play).setEnabled(true);
-                activity.findViewById(R.id.button_stop).setEnabled(true);
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    Log.e(TAG, "InterruptedException " + e.getMessage());
+                }
+
+                nativePlay();
+                buttonPlay.setVisibility(View.GONE);
+                buttonStop.setVisibility(View.VISIBLE);
+                enableButton(true);
             }
         });
     }
@@ -116,6 +161,32 @@ public class NNStreamerSSD extends Activity implements SurfaceHolder.Callback {
         /* SurfaceHolder.Callback interface implementation */
         Log.d(TAG, "Surface destroyed");
         nativeSurfaceFinalize();
+    }
+
+    @Override
+    public void onClick(View v) {
+        /* View.OnClickListener interface implementation */
+        final int viewId = v.getId();
+
+        if (pipelineTimer != null) {
+            /* Do nothing, new pipeline will be started soon. */
+            return;
+        }
+
+        switch (viewId) {
+        case R.id.button_play:
+            nativePlay();
+            buttonPlay.setVisibility(View.GONE);
+            buttonStop.setVisibility(View.VISIBLE);
+            break;
+        case R.id.button_stop:
+            nativePause();
+            buttonPlay.setVisibility(View.VISIBLE);
+            buttonStop.setVisibility(View.GONE);
+            break;
+        default:
+            break;
+        }
     }
 
     @Override
@@ -156,6 +227,10 @@ public class NNStreamerSSD extends Activity implements SurfaceHolder.Callback {
      * Initialize GStreamer and the layout.
      */
     private void initActivity() {
+        if (initialized) {
+            return;
+        }
+
         /* Initialize GStreamer and warn if it fails */
         try {
             GStreamer.init(this);
@@ -165,39 +240,143 @@ public class NNStreamerSSD extends Activity implements SurfaceHolder.Callback {
             return;
         }
 
+        /* Initialize with media resolution. */
+        nativeInit(GStreamerSurfaceView.media_width, GStreamerSurfaceView.media_height);
+
         setContentView(R.layout.main);
 
-        ImageButton play = (ImageButton) this.findViewById(R.id.button_play);
-        play.setOnClickListener(new OnClickListener() {
-            public void onClick(View v) {
-                mIsPlaying = true;
-                nativePlay();
+        buttonPlay = (ImageButton) this.findViewById(R.id.button_play);
+        buttonPlay.setOnClickListener(this);
 
-                v.getRootView().findViewById(R.id.button_play).setVisibility(View.GONE);
-                v.getRootView().findViewById(R.id.button_stop).setVisibility(View.VISIBLE);
-            }
-        });
-
-        ImageButton stop = (ImageButton) this.findViewById(R.id.button_stop);
-        stop.setOnClickListener(new OnClickListener() {
-            public void onClick(View v) {
-                mIsPlaying = false;
-                nativePause();
-
-                v.getRootView().findViewById(R.id.button_stop).setVisibility(View.GONE);
-                v.getRootView().findViewById(R.id.button_play).setVisibility(View.VISIBLE);
-            }
-        });
+        buttonStop = (ImageButton) this.findViewById(R.id.button_stop);
+        buttonStop.setOnClickListener(this);
 
         SurfaceView sv = (SurfaceView) this.findViewById(R.id.surface_video);
         SurfaceHolder sh = sv.getHolder();
         sh.addCallback(this);
 
         /* Start with disabled buttons, until the pipeline in native code is initialized. */
-        play.setEnabled(false);
-        stop.setEnabled(false);
+        enableButton(false);
 
-        /* Initialize with media resolution. */
-        nativeInit(GStreamerSurfaceView.media_width, GStreamerSurfaceView.media_height);
+        initialized = true;
+    }
+
+    /**
+     * Enable (or disable) buttons to launch model.
+     */
+    public void enableButton(boolean enabled) {
+        buttonPlay.setEnabled(enabled);
+        buttonStop.setEnabled(enabled);
+    }
+
+    /**
+     * Start pipeline and update UI.
+     */
+    private void startPipeline() {
+        enableButton(false);
+
+        /* Pause current pipeline and start new pipeline */
+        nativePause();
+
+        if (checkModels()) {
+            setPipelineTimer();
+        } else {
+            showDownloadDialog();
+        }
+    }
+
+    /**
+     * Cancel pipeline timer.
+     */
+    private void stopPipelineTimer() {
+        if (pipelineTimer != null) {
+            pipelineTimer.cancel();
+            pipelineTimer = null;
+        }
+    }
+
+    /**
+     * Set timer to start new pipeline.
+     */
+    private void setPipelineTimer() {
+        final long time = 200;
+
+        stopPipelineTimer();
+        pipelineTimer = new CountDownTimer(time, time) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+            }
+
+            @Override
+            public void onFinish() {
+                pipelineTimer = null;
+                nativeStart();
+            }
+        }.start();
+    }
+
+    /**
+     * Check a model file exists in specific directory.
+     */
+    private boolean checkModelFile(String fileName) {
+        File modelFile;
+
+        modelFile = new File(downloadPath, fileName);
+        if (!modelFile.exists()) {
+            Log.d(TAG, "Cannot find model file " + fileName);
+            downloadList.add(fileName);
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Start to download model files.
+     */
+    private void downloadModels() {
+        downloadTask = new DownloadModel(this, downloadPath);
+        downloadTask.execute(downloadList);
+    }
+
+    /**
+     * Check all necessary files exists in specific directory.
+     */
+    private boolean checkModels() {
+        downloadList.clear();
+
+        checkModelFile("box_priors.txt");
+        checkModelFile("ssd_mobilenet_v2_coco.tflite");
+        checkModelFile("coco_labels_list.txt");
+
+        return !(downloadList.size() > 0);
+    }
+
+    /**
+     * Show dialog to download model files.
+     */
+    private void showDownloadDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        builder.setCancelable(false);
+        builder.setMessage(R.string.download_model_file);
+
+        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                finish();
+            }
+        });
+
+        builder.setPositiveButton(R.string.download, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                downloadModels();
+            }
+        });
+
+        builder.show();
     }
 }
