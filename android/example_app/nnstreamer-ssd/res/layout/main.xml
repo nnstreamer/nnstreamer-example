@@ -9,21 +9,17 @@
         android:id="@+id/button_play"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:contentDescription="@string/button_play"
         android:src="@android:drawable/ic_media_play"
         android:layout_alignParentRight="true"
-        android:visibility="visible"
-        android:text="@string/button_play" />
+        android:visibility="visible" />
 
     <ImageButton
         android:id="@+id/button_stop"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:contentDescription="@string/button_stop"
         android:src="@android:drawable/ic_media_pause"
         android:layout_alignParentRight="true"
-        android:visibility="gone"
-        android:text="@string/button_stop" />
+        android:visibility="gone" />
 
     <org.freedesktop.gstreamer.GStreamerSurfaceView
         android:id="@+id/surface_video"

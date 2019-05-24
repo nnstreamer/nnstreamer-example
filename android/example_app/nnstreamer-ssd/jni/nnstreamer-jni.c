@@ -398,9 +398,52 @@ app_function (void *userdata)
 
   g_usleep (100 * 1000);
   gst_object_unref (data->video_sink);
-  gst_object_unref (data->pipeline);
+  data->video_sink = NULL;
 
+  gst_object_unref (data->pipeline);
+  data->pipeline = NULL;
+
+  data->initialized = FALSE;
   return NULL;
+}
+
+/**
+ * @brief Stop the pipeline.
+ */
+static void
+gst_native_stop (JNIEnv * env, jobject thiz)
+{
+  CustomData *data = GET_CUSTOM_DATA (env, thiz, custom_data_field_id);
+
+  if (!data)
+    return;
+
+  if (data->main_loop) {
+    GST_DEBUG ("Quitting main loop...");
+    g_main_loop_quit (data->main_loop);
+
+    GST_DEBUG ("Waiting for thread to finish...");
+    pthread_join (gst_app_thread, NULL);
+  }
+}
+
+/**
+ * @brief Start the pipeline.
+ */
+static void
+gst_native_start (JNIEnv * env, jobject thiz)
+{
+  CustomData *data = GET_CUSTOM_DATA (env, thiz, custom_data_field_id);
+
+  if (!data)
+    return;
+
+  gst_native_stop (env, thiz);
+
+  /* initialize SSD model info */
+  ssd_init ();
+
+  pthread_create (&gst_app_thread, NULL, &app_function, data);
 }
 
 /**
@@ -434,11 +477,6 @@ gst_native_init (JNIEnv * env, jobject thiz, jint media_w, jint media_h)
 
   /* filter tensorflow-lite sub-plugin */
   init_filter_tflite ();
-
-  /* initialize SSD model info */
-  ssd_init ();
-
-  pthread_create (&gst_app_thread, NULL, &app_function, data);
 }
 
 /**
@@ -452,11 +490,7 @@ gst_native_finalize (JNIEnv * env, jobject thiz)
   if (!data)
     return;
 
-  GST_DEBUG ("Quitting main loop...");
-  g_main_loop_quit (data->main_loop);
-
-  GST_DEBUG ("Waiting for thread to finish...");
-  pthread_join (gst_app_thread, NULL);
+  gst_native_stop (env, thiz);
 
   GST_DEBUG ("Deleting GlobalRef for app object at %p", data->app);
   (*env)->DeleteGlobalRef (env, data->app);
@@ -600,6 +634,8 @@ gst_native_surface_finalize (JNIEnv * env, jobject thiz)
 static JNINativeMethod native_methods[] = {
   {"nativeInit", "(II)V", (void *) gst_native_init},
   {"nativeFinalize", "()V", (void *) gst_native_finalize},
+  {"nativeStart", "()V", (void *) gst_native_start},
+  {"nativeStop", "()V", (void *) gst_native_stop},
   {"nativePlay", "()V", (void *) gst_native_play},
   {"nativePause", "()V", (void *) gst_native_pause},
   {"nativeSurfaceInit", "(Ljava/lang/Object;)V",
