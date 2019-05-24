@@ -159,9 +159,9 @@ You can download these files from [nnsuite testcases repository](https://github.
 
 ```
 # You must put the below SSD network model files in the internal storage of your Android target device.
-{INTERNAL_STORAGE}/nnstreamer/tflite_ssd/box_priors.txt
-{INTERNAL_STORAGE}/nnstreamer/tflite_ssd/coco_labels_list.txt
-{INTERNAL_STORAGE}/nnstreamer/tflite_ssd/ssd_mobilenet_v2_coco.tflite
+{INTERNAL_STORAGE}/nnstreamer/tflite_model/box_priors.txt
+{INTERNAL_STORAGE}/nnstreamer/tflite_model/coco_labels_list.txt
+{INTERNAL_STORAGE}/nnstreamer/tflite_model/ssd_mobilenet_v2_coco.tflite
 
 ```
 

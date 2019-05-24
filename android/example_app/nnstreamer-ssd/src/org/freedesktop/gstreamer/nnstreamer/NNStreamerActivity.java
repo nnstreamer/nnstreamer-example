@@ -1,4 +1,4 @@
-package org.freedesktop.gstreamer.nnstreamer.ssd;
+package org.freedesktop.gstreamer.nnstreamer;
 
 import android.Manifest;
 import android.app.Activity;
@@ -24,31 +24,36 @@ import org.freedesktop.gstreamer.GStreamerSurfaceView;
 import java.io.File;
 import java.util.ArrayList;
 
-public class NNStreamerSSD extends Activity implements
+public class NNStreamerActivity extends Activity implements
         SurfaceHolder.Callback,
         View.OnClickListener {
     private static final String TAG = "NNStreamer";
     private static final int PERMISSION_REQUEST_ALL = 3;
-    private static final String downloadPath = Environment.getExternalStorageDirectory().getPath() + "/nnstreamer/tflite_ssd";
+    private static final int PIPELINE_ID = 1;
+    private static final String downloadPath = Environment.getExternalStorageDirectory().getPath() + "/nnstreamer/tflite_model";
 
     private native void nativeInit(int w, int h); /* Initialize native code, build pipeline, etc */
     private native void nativeFinalize(); /* Destroy pipeline and shutdown native code */
-    private native void nativeStart();    /* Start pipeline with id */
+    private native void nativeStart(int id, int option); /* Start pipeline with id */
     private native void nativeStop();     /* Stop the pipeline */
     private native void nativePlay();     /* Set pipeline to PLAYING */
     private native void nativePause();    /* Set pipeline to PAUSED */
     private static native boolean nativeClassInit(); /* Initialize native class: cache Method IDs for callbacks */
     private native void nativeSurfaceInit(Object surface);
     private native void nativeSurfaceFinalize();
+    private native String nativeGetName(int id, int option);
+    private native String nativeGetDescription(int id, int option);
     private long native_custom_data;      /* Native code will use this to keep private data */
 
-    private boolean initialized = false;
+    private int pipelineId = 0;
     private CountDownTimer pipelineTimer = null;
+    private boolean initialized = false;
+
     private DownloadModel downloadTask = null;
     private ArrayList<String> downloadList = new ArrayList<>();
 
-    ImageButton buttonPlay;
-    ImageButton buttonStop;
+    private ImageButton buttonPlay;
+    private ImageButton buttonStop;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -91,7 +96,7 @@ public class NNStreamerSSD extends Activity implements
             if (downloadTask != null && downloadTask.isProgress()) {
                 Log.d(TAG, "Now downloading model files");
             } else {
-                startPipeline();
+                startPipeline(PIPELINE_ID);
             }
         }
     }
@@ -121,10 +126,12 @@ public class NNStreamerSSD extends Activity implements
      * the main loop is running, so it is ready to accept commands.
      * Called from native code.
      */
-    private void onGStreamerInitialized() {
-        /* Re-enable buttons, now that GStreamer is initialized. */
+    private void onGStreamerInitialized(final String title, final String desc) {
+        /* GStreamer is initialized and ready to play pipeline. */
         runOnUiThread(new Runnable() {
             public void run() {
+                /* Update pipeline title and description here */
+
                 try {
                     Thread.sleep(100);
                 } catch (InterruptedException e) {
@@ -132,6 +139,8 @@ public class NNStreamerSSD extends Activity implements
                 }
 
                 nativePlay();
+
+                /* Update UI (buttons and other components) */
                 buttonPlay.setVisibility(View.GONE);
                 buttonStop.setVisibility(View.VISIBLE);
                 enableButton(true);
@@ -141,7 +150,7 @@ public class NNStreamerSSD extends Activity implements
 
     static {
         System.loadLibrary("gstreamer_android");
-        System.loadLibrary("nnstreamer-ssd");
+        System.loadLibrary("nnstreamer-jni");
         nativeClassInit();
     }
 
@@ -174,12 +183,12 @@ public class NNStreamerSSD extends Activity implements
         }
 
         switch (viewId) {
-        case R.id.button_play:
+        case R.id.main_button_play:
             nativePlay();
             buttonPlay.setVisibility(View.GONE);
             buttonStop.setVisibility(View.VISIBLE);
             break;
-        case R.id.button_stop:
+        case R.id.main_button_stop:
             nativePause();
             buttonPlay.setVisibility(View.VISIBLE);
             buttonStop.setVisibility(View.GONE);
@@ -245,13 +254,14 @@ public class NNStreamerSSD extends Activity implements
 
         setContentView(R.layout.main);
 
-        buttonPlay = (ImageButton) this.findViewById(R.id.button_play);
+        buttonPlay = (ImageButton) this.findViewById(R.id.main_button_play);
         buttonPlay.setOnClickListener(this);
 
-        buttonStop = (ImageButton) this.findViewById(R.id.button_stop);
+        buttonStop = (ImageButton) this.findViewById(R.id.main_button_stop);
         buttonStop.setOnClickListener(this);
 
-        SurfaceView sv = (SurfaceView) this.findViewById(R.id.surface_video);
+        /* Video surface for camera */
+        SurfaceView sv = (SurfaceView) this.findViewById(R.id.main_surface_video);
         SurfaceHolder sh = sv.getHolder();
         sh.addCallback(this);
 
@@ -272,7 +282,8 @@ public class NNStreamerSSD extends Activity implements
     /**
      * Start pipeline and update UI.
      */
-    private void startPipeline() {
+    private void startPipeline(int newId) {
+        pipelineId = newId;
         enableButton(false);
 
         /* Pause current pipeline and start new pipeline */
@@ -309,8 +320,14 @@ public class NNStreamerSSD extends Activity implements
 
             @Override
             public void onFinish() {
+                int option = 0;
+
                 pipelineTimer = null;
-                nativeStart();
+                if (pipelineId == PIPELINE_ID) {
+                    /* Set pipeline option here */
+                }
+
+                nativeStart(pipelineId, option);
             }
         }.start();
     }

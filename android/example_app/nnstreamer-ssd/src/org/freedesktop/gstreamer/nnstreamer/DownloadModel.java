@@ -1,4 +1,4 @@
-package org.freedesktop.gstreamer.nnstreamer.ssd;
+package org.freedesktop.gstreamer.nnstreamer;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -76,7 +76,7 @@ public class DownloadModel extends AsyncTask<ArrayList<String>, String, Boolean>
         for (int i = 0; i < downloadList.size(); i++) {
             String fileName = downloadList.get(i);
 
-            publishProgress(fileName, Integer.toString(i), "Downloading " + fileName);
+            publishProgress(fileName, Integer.toString(i));
 
             if (!downloadFile(fileName)) {
                 failed = true;
@@ -129,7 +129,7 @@ public class DownloadModel extends AsyncTask<ArrayList<String>, String, Boolean>
     }
 
     private boolean downloadFile(String fileName) {
-        final String downUrl = "http://ec2-54-180-96-14.ap-northeast-2.compute.amazonaws.com/nnmodels/";
+        final String downUrl = "http://nnsuite.mooo.com/warehouse/nnmodels/";
 
         HttpURLConnection connection = null;
         InputStream input = null;
