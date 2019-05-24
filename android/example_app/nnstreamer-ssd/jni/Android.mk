@@ -38,8 +38,8 @@ include $(LOCAL_PATH)/Android-nnstreamer.mk
 #------------------------------------------------------
 include $(CLEAR_VARS)
 
-LOCAL_MODULE    := nnstreamer-ssd
-LOCAL_SRC_FILES := nnstreamer-jni.c nnstreamer-ssd.cpp
+LOCAL_MODULE    := nnstreamer-jni
+LOCAL_SRC_FILES := nnstreamer-jni.c nnstreamer-ex.cpp
 LOCAL_STATIC_LIBRARIES := nnstreamer tensorflow-lite ahc
 LOCAL_SHARED_LIBRARIES := gstreamer_android
 LOCAL_LDLIBS := -llog -landroid -lcamera2ndk -lmediandk
@@ -48,6 +48,7 @@ include $(BUILD_SHARED_LIBRARY)
 
 GSTREAMER_NDK_BUILD_PATH  := $(GSTREAMER_ROOT)/share/gst-android/ndk-build/
 include $(GSTREAMER_NDK_BUILD_PATH)/plugins.mk
+# add necessary gstreamer plugins
 GSTREAMER_PLUGINS         := $(GSTREAMER_PLUGINS_CORE) $(GSTREAMER_PLUGINS_SYS) cairo
 GSTREAMER_EXTRA_DEPS      := gstreamer-video-1.0 gstreamer-audio-1.0 gobject-2.0
 # cairo graphics library is used to display detected objects in this example.

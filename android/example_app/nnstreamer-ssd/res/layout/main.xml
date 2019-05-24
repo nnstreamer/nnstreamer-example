@@ -6,7 +6,7 @@
     android:orientation="vertical" >
 
     <ImageButton
-        android:id="@+id/button_play"
+        android:id="@+id/main_button_play"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@android:drawable/ic_media_play"
@@ -14,7 +14,7 @@
         android:visibility="visible" />
 
     <ImageButton
-        android:id="@+id/button_stop"
+        android:id="@+id/main_button_stop"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@android:drawable/ic_media_pause"
@@ -22,7 +22,7 @@
         android:visibility="gone" />
 
     <org.freedesktop.gstreamer.GStreamerSurfaceView
-        android:id="@+id/surface_video"
+        android:id="@+id/main_surface_video"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true" />
