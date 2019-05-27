@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/main_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:id="@+id/main_surface_area"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/main_surface_margin_top"
+        android:layout_marginBottom="@dimen/main_surface_margin_bottom"
+        android:layout_marginStart="@dimen/main_surface_margin_left"
+        android:layout_marginEnd="@dimen/main_surface_margin_right">
+
+        <org.freedesktop.gstreamer.GStreamerSurfaceView
+            android:id="@+id/main_surface_video"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <ImageButton
+            android:id="@+id/main_button_cam"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@android:drawable/ic_menu_camera"
+            android:layout_alignParentRight="true"
+            android:visibility="visible"/>
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/main_text_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/main_surface_area"
+        android:layout_marginTop="@dimen/main_title_margin_top"
+        android:layout_marginBottom="@dimen/main_title_margin_bottom"
+        android:gravity="center"
+        android:text="@string/nnst_example"
+        android:textColor="@color/main_title_text"
+        android:textSize="@dimen/main_title_text_size"
+        android:textStyle="bold"/>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/main_text_title"
+        android:layout_above="@+id/main_pipeline_area">
+
+        <TextView
+            android:id="@+id/main_text_desc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/main_desc_margin_top"
+            android:layout_marginBottom="@dimen/main_desc_margin_bottom"
+            android:layout_marginStart="@dimen/main_desc_margin_left"
+            android:layout_marginEnd="@dimen/main_desc_margin_right"
+            android:lineSpacingExtra="@dimen/main_desc_line_space"
+            android:ellipsize="end"
+            android:textColor="@color/main_desc_text"
+            android:textSize="@dimen/main_desc_text_size"/>
+    </ScrollView>
+
+    <LinearLayout
+        android:id="@+id/main_pipeline_area"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginTop="@dimen/main_pipeline_area_margin_top"
+        android:layout_marginBottom="@dimen/main_pipeline_area_margin_bottom"
+        android:layout_marginStart="@dimen/main_pipeline_area_margin_left"
+        android:layout_marginEnd="@dimen/main_pipeline_area_margin_right"
+        android:layout_gravity="center"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="horizontal">
+
+            <ToggleButton
+                android:id="@+id/main_button_m1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/main_button_m_margin_top"
+                android:layout_marginBottom="@dimen/main_button_m_margin_bottom"
+                android:layout_marginStart="@dimen/main_button_m_margin_left"
+                android:layout_marginEnd="@dimen/main_button_m_margin_right"
+                android:layout_gravity="center"
+                android:layout_weight="0.5"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
+                android:textColor="@color/main_button_m1_text"/>
+
+            <ToggleButton
+                android:id="@+id/main_button_m2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/main_button_m_margin_top"
+                android:layout_marginBottom="@dimen/main_button_m_margin_bottom"
+                android:layout_marginStart="@dimen/main_button_m_margin_left"
+                android:layout_marginEnd="@dimen/main_button_m_margin_right"
+                android:layout_gravity="center"
+                android:layout_weight="0.5"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
+                android:textColor="@color/main_button_m2_text"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="horizontal">
+
+            <ToggleButton
+                android:id="@+id/main_button_m3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/main_button_m_margin_top"
+                android:layout_marginBottom="@dimen/main_button_m_margin_bottom"
+                android:layout_marginStart="@dimen/main_button_m_margin_left"
+                android:layout_marginEnd="@dimen/main_button_m_margin_right"
+                android:layout_gravity="center"
+                android:layout_weight="0.5"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
+                android:textColor="@color/main_button_m3_text"/>
+
+            <ToggleButton
+                android:id="@+id/main_button_m4"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/main_button_m_margin_top"
+                android:layout_marginBottom="@dimen/main_button_m_margin_bottom"
+                android:layout_marginStart="@dimen/main_button_m_margin_left"
+                android:layout_marginEnd="@dimen/main_button_m_margin_right"
+                android:layout_gravity="center"
+                android:layout_weight="0.5"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
+                android:textColor="@color/main_button_m4_text"/>
+        </LinearLayout>
+    </LinearLayout>
+</RelativeLayout>

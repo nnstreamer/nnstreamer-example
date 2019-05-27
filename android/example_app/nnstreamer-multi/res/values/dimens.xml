@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- main activity -->
+    <dimen name="main_surface_margin_top">1dp</dimen>
+    <dimen name="main_surface_margin_bottom">1dp</dimen>
+    <dimen name="main_surface_margin_left">1dp</dimen>
+    <dimen name="main_surface_margin_right">1dp</dimen>
+    <dimen name="main_title_text_size">18sp</dimen>
+    <dimen name="main_title_margin_top">2dp</dimen>
+    <dimen name="main_title_margin_bottom">2dp</dimen>
+    <dimen name="main_desc_text_size">15sp</dimen>
+    <dimen name="main_desc_margin_top">2dp</dimen>
+    <dimen name="main_desc_margin_bottom">2dp</dimen>
+    <dimen name="main_desc_margin_left">12dp</dimen>
+    <dimen name="main_desc_margin_right">12dp</dimen>
+    <dimen name="main_desc_line_space">2dp</dimen>
+    <dimen name="main_pipeline_area_margin_top">3dp</dimen>
+    <dimen name="main_pipeline_area_margin_bottom">3dp</dimen>
+    <dimen name="main_pipeline_area_margin_left">10dp</dimen>
+    <dimen name="main_pipeline_area_margin_right">10dp</dimen>
+    <dimen name="main_button_m_margin_top">2dp</dimen>
+    <dimen name="main_button_m_margin_bottom">2dp</dimen>
+    <dimen name="main_button_m_margin_left">2dp</dimen>
+    <dimen name="main_button_m_margin_right">2dp</dimen>
+</resources>
