@@ -103,11 +103,11 @@ $ git clone https://github.com/nnsuite/nnstreamer-example.git
 
 Extract external libraries in jni directory.
 
-[extlibs.tar.xz](nnstreamer-ssd/jni/extlibs.tar.xz) includes two directories such as 'ahc' and 'tensorflow-lite'.
+[extlibs.tar.xz](nnstreamer-ssd/common/jni/extlibs.tar.xz) includes two directories such as 'ahc' and 'tensorflow-lite'.
 The directories includes the library and header files to run the pipeline based on NNStreamer.
 
 ```
-$ cd $ANDROID_DEV_ROOT/workspace/nnstreamer-example/android/example_app/nnstreamer-ssd/jni
+$ cd $ANDROID_DEV_ROOT/workspace/nnstreamer-example/android/example_app/common/jni
 $ tar xJf ./extlibs.tar.xz
 $ ls ahc tensorflow-lite
 ```
