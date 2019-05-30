@@ -1,1 +1,1 @@
-include ':nnstreamer-ssd', ':nnstreamer-multi'
+include ':nnstreamer-ssd', ':nnstreamer-multi', ':nnestreamer-media-ssd'
