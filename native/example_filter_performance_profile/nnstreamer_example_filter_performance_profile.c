@@ -16,8 +16,8 @@
  *                              -- queue -- videoscale -- videoconvert -- tensor_converter -- tensor_filter -- tensor_sink
  *
  * This example application currently only supports MOBINET for Tensorflow Lite via 'tensor_filter'.
- * Download tflite moel 'Mobilenet_1.0_224_quant' from below link,
- * https://github.com/tensorflow/tensorflow/blob/master/tensorflow/contrib/lite/g3doc/models.md#image-classification-quantized-models
+ * Download tflite model 'mobilenet_v1_1.0_224_quant.tflite' from below link,
+ * https://storage.googleapis.com/download.tensorflow.org/models/tflite/mobilenet_v1_1.0_224_quant_and_labels.zip 
  * By using the 'new-data' signal of tensor_sink, Frames per Second (FPS) is measured
  * as well as the clasification result is fed to 'textoverlay'.
  *
