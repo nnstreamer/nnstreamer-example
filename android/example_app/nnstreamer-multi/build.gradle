@@ -4,9 +4,9 @@ android {
     compileSdkVersion 24
     buildToolsVersion '28.0.3'
     defaultConfig {
-        applicationId "org.freedesktop.gstreamer.nnstreamer"
+        applicationId "org.freedesktop.gstreamer.nnstreamer.multi"
         minSdkVersion 24
-        targetSdkVersion 24
+        targetSdkVersion 26
         versionCode 1
         versionName "1.0"
 
