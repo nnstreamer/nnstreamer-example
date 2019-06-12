@@ -5,6 +5,10 @@
  * @author	HyoungJoo Ahn <hello.ahn@samsung.com>
  * @bug		No known bugs.
  *
+ * Get model by
+ * $ cd $NNST_ROOT/bin
+ * $ bash get-model-objet-detection-tf.sh
+ * 
  * Run example :
  * Before running this example, GST_PLUGIN_PATH should be updated for nnstreamer plug-in.
  * $ export GST_PLUGIN_PATH=$GST_PLUGIN_PATH:<nnstreamer plugin path>

@@ -16,8 +16,9 @@
  *                              -- queue -- videoscale -- videoconvert -- tensor_converter -- tensor_filter -- tensor_sink
  *
  * This example application currently only supports MOBINET for Tensorflow Lite via 'tensor_filter'.
- * Download tflite model 'mobilenet_v1_1.0_224_quant.tflite' from below link,
- * https://storage.googleapis.com/download.tensorflow.org/models/tflite/mobilenet_v1_1.0_224_quant_and_labels.zip 
+ * Get model by
+ * $ cd $NNST_ROOT/bin
+ * $ bash get-model-image-classification.sh
  * By using the 'new-data' signal of tensor_sink, Frames per Second (FPS) is measured
  * as well as the clasification result is fed to 'textoverlay'.
  *
@@ -87,7 +88,7 @@ enum constant_values
 };
 static const char DEFAULT_FRAME_RATES_INPUT_SRC[] = "5/1";
 static const char DEFAULT_FORMAT_TENSOR_CONVERTER[] = "RGB";
-static const char DEFAULT_PATH_MODEL_TENSOR_FILTER[] = "./model/";
+static const char DEFAULT_PATH_MODEL_TENSOR_FILTER[] = "./tflite_model_img/";
 static const char NAME_APP_PIPELINE[] = "NNStreamer Pipeline";
 static const char NAME_PROP_DEVICE_V4L2SRC[] = "device";
 static const char NAME_V4L2_PIPELINE_INPUT_SRC[] = "usbcam";

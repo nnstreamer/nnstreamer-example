@@ -15,8 +15,9 @@
  * This app displays video sink.
  *
  * 'tensor_filter' for image classification.
- * Download tflite moel 'Mobilenet_1.0_224_quant' from below link,
- * https://github.com/nnsuite/testcases/tree/master/DeepLearningModels/tensorflow-lite/Mobilenet_v1_1.0_224_quant
+ * Get model by
+ * $ cd $NNST_ROOT/bin
+ * $ bash get-model-image-classification.sh
  *
  * 'tensor_sink' updates classification result to display in textoverlay.
  *
@@ -409,7 +410,7 @@ _timer_update_result_cb (gpointer user_data)
 int
 main (int argc, char **argv)
 {
-  const gchar tflite_model_path[] = "./tflite_model";
+  const gchar tflite_model_path[] = "./tflite_model_img";
 
   gchar *str_pipeline;
   gulong handle_id;
