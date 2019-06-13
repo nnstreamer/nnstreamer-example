@@ -26,6 +26,8 @@ import org.freedesktop.gstreamer.GStreamerSurfaceView;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class NNStreamerActivity extends Activity implements
         SurfaceHolder.Callback,
@@ -59,10 +61,13 @@ public class NNStreamerActivity extends Activity implements
     private TextView viewTitle;
     private TextView viewDesc;
     private ImageButton buttonCam;
+    private ImageButton buttonPlay;
     private ToggleButton buttonModel1;
     private ToggleButton buttonModel2;
     private ToggleButton buttonModel3;
     private ToggleButton buttonModel4;
+    private TimerTask timerTask;
+    private Timer timer = new Timer();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -93,6 +98,7 @@ public class NNStreamerActivity extends Activity implements
         super.onPause();
 
         stopPipelineTimer();
+        stopTimerTask();
         nativePause();
     }
 
@@ -114,8 +120,46 @@ public class NNStreamerActivity extends Activity implements
     protected void onDestroy() {
         super.onDestroy();
 
+        timer.cancel();
         stopPipelineTimer();
+        stopTimerTask();
         nativeFinalize();
+    }
+
+    private void startTimerTask(){
+	timerTask=new TimerTask(){
+		int [] id ={256, 258, 262, 270, 286, 270, 262, 258};
+		int [] id_out ={0, 2, 6, 14, 30, 14, 6, 2};
+		int option=0;
+		int count = 0;
+
+		public void run(){
+		    int index;
+		    if(count == 8) {
+			    count = 0;
+			    option = 0;
+		    }
+
+		    if (useFrontCamera) {
+			    option = id[count];
+		    }else{
+			    option=id_out[count];
+		    }
+		    count++;
+
+		    nativePause();
+
+		    nativeStart(PIPELINE_ID,option);
+		}
+	    };
+	timer.schedule(timerTask, 0, 8000);
+    }
+
+    private void stopTimerTask(){
+	if(timerTask != null){
+	    timerTask.cancel();
+	    timerTask=null;
+	}
     }
 
     /**
@@ -198,8 +242,12 @@ public class NNStreamerActivity extends Activity implements
         case R.id.main_button_m2:
         case R.id.main_button_m3:
         case R.id.main_button_m4:
+            stopTimerTask();
             startPipeline(PIPELINE_ID);
             break;
+        case R.id.main_button_play:
+             startTimerTask();
+             break;
         default:
             break;
         }
@@ -266,6 +314,9 @@ public class NNStreamerActivity extends Activity implements
 
         buttonCam = (ImageButton) findViewById(R.id.main_button_cam);
         buttonCam.setOnClickListener(this);
+
+        buttonPlay = (ImageButton) findViewById(R.id.main_button_play);
+        buttonPlay.setOnClickListener(this);
 
         /* Add event listener for models */
         String model1 = nativeGetName(1, (1 << 1));
