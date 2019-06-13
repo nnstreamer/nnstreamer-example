@@ -21,6 +21,14 @@
             android:layout_height="wrap_content"/>
 
         <ImageButton
+            android:id="@+id/main_button_play"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left"
+            android:src="@android:drawable/ic_media_play"
+            android:layout_toLeftOf="@+id/main_button_cam"
+            android:visibility="visible" />
+        <ImageButton
             android:id="@+id/main_button_cam"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
