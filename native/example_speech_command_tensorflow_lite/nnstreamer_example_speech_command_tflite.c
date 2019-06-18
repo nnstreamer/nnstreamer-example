@@ -7,6 +7,10 @@
  *
  * NNStreamer example for speech command.
  *
+ * Get model by
+ * $ cd $NNST_ROOT/bin
+ * $ bash get-model-speech-command.sh
+ * 
  * Run example :
  * Before running this example, GST_PLUGIN_PATH should be updated for nnstreamer plug-in.
  * $ export GST_PLUGIN_PATH=$GST_PLUGIN_PATH:<nnstreamer plugin path>
@@ -374,7 +378,7 @@ main (int argc, char **argv)
 {
   /* check your device */
   const gchar alsa_device[] = "hw:2";
-  const gchar tflite_model_path[] = "./conv_actions_tflite";
+  const gchar tflite_model_path[] = "./speech_model";
 
   gchar *str_pipeline;
   gulong handle_id;

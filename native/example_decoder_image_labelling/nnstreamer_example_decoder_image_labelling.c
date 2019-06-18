@@ -15,8 +15,9 @@
  *
  *
  * 'tensor_filter' for image classification.
- * Download tflite moel 'Mobilenet_1.0_224_quant' from below link,
- * https://github.com/nnsuite/testcases/tree/master/DeepLearningModels/tensorflow-lite/Mobilenet_v1_1.0_224_quant
+ * Get model by
+ * $ cd $NNST_ROOT/bin
+ * $ bash get-model-image-classification.sh
  *
  * 'tensor decoder' updates classification result links to text_sink of textoverlay.
  *
@@ -262,8 +263,8 @@ _set_window_title (const gchar * name, const gchar * title)
 int
 main (int argc, char **argv)
 {
-  const gchar tflite_model_path[] = "./tflite_model";
-  const gchar tflite_label[] = "./tflite_model/labels.txt";
+  const gchar tflite_model_path[] = "./tflite_model_img";
+  const gchar tflite_label[] = "./tflite_model_img/labels.txt";
   /* 224x224 for tflite model */
   const guint width = 224;
   const guint height = 224;

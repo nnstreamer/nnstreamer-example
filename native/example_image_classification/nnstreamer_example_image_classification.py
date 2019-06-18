@@ -18,8 +18,9 @@ v4l2src -- tee -- textoverlay -- videoconvert -- ximagesink
 This app displays video sink.
 
 'tensor_filter' for image classification.
-Download tflite moel 'Mobilenet_1.0_224_quant' from below link,
-https://github.com/nnsuite/testcases/tree/master/DeepLearningModels/tensorflow-lite/Mobilenet_v1_1.0_224_quant
+Get model by
+$ cd $NNST_ROOT/bin
+$ bash get-model-image-classification.sh
 
 'tensor_sink' updates classification result to display in textoverlay.
 
@@ -182,7 +183,7 @@ class NNStreamerExample:
         tflite_model = 'mobilenet_v1_1.0_224_quant.tflite'
         tflite_label = 'labels.txt'
         current_folder = os.path.dirname(os.path.abspath(__file__))
-        model_folder = os.path.join(current_folder, 'tflite_model')
+        model_folder = os.path.join(current_folder, 'tflite_model_img')
 
         # check model file exists
         self.tflite_model = os.path.join(model_folder, tflite_model)

@@ -5,6 +5,10 @@
  * @author	HyoungJoo Ahn <hello.ahn@samsung.com>
  * @bug		No known bugs.
  *
+ * Get model by
+ * $ cd $NNST_ROOT/bin
+ * $ bash get-model-objet-detection-tflite.sh
+ * 
  * Run example :
  * Before running this example, GST_PLUGIN_PATH should be updated for nnstreamer plug-in.
  * $ export GST_PLUGIN_PATH=$GST_PLUGIN_PATH:<nnstreamer plugin path>
@@ -656,7 +660,7 @@ draw_overlay_cb (GstElement * overlay, cairo_t * cr, guint64 timestamp,
 int
 main (int argc, char ** argv)
 {
-  const gchar tflite_model_path[] = "./tflite_model_ssd";
+  const gchar tflite_model_path[] = "./tflite_model";
 
   gchar *str_pipeline;
   GstElement *element;
