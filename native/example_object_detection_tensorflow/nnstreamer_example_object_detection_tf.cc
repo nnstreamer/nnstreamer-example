@@ -48,10 +48,12 @@
  * @brief Macro to check error case.
  */
 #define _check_cond_err(cond) \
-  if (!(cond)) { \
-    _print_log ("app failed! [line : %d]", __LINE__); \
-    goto error; \
-  }
+  do { \
+    if (!(cond)) { \
+      _print_log ("app failed! [line : %d]", __LINE__); \
+      goto error; \
+    } \
+  } while (0)
 
 #define VIDEO_WIDTH     640
 #define VIDEO_HEIGHT    480
