@@ -54,6 +54,14 @@ if tflite_dep.found()
   have_tensorflow_lite = true
 endif
 
+# Dependency for caffe2 example
+caffe2_dep = dependency('caffe2', required: false)
+
+have_caffe2 = false
+if caffe2_dep.found() and protobuf_dep.found()
+  have_caffe2 = true
+endif
+
 # Build and install nnstreamer native examples
 subdir('native')
 

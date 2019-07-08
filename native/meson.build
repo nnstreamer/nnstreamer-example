@@ -14,3 +14,6 @@ if have_tensorflow_lite
   subdir('example_two_tensor_stream')
 endif
 
+if have_caffe2
+  subdir('example_image_classification_caffe2')
+endif
