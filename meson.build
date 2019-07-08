@@ -34,12 +34,12 @@ libm_dep = cc.find_library('m') # cmath library
 libdl_dep = cc.find_library('dl') # DL library
 thread_dep = dependency('threads') # pthread for tensorflow-lite
 
+# Dependency for custom filter examples
+nns_dep = dependency('nnstreamer', required: true)
+
 # Dependency for tensorflow example
 tf_dep = dependency('tensorflow', required: false)
 protobuf_dep = dependency('protobuf', version: '>= 3.4.0', required: false)
-
-# Dependency for custom filter examples
-nns_dep = dependency('nnstreamer', required: false)
 
 have_tensorflow = false
 if tf_dep.found() and protobuf_dep.found()

@@ -10,7 +10,7 @@
  * 'tensor_filter' for image classification and speech command classification.
  * Get model by
  * $ cd $NNST_ROOT/bin
- * $ bash get-model-image-classification.sh
+ * $ bash get-model-image-classification-tflite.sh
  * $ bash get-model-speech-command.sh
  *
  * Run example :

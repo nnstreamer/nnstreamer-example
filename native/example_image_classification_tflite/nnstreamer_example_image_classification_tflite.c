@@ -1,5 +1,5 @@
 /**
- * @file	nnstreamer_example_image_classification.c
+ * @file	nnstreamer_example_image_classification_tflite.c
  * @date	13 July 2018
  * @brief	Tensor stream example with filter
  * @author	Jaeyun Jung <jy1210.jung@samsung.com>
@@ -17,14 +17,14 @@
  * 'tensor_filter' for image classification.
  * Get model by
  * $ cd $NNST_ROOT/bin
- * $ bash get-model-image-classification.sh
+ * $ bash get-model-image-classification-tflite.sh
  *
  * 'tensor_sink' updates classification result to display in textoverlay.
  *
  * Run example :
  * Before running this example, GST_PLUGIN_PATH should be updated for nnstreamer plug-in.
  * $ export GST_PLUGIN_PATH=$GST_PLUGIN_PATH:<nnstreamer plugin path>
- * $ ./nnstreamer_example_image_classification
+ * $ ./nnstreamer_example_image_classification_tflite
  */
 
 #ifndef _GNU_SOURCE
