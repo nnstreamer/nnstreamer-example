@@ -8,7 +8,7 @@ This example requires image classification tensorflow lite model, speech command
 ```bash
 # build nnstreamer-example 
 # (this should generate libnnscustom_speech_command_tflite.so in NNST_ROOT/bin)
-$NNST_ROOT/bin $ bash get-model-image-classification.sh
+$NNST_ROOT/bin $ bash get-model-image-classification-tflite.sh
 $NNST_ROOT/bin $ bash get-model-speech-command.sh
 $NNST_ROOT/bin $ export GST_PLUGIN_PATH=$GST_PLUGIN_PATH:$NNST_ROOT/lib/gstreamer-1.0
 $NNST_ROOT/bin $ ./nnstreamer_example_two_tensor_stream

@@ -1,7 +1,7 @@
 # !/usr/bin/env python
 
 """
-@file		nnstreamer_example_image_classification.py
+@file		nnstreamer_example_image_classification_tflite.py
 @date		18 July 2018
 @brief		Tensor stream example with filter
 @see		https://github.com/nnsuite/nnstreamer
@@ -20,14 +20,14 @@ This app displays video sink.
 'tensor_filter' for image classification.
 Get model by
 $ cd $NNST_ROOT/bin
-$ bash get-model-image-classification.sh
+$ bash get-model-image-classification-tflite.sh
 
 'tensor_sink' updates classification result to display in textoverlay.
 
 Run example :
 Before running this example, GST_PLUGIN_PATH should be updated for nnstreamer plugin.
 $ export GST_PLUGIN_PATH=$GST_PLUGIN_PATH:<nnstreamer plugin path>
-$ python nnstreamer_example_image_classification.py
+$ python nnstreamer_example_image_classification_tflite.py
 
 See https://lazka.github.io/pgi-docs/#Gst-1.0 for Gst API details.
 """
