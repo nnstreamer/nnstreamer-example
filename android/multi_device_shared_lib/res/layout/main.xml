@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+        <org.freedesktop.gstreamer.GStreamerSurfaceView
+            android:id="@+id/surface_video"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/textview_message"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dip"
+        android:gravity="center_horizontal" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dip"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal">
+
+        <ToggleButton
+            android:id="@+id/button_pre"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="1dp"
+            android:layout_marginBottom="1dp"
+            android:layout_marginStart="1dp"
+            android:layout_marginEnd="1dp"
+            android:layout_gravity="center"
+            android:layout_weight="0.5"
+            android:focusable="false"
+            android:textColor="@color/main_button_pre_text"
+            android:focusableInTouchMode="false" />
+
+        <ToggleButton
+            android:id="@+id/button_obj"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="1dp"
+            android:layout_marginBottom="1dp"
+            android:layout_marginStart="1dp"
+            android:layout_marginEnd="1dp"
+            android:layout_gravity="center"
+            android:layout_weight="0.5"
+            android:focusable="false"
+            android:textColor="@color/main_button_obj_text"    
+            android:focusableInTouchMode="false" />
+
+        <ToggleButton
+            android:id="@+id/button_pose"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="1dp"
+            android:layout_marginBottom="1dp"
+            android:layout_marginStart="1dp"
+            android:layout_marginEnd="1dp"
+            android:layout_gravity="center"
+            android:layout_weight="0.5"
+            android:focusable="false"
+            android:textColor="@color/main_button_pose_text"    	    
+            android:focusableInTouchMode="false" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dip"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal">
+    <EditText
+        android:id="@+id/editTextIP"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="12sp"
+        android:layout_weight="0.3">
+    </EditText>
+
+    <EditText
+        android:id="@+id/editTextPort"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="12sp"
+        android:layout_weight="0.7">
+    </EditText>
+    </LinearLayout>
+    
+    <LinearLayout
+        android:id="@+id/subLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dip"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal">
+    <EditText
+        android:id="@+id/editTextSubIP"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+	    android:enabled="false"
+        android:textSize="12sp"
+        android:layout_weight="0.3">
+    </EditText>
+
+    <EditText
+        android:id="@+id/editTextSubPort"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+	    android:enabled="false"
+        android:textSize="12sp"
+        android:layout_weight="0.7">
+    </EditText>
+
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fillViewport="true" >
+
+        <TextView
+            android:id="@+id/main_text_desc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="2dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="12dp"
+            android:lineSpacingExtra="2dp"
+            android:textColor="@color/main_desc_text"
+            android:textSize="12sp"/>
+    </ScrollView>
+
+</LinearLayout>
