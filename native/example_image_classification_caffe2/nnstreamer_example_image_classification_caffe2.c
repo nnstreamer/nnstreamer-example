@@ -36,7 +36,7 @@
  */
 #define _print_log(...) \
   do { \
-   if (DBG) g_message (__VA_ARGS__) \
+   if (DBG) g_message (__VA_ARGS__); \
   } while (0)
 
 /**
