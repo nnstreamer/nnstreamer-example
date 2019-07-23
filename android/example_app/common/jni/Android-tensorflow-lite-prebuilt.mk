@@ -22,6 +22,10 @@ ifeq ($(TARGET_ARCH_ABI),armeabi-v7a)
 TF_LITE_LIB_PATH := $(TF_LITE_DIR)/lib/armv7
 else ifeq ($(TARGET_ARCH_ABI),arm64-v8a)
 TF_LITE_LIB_PATH := $(TF_LITE_DIR)/lib/arm64
+else ifeq ($(TARGET_ARCH_ABI),x86)
+TF_LITE_LIB_PATH := $(TF_LITE_DIR)/lib/x86
+else ifeq ($(TARGET_ARCH_ABI),x86_64)
+TF_LITE_LIB_PATH := $(TF_LITE_DIR)/lib/x86_64
 else
 $(error Target arch ABI not supported: $(TARGET_ARCH_ABI))
 endif

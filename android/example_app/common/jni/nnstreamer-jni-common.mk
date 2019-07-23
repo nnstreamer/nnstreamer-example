@@ -15,11 +15,8 @@ include $(LOCAL_PATH)/Android-tensorflow-lite-prebuilt.mk
 
 #------------------------------------------------------
 # ahc (ahc2src, GStreamer android.hardware.Camera2 Source)
-# Android-ahc-prebuilt.mk is a script to use prebuilt static library.
-# If you want to build the ahc2src element, use Android-ahc.mk instead.
 #------------------------------------------------------
-#include $(LOCAL_PATH)/Android-ahc.mk
-include $(LOCAL_PATH)/Android-ahc-prebuilt.mk
+include $(LOCAL_PATH)/Android-ahc.mk
 
 # Restore the local path
 LOCAL_PATH := $(LOCAL_PATH_TEMP)
