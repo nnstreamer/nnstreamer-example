@@ -1,3 +1,6 @@
+%define		nnstexampledir	/usr/lib/nnstreamer/bin
+%define		tensorflow-support	0
+
 Name:		nnstreamer-example
 Summary:	examples of nnstreamer (gstremaer plugins for neural networks)
 Version:	0.1.0
@@ -24,7 +27,7 @@ BuildRequires:	pkgconfig(nnstreamer)
 BuildRequires:	meson
 
 # for tensorflow
-%ifarch x86_64 aarch64
+%if 0%{?tensorflow-support}
 BuildRequires:	protobuf-devel >= 3.4.0
 BuildRequires:	tensorflow
 BuildRequires:	tensorflow-devel
@@ -34,8 +37,6 @@ BuildRequires:	tensorflow-lite-devel
 # for cairo
 BuildRequires:	coregl-devel
 BuildRequires:	cairo-devel
-
-%define		nnstexampledir	/usr/lib/nnstreamer/bin
 
 %description
 NNStreamer is a set of gstreamer plugins to support general neural networks
