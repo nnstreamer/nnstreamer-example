@@ -8,6 +8,10 @@ ifeq ($(TARGET_ARCH_ABI),armeabi-v7a)
 GSTREAMER_ROOT        := $(GSTREAMER_ROOT_ANDROID)/armv7
 else ifeq ($(TARGET_ARCH_ABI),arm64-v8a)
 GSTREAMER_ROOT        := $(GSTREAMER_ROOT_ANDROID)/arm64
+else ifeq ($(TARGET_ARCH_ABI),x86)
+GSTREAMER_ROOT        := $(GSTREAMER_ROOT_ANDROID)/x86
+else ifeq ($(TARGET_ARCH_ABI),x86_64)
+GSTREAMER_ROOT        := $(GSTREAMER_ROOT_ANDROID)/x86_64
 else
 $(error Target arch ABI not supported: $(TARGET_ARCH_ABI))
 endif
@@ -29,7 +33,7 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE    := nnstreamer-jni
 LOCAL_SRC_FILES := nnstreamer-jni.c nnstreamer-ex.cpp
-LOCAL_STATIC_LIBRARIES := nnstreamer tensorflow-lite
+LOCAL_STATIC_LIBRARIES := nnstreamer tensorflow-lite cpufeatures
 LOCAL_SHARED_LIBRARIES := gstreamer_android
 LOCAL_LDLIBS := -llog -landroid -lmediandk -lOpenMAXAL
 
@@ -44,3 +48,5 @@ GSTREAMER_EXTRA_DEPS      := gstreamer-video-1.0 gstreamer-audio-1.0 gobject-2.0
 # (cairooverlay, https://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-good/html/gst-plugins-good-plugins-cairooverlay.html)
 GSTREAMER_EXTRA_LIBS      := -liconv -lcairo
 include $(GSTREAMER_NDK_BUILD_PATH)/gstreamer-1.0.mk
+
+$(call import-module, android/cpufeatures)

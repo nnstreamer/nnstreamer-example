@@ -13,7 +13,7 @@ Also, We assume that you already have experienced Android application developmen
    * Android Platform: 7.0 (Nougat)
    * Android NDK: r15c
    * Android API level: 24
-   * Gstreamer: gstreamer-1.0-android-universal-1.16.0
+   * GStreamer: gstreamer-1.0-android-universal-1.16.0
 
 ## Build example
 
@@ -46,6 +46,8 @@ export JAVA_HOME=/opt/android-studio/jre            # JRE path in Android Studio
 export ANDROID_DEV_ROOT=$HOME/android               # Set your own path (The default path will be "$HOME/Android".)
 export ANDROID_SDK=$ANDROID_DEV_ROOT/tools/sdk      # Android SDK (The default path will be "$HOME/Android/Sdk".)
 export ANDROID_NDK=$ANDROID_DEV_ROOT/tools/ndk      # Android NDK (Revision 15c)
+export ANDROID_HOME=$ANDROID_SDK
+export ANDROID_NDK_HOME=$ANDROID_NDK
 export GSTREAMER_ROOT_ANDROID=$ANDROID_DEV_ROOT/gstreamer-1.0
 export PATH=$PATH:$ANDROID_NDK:$ANDROID_SDK/platform-tools:$JAVA_HOME/bin
 export NNSTREAMER_ROOT=$ANDROID_DEV_ROOT/workspace/nnstreamer
@@ -101,14 +103,16 @@ $ git clone https://github.com/nnsuite/nnstreamer.git
 $ git clone https://github.com/nnsuite/nnstreamer-example.git
 ```
 
-Extract external libraries in jni directory.
+Extract external libraries in common directory.
 
-[extlibs.tar.xz](nnstreamer-ssd/common/jni/extlibs.tar.xz) includes two directories such as 'ahc' and 'tensorflow-lite'.
+[extfiles.tar.xz](common/jni/extfiles.tar.xz) includes two directories such as 'ahc' and 'tensorflow-lite'.
 The directories includes the library and header files to run the pipeline based on NNStreamer.
 
 ```
 $ cd $ANDROID_DEV_ROOT/workspace/nnstreamer-example/android/example_app/common/jni
-$ tar xJf ./extlibs.tar.xz
+$ tar xJf ./extfiles.tar.xz
+$ tar xJf ./tensorflow-lite_arm64.tar.xz  # Check your target and extract prebuilt tensorflow-lite library
+$ tar xJf ./tensorflow-lite_armv7.tar.xz
 $ ls ahc tensorflow-lite
 ```
 
