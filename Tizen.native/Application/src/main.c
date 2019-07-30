@@ -28,7 +28,7 @@
 #include <dlfcn.h>
 #include <Elementary.h>
 #include <tizen_error.h>
-#include <nnstreamer/tizen-api.h>
+#include <nnstreamer/nnstreamer.h>
 
 #include "main.h"
 
@@ -81,7 +81,7 @@ compare_output_files (const char *file1, const char *file2)
 
   fclose (fp1);
   fclose (fp2);
-  return TIZEN_ERROR_NONE;
+  return ML_ERROR_NONE;
 }
 
 /**
@@ -113,7 +113,7 @@ verify_so_file (const char *filename)
   }
 
   dlclose (dlhandle);
-  return TIZEN_ERROR_NONE;
+  return ML_ERROR_NONE;
 }
 
 /**
@@ -128,7 +128,7 @@ main (int argc, char *argv[])
   char pipeline[FILENAME_BUFFER_SIZE];
   void *handle;
   int status;
-  nns_pipeline_state_e state;
+  ml_pipeline_state_e state;
 
   snprintf (custom_filter_file, FILENAME_BUFFER_SIZE,
       "%s/libnnstreamer_customfilter_passthrough.so", app_get_resource_path ());
@@ -137,7 +137,10 @@ main (int argc, char *argv[])
   snprintf (passthrough_file, FILENAME_BUFFER_SIZE,
       "%s/testcase01.passthrough.log", app_get_shared_data_path ());
   snprintf (pipeline, FILENAME_BUFFER_SIZE,
-      "videotestsrc num-buffers=1 ! video/x-raw,format=RGB,width=280,height=40,framerate=0/1 ! videoconvert ! video/x-raw, format=RGB ! tensor_converter ! tee name=t ! queue ! tensor_filter framework=\"custom\" model=\"%s\" input=\"3:280:40\" inputtype=\"uint8\" output=\"3:280:40\" outputtype=\"uint8\" ! multifilesink location=\"%s\" sync=true t. ! queue ! multifilesink location=\"%s\" sync=true",
+      "videotestsrc num-buffers=1 ! videoconvert ! video/x-raw,format=RGB,width=280,height=40,framerate=0/1 ! "
+      "tensor_converter ! tee name=t "
+      "t. ! queue ! tensor_filter framework=custom model=%s ! multifilesink location=%s sync=true "
+      "t. ! queue ! multifilesink location=\"%s\" sync=true",
       custom_filter_file, passthrough_file, direct_file);
 
   status = verify_so_file (custom_filter_file);
@@ -145,39 +148,39 @@ main (int argc, char *argv[])
     return -1;
   }
 
-  status = nns_pipeline_construct (pipeline, &handle);
-  if (status != TIZEN_ERROR_NONE) {
+  status = ml_pipeline_construct (pipeline, NULL, NULL, &handle);
+  if (status != ML_ERROR_NONE) {
     return -1;
   }
 
-  status = nns_pipeline_start (handle);
-  if (status != TIZEN_ERROR_NONE) {
-    return -1;
-  }
-
-  sleep (1);
-  status = nns_pipeline_getstate (handle, &state);
-  if (status != TIZEN_ERROR_NONE || state != NNS_PIPELINE_PLAYING) {
-    return -1;
-  }
-  status = nns_pipeline_stop (handle);
-  if (status != TIZEN_ERROR_NONE) {
+  status = ml_pipeline_start (handle);
+  if (status != ML_ERROR_NONE) {
     return -1;
   }
 
   sleep (1);
-  status = nns_pipeline_getstate (handle, &state);
-  if (status != TIZEN_ERROR_NONE || state != NNS_PIPELINE_PAUSED) {
+  status = ml_pipeline_get_state (handle, &state);
+  if (status != ML_ERROR_NONE || state != ML_PIPELINE_STATE_PLAYING) {
+    return -1;
+  }
+  status = ml_pipeline_stop (handle);
+  if (status != ML_ERROR_NONE) {
     return -1;
   }
 
-  status = nns_pipeline_destroy (handle);
-  if (status != TIZEN_ERROR_NONE) {
+  sleep (1);
+  status = ml_pipeline_get_state (handle, &state);
+  if (status != ML_ERROR_NONE || state != ML_PIPELINE_STATE_PAUSED) {
+    return -1;
+  }
+
+  status = ml_pipeline_destroy (handle);
+  if (status != ML_ERROR_NONE) {
     return -1;
   }
 
   status = compare_output_files (direct_file, passthrough_file);
-  if (status != TIZEN_ERROR_NONE) {
+  if (status != ML_ERROR_NONE) {
     return -1;
   }
 

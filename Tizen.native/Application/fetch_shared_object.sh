@@ -22,7 +22,7 @@ if [ $# -ge 2 ]; then
 fi
 
 # fix the version number and file to get
-version="0.1.3-5.1"
+version="0.2.1-5.1"
 rpmfile="nnstreamer-custom-filter-example-$version.$arch.rpm"
 sofile="libnnstreamer_customfilter_passthrough.so"
 
