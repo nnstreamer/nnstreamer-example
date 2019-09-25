@@ -3,16 +3,15 @@
 ## Prerequisite
 
 We assume that you want to deploy a NNStreamer-based application on your own Android/ARM64bit target device.
-Also, We assume that you already have experienced Android application developments with Android Studio.
+Also, we assume that you already have experienced Android application developments with Android Studio.
 
  * Host PC:
    * OS: Ubuntu 16.04 x86_64 LTS
    * Android Studio: Ubuntu version (However, the Window version will be compatible.)
  * Target Device:
    * CPU Architecture: ARM 64bit (aarch64)
-   * Android Platform: 7.0 (Nougat)
-   * Android NDK: r15c
-   * Android API level: 24
+   * Android SDK: Min version 24 (Nougat)
+   * Android NDK: Use default ndk-bundle in Android Studio
    * GStreamer: gstreamer-1.0-android-universal-1.16.0
 
 ## Build example
@@ -25,77 +24,13 @@ We built a example using GStreamer tutorials and camera2 source for Android.
 
 ![ssd-example screenshot](screenshot/screenshot_ssd.jpg)
 
-#### Environment variables
+#### Setup Android Studio
 
-First of all, you need to set-up the development environment as following:
-```bash
-$ mkdir -p $HOME/android/tools/sdk
-$ mkdir -p $HOME/android/tools/ndk
-$ mkdir -p $HOME/android/gstreamer-1.0
-$ mkdir -p $HOME/android/workspace
-$
-$ vi ~/.bashrc
-# Environmet variables for developing a NNStreamer application
-# $ANDROID_DEV_ROOT/gstreamer-1.0                # GStreamer binaries
-# $ANDROID_DEV_ROOT/tools/ndk                    # Android NDK root directory
-# $ANDROID_DEV_ROOT/tools/sdk                    # Android SDK root directory (default location: $HOME/Android/Sdk)
-# $ANDROID_DEV_ROOT/workspace/nnstreamer         # nnstreamer cloned git repository
-# $ANDROID_DEV_ROOT/workspace/nnstreamer-example # nnstreamer-example cloned git repository
-#
-export JAVA_HOME=/opt/android-studio/jre            # JRE path in Android Studio
-export ANDROID_DEV_ROOT=$HOME/android               # Set your own path (The default path will be "$HOME/Android".)
-export ANDROID_SDK=$ANDROID_DEV_ROOT/tools/sdk      # Android SDK (The default path will be "$HOME/Android/Sdk".)
-export ANDROID_NDK=$ANDROID_DEV_ROOT/tools/ndk      # Android NDK (Revision 15c)
-export ANDROID_HOME=$ANDROID_SDK
-export ANDROID_NDK_HOME=$ANDROID_NDK
-export GSTREAMER_ROOT_ANDROID=$ANDROID_DEV_ROOT/gstreamer-1.0
-export PATH=$PATH:$ANDROID_NDK:$ANDROID_SDK/platform-tools:$JAVA_HOME/bin
-export NNSTREAMER_ROOT=$ANDROID_DEV_ROOT/workspace/nnstreamer
-```
+To build a NNStreamer-based application, you should download Android Studio and setup environment variables.
 
-#### Download Android Studio
+Please see the details [here](https://github.com/nnsuite/nnstreamer/blob/master/api/android/README.md).
 
-Download and install Android Studio to compile an Android source code.
-You can see the installation guide [here](https://developer.android.com/studio/install).
-
-For example,
-```bash
-$ firefox  https://developer.android.com/studio
-Then, download "Android Studio" in the /opt folder.
-$ cd /opt
-$ wget https://dl.google.com/dl/android/studio/ide-zips/3.4.0.18/android-studio-ide-183.5452501-linux.tar.gz
-$ tar xvzf ./android-studio-ide-183.5452501-linux.tar.gz
-```
-
-#### Download NDK (Revision 15c)
-
-Note that you must download and decompress ```Android NDK, Revision 15c``` to compile normally a GStreamer-based plugin (e.g., NNStreamer).
-
-You can download older version from [here](https://developer.android.com/ndk/downloads/older_releases.html).
-
-For example,
-```bash
-$ mkdir -p $ANDROID_DEV_ROOT/tools
-$ cd  $ANDROID_DEV_ROOT/tools
-$ wget https://dl.google.com/android/repository/android-ndk-r15c-linux-x86_64.zip
-$ unzip android-ndk-r15c-linux-x86_64.zip
-$ mv android-ndk-r15c-linux-x86_64 ndk
-```
-
-#### Download GStreamer binaries
-
-You can get the prebuilt GStreamer binaries from [here](https://gstreamer.freedesktop.org/data/pkg/android/).
-
-For example,
-```bash
-$ cd $ANDROID_DEV_ROOT/
-$ wget https://gstreamer.freedesktop.org/data/pkg/android/1.16.0/gstreamer-1.0-android-universal-1.16.0.tar.xz
-$ mkdir gstreamer-1.0
-$ cd gstreamer-1.0
-$ tar xJf gstreamer-1.0-android-universal-1.16.0.tar.xz
-```
-
-Download nnStreamer and nnstreamer-example source code.
+#### Download NNStreamer and example source code
 
 ```bash
 $ cd $ANDROID_DEV_ROOT/workspace
@@ -103,25 +38,18 @@ $ git clone https://github.com/nnsuite/nnstreamer.git
 $ git clone https://github.com/nnsuite/nnstreamer-example.git
 ```
 
-Extract external libraries in common directory.
+Extract external libraries into common directory.
 
-[extfiles.tar.xz](common/jni/extfiles.tar.xz) includes two directories such as 'ahc' and 'tensorflow-lite'.
-The directories includes the library and header files to run the pipeline based on NNStreamer.
+[extfiles.tar.xz](common/jni/extfiles.tar.xz) includes external library such as 'ahc'.
+
+[tensorflow-lite-1.13.tar.xz](https://github.com/nnsuite/nnstreamer-android-resource/blob/master/android_api/ext-files/tensorflow-lite-1.13.tar.xz) includes the libraries and header files of tensorflow-lite.
 
 ```
 $ cd $ANDROID_DEV_ROOT/workspace/nnstreamer-example/android/example_app/common/jni
 $ tar xJf ./extfiles.tar.xz
-$ tar xJf ./tensorflow-lite_arm64.tar.xz  # Check your target and extract prebuilt tensorflow-lite library
-$ tar xJf ./tensorflow-lite_armv7.tar.xz
+$ svn --force export https://github.com/nnsuite/nnstreamer-android-resource/trunk/android_api/ext-files/tensorflow-lite-1.13.tar.xz
+$ tar xJf ./tensorflow-lite-1.13.tar.xz # Check tensorflow-lite version and extract prebuilt library
 $ ls ahc tensorflow-lite
-```
-
-You must remove ```-nostdlib++``` option in the gstreamer-1.0.mk file to prevent build error generated in a linking step of GStreamer.
-
-```
-# Remove '-nostdlib++' in GSTREAMER_ANDROID_CMD of the gstreamer-1.0.mk file for the ARM-based Android software stack.
-$ vi $GSTREAMER_ROOT_ANDROID/{armv7|arm64}/share/gst-android/ndk-build/gstreamer-1.0.mk
-GSTREAMER_ANDROID_CMD := $(call libtool-link,$(TARGET_CXX) $(GLOBAL_LDFLAGS) $(TARGET_LDFLAGS) -shared ...
 ```
 
 #### Build the source code with Android Studio
@@ -141,11 +69,9 @@ Check a target SDK version (File - Project Structure)
 
 ![studio-setting-1 screenshot](screenshot/screenshot_studio_setting_1.png)
 
-Change a default directory of NDK and SDK.
+Change a default directory of SDK.
 - Change SDK directory (File - Settings - Appearance & Behavior - System Settings - Android SDK - SDK Tools)
   - ```$ANDROID_DEV_ROOT/tools/sdk```
-- Change NDK directory (File - Project Structure - SDK Location)
-  - ```$ANDROID_DEV_ROOT/tools/ndk```
 
 ![studio-setting-2 screenshot](screenshot/screenshot_studio_setting_2.png)
 
