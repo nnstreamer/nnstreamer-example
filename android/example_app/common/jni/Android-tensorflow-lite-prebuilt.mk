@@ -3,11 +3,8 @@
 #
 # This mk file defines tensorflow-lite module with prebuilt static library.
 # To build and run the example with gstreamer binaries, we built a static library (e.g., libtensorflow-lite.a)
-# for Android/Tensorflow-lite from the Tensorflow repository of the Tizen software platform with version 1.9 using the Android-tensorflow-lite.mk.
-# - [Tizen] Tensorflow git repository:
-#    * Repository: https://review.tizen.org/gerrit/p/platform/upstream/tensorflow
-#    * Branch name: sandbox/sangjung/launchpad_bugfix
-#    * Commit: 5c3399d [Debian] add dependency on python 2.7, provides of tensorflow
+# Download and decompress prebuilt library from nnsuite android-resource repository.
+# (https://github.com/nnsuite/nnstreamer-android-resource/tree/master/android_api/ext-files)
 #------------------------------------------------------
 LOCAL_PATH := $(call my-dir)
 

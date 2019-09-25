@@ -7,10 +7,7 @@ LOCAL_PATH := $(call my-dir)
 
 #------------------------------------------------------
 # tensorflow-lite
-# Android-tensorflow-lite-prebuilt.mk is a script to use prebuilt static library.
-# If it needs to utilize tensorflow-lite, modify Android-tensorflow-lite.mk and build your own library.
 #------------------------------------------------------
-#include $(LOCAL_PATH)/Android-tensorflow-lite.mk
 include $(LOCAL_PATH)/Android-tensorflow-lite-prebuilt.mk
 
 #------------------------------------------------------
