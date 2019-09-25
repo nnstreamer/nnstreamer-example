@@ -1,7 +1,7 @@
 Source: nnstreamer-example
 Maintainer: MyungJoo Ham <myungjoo.ham@samsung.com>
 Build-Depends:
- debhelper (>=9), meson (>=0.40),
+ debhelper (>=9), meson (>=0.40), ninja-build (>=1.5),
  libglib2.0-dev, libgstreamer1.0-dev, libgstreamer-plugins-base1.0-dev,
  gstreamer1.0-plugins-base, gstreamer1.0-plugins-good,
  nnstreamer, nnstreamer-dev,
