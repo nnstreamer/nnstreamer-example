@@ -222,15 +222,15 @@ tflite_init_info (TFLiteModelInfo * tflite_info, const gchar * path)
   tflite_info->labels = NULL;
 
   if (!g_file_test (tflite_info->model_path, G_FILE_TEST_IS_REGULAR)) {
-    g_critical ("the file of model_path is not valid: %s\n", tflite_info->model_path);
+    g_critical ("cannot find tflite model [%s]", tflite_info->model_path);
     return FALSE;
   }
   if (!g_file_test (tflite_info->label_path, G_FILE_TEST_IS_REGULAR)) {
-    g_critical ("the file of label_path is not valid%s\n", tflite_info->label_path);
+    g_critical ("cannot find tflite label [%s]", tflite_info->label_path);
     return FALSE;
   }
   if (!g_file_test (tflite_info->box_prior_path, G_FILE_TEST_IS_REGULAR)) {
-    g_critical ("the file of box_prior_path is not valid%s\n", tflite_info->box_prior_path);
+    g_critical ("cannot find tflite box_prior [%s]", tflite_info->box_prior_path);
     return FALSE;
   }
 

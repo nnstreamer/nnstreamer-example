@@ -120,7 +120,7 @@ _tflite_init_info (tflite_info_s * tflite_info, const gchar * path)
   tflite_info->model_path = g_strdup_printf ("%s/%s", path, tflite_model);
 
   if (access (tflite_info->model_path, F_OK) != 0) {
-    _print_log ("cannot find tflite model [%s]", tflite_info->model_path);
+    g_critical ("cannot find tflite model [%s]", tflite_info->model_path);
     return FALSE;
   }
 

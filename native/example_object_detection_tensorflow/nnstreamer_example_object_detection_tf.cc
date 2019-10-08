@@ -165,11 +165,11 @@ tf_init_info (TFModelInfo * tf_info, const gchar * path)
   tf_info->labels = NULL;
 
   if (!g_file_test (tf_info->model_path, G_FILE_TEST_IS_REGULAR)) {
-    g_critical ("the file of model_path is not valid: %s\n", tf_info->model_path);
+    g_critical ("cannot find tf model [%s]", tf_info->model_path);
     return FALSE;
   }
   if (!g_file_test (tf_info->label_path, G_FILE_TEST_IS_REGULAR)) {
-    g_critical ("the file of label_path is not valid: %s\n", tf_info->label_path);
+    g_critical ("cannot find tf label [%s]", tf_info->label_path);
     return FALSE;
   }
 
