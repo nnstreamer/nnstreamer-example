@@ -144,13 +144,13 @@ _caffe2_init_info (caffe2_info_s * caffe2_info, const gchar * path)
       g_strdup_printf ("%s/%s", path, caffe2_pred_model);
 
   if (access (caffe2_info->init_model_path, F_OK) != 0) {
-    _print_log ("cannot find caffe2 init model [%s]",
+    g_critical ("cannot find caffe2 init model [%s]",
         caffe2_info->init_model_path);
     return FALSE;
   }
 
   if (access (caffe2_info->pred_model_path, F_OK) != 0) {
-    _print_log ("cannot find caffe2 predict model [%s]",
+    g_critical ("cannot find caffe2 predict model [%s]",
         caffe2_info->pred_model_path);
     return FALSE;
   }
@@ -175,7 +175,7 @@ _caffe2_init_info (caffe2_info_s * caffe2_info, const gchar * path)
 
     fclose (fp);
   } else {
-    _print_log ("cannot find caffe2 label [%s]", caffe2_info->label_path);
+    g_critical ("cannot find caffe2 label [%s]", caffe2_info->label_path);
     return FALSE;
   }
 
