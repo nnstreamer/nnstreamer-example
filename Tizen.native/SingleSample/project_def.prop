@@ -1,0 +1,11 @@
+APPNAME = nnstreamer-sample-single
+
+type = app
+profile = mobile-5.5
+
+USER_SRCS = src/nnstreamer-sample-single.c
+USER_DEFS =
+USER_INC_DIRS = inc
+USER_OBJS =
+USER_LIBS =
+USER_EDCS =
