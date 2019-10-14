@@ -23,8 +23,8 @@
 
 #include <nnstreamer-sample-single.h>
 
-/** 
- * @brief application data structure 
+/**
+ * @brief application data structure
  */
 typedef struct appdata
 {

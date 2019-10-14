@@ -28,9 +28,11 @@
 #include <dlfcn.h>
 #include <Elementary.h>
 #include <tizen_error.h>
-#include <nnstreamer/nnstreamer.h>
 
-#include "main.h"
+#include <nnstreamer.h>
+#include <nnstreamer-sample-pipeline.h>
+#include <nnstreamer-single.h>
+
 
 /**
  * @brief Macro for buffer sizes

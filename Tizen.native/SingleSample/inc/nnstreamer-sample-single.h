@@ -40,7 +40,7 @@
 #define LOG_TAG "NNStreamer_Sample"
 
 #if !defined(PACKAGE)
-#define PACKAGE "org.example.nnstreamer-sample-single"
+#define PACKAGE "sec.odl.singlesample"
 #endif
 
 #endif /* __NNSTREAMER_SAMPLE_SINGLE_H__ */

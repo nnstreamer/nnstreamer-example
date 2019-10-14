@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns="http://tizen.org/ns/packages" api-version="5.5" package="sec.odl.nnstreamer-sample-single" version="1.0.0">
+<manifest xmlns="http://tizen.org/ns/packages" api-version="5.5" package="sec.odl.singlesample" version="1.0.0">
 	<profile name="mobile" />
-	<ui-application appid="sec.odl.nnstreamer-sample-single" exec="nnstreamer-sample-single" type="capp" multiple="false" taskmanage="true" nodisplay="false" launch_mode="single">
-		<icon>nnstreamer-sample-single.png</icon>
-		<label>nnstreamer-sample-single</label>
+	<ui-application appid="sec.odl.singlesample" exec="singlesample" type="capp" multiple="false" taskmanage="true" nodisplay="false" launch_mode="single">
+		<icon>singlesample.png</icon>
+		<label>singlesample</label>
     </ui-application>
     <privileges>
         <privilege>http://tizen.org/privilege/recorder</privilege>
