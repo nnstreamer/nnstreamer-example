@@ -30,7 +30,7 @@
  * @brief Macro for PACKAGE name
  */
 #if !defined(PACKAGE)
-#define PACKAGE "org.example.application"
+#define PACKAGE "sec.odl.pipelinesample"
 #endif
 
 #endif

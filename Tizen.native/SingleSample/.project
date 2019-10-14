@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>nnstreamer-sample-single</name>
+	<name>SingleSample</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -25,7 +25,7 @@
 	</natures>
 	<filteredResources>
 		<filter>
-			<id>1570785205327</id>
+			<id>1571040307984</id>
 			<name></name>
 			<type>26</type>
 			<matcher>
@@ -34,7 +34,7 @@
 			</matcher>
 		</filter>
 		<filter>
-			<id>1570785205328</id>
+			<id>1571040307985</id>
 			<name></name>
 			<type>6</type>
 			<matcher>
