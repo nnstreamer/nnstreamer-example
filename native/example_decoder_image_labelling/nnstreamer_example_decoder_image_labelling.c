@@ -103,7 +103,7 @@ _tflite_free_info (tflite_info_s * tflite_info)
 }
 
 /**
- * @brief Check tflite model and load labels.
+ * @brief Check tflite model.
  *
  * This example uses 'Mobilenet_1.0_224_quant' for image classification.
  */
