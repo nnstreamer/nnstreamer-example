@@ -13,5 +13,5 @@ Specify armv7l as the architecture for ARM builds.
 
 Note: use the nnstreamer rpm files from the same build as custom filter. Using
 packages from different builds can cause compatibility issues and might not
-work together.For ARM devices, the packages can be downloaded from
+work together. For ARM devices, the packages can be downloaded from
 http://download.tizen.org/snapshots/tizen/unified/latest/repos/standard/packages/armv7l/
