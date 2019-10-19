@@ -101,7 +101,7 @@ For more details on test applications, please refer to https://github.com/nnsuit
 **Do NOT strip. It may corrupt 'patchelf'.**
 
 We sometimes meet a situation that have to manipulate the existing ELF binary files on the target device
-because some software vendors provide binary files only to protect their intelletual property.
+because some software vendors provide binary files only to protect their intellectual property.
 In this case, the '[patchelf](https://github.com/NixOS/patchelf)' package is helpful to us to modify
 the dynamic linker (ELF interpreter) and RPATH of ELF executables and libraries as an workaround.
  * Change the dynamic loader ("ELF interpreter") of executables
