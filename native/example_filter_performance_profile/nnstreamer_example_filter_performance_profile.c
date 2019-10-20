@@ -18,7 +18,7 @@
  * This example application currently only supports MOBINET for Tensorflow Lite via 'tensor_filter'.
  * Get model by
  * $ cd $NNST_ROOT/bin
- * $ bash get-model-image-classification-tflite.sh
+ * $ bash get-model.sh image-classification-tflite
  * By using the 'new-data' signal of tensor_sink, Frames per Second (FPS) is measured
  * as well as the clasification result is fed to 'textoverlay'.
  *
