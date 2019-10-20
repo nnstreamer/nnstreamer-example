@@ -7,7 +7,7 @@
  *
  * Get model by
  * $ cd $NNST_ROOT/bin
- * $ bash get-model-objet-detection-tflite.sh
+ * $ bash get-model.sh object-detection-tf
  * 
  * Run example :
  * Before running this example, GST_PLUGIN_PATH should be updated for nnstreamer plug-in.

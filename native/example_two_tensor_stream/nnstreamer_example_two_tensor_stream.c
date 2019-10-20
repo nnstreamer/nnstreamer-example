@@ -10,8 +10,8 @@
  * 'tensor_filter' for image classification and speech command classification.
  * Get model by
  * $ cd $NNST_ROOT/bin
- * $ bash get-model-image-classification-tflite.sh
- * $ bash get-model-speech-command.sh
+ * $ bash get-model.sh image-classification-tflite
+ * $ bash get-model.sh speech-command
  *
  * Run example :
  * Before running this example, GST_PLUGIN_PATH should be updated for nnstreamer plug-in.

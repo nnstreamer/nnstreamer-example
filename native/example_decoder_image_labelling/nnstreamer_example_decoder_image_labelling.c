@@ -17,7 +17,7 @@
  * 'tensor_filter' for image classification.
  * Get model by
  * $ cd $NNST_ROOT/bin
- * $ bash get-model-image-classification-tflite.sh
+ * $ bash get-model.sh image-classification-tflite
  *
  * 'tensor decoder' updates classification result links to text_sink of textoverlay.
  *
