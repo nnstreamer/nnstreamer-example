@@ -5,6 +5,7 @@ print_usage()
 {
   echo "usage: $0 [model_name]"
   echo "model_name     image-classification-tflite"
+  echo "               image-classification-caffe2"
   echo "               object-detection-tf"
   echo "               object-detection-tflite"
   echo "               speech-command"
@@ -32,6 +33,17 @@ if [ ${model} == image-classification-tflite ]; then
   unzip mobilenet_v1_1.0_224_quant_and_labels.zip
   rm mobilenet_v1_1.0_224_quant_and_labels.zip
   mv labels_mobilenet_quant_v1_224.txt labels.txt
+
+elif [ ${model} == image-classification-caffe2 ]; then
+  mkdir -p caffe2_model/tempdir
+  cd caffe2_model/tempdir
+  wget -c http://dl.caffe.berkeleyvision.org/caffe_ilsvrc12.tar.gz
+  tar -zxf caffe_ilsvrc12.tar.gz
+  mv synset_words.txt ../
+  cd .. && rm -rf tempdir
+  wget https://s3.amazonaws.com/download.caffe2.ai/models/mobilenet_v2/predict_net.pb
+  wget https://s3.amazonaws.com/download.caffe2.ai/models/mobilenet_v2/init_net.pb
+  mv synset_words.txt labels.txt
 
 elif [ ${model} == object-detection-tf ]; then
   mkdir -p tf_model

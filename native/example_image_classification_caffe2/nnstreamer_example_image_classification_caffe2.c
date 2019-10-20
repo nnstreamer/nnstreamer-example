@@ -5,13 +5,14 @@
  * @author	Hyoung Joo Ahn <hello.ahn@samsung.com>
  * @bug		No known bugs.
  *
+ * Get model by
+ * $ cd $NNST_ROOT/bin
+ * $ bash get-model.sh image-classification-caffe2
+ *
  ** Run example :
  * Before running this example, GST_PLUGIN_PATH should be updated for nnstreamer plug-in.
  * $ export GST_PLUGIN_PATH=$GST_PLUGIN_PATH:<nnstreamer plugin path>
  * $ ./nnstreamer_example_image_classification_caffe2
- *
- * Required model and resources are stored at below link
- * https://github.com/caffe2/models/tree/master/mobilenet_v2
  */
 
 #ifndef _GNU_SOURCE
