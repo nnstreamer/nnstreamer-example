@@ -9,6 +9,7 @@ print_usage()
   echo "               object-detection-tf"
   echo "               object-detection-tflite"
   echo "               speech-command"
+  echo "               image-segmentation-tflite"
   exit 1
 }
 
@@ -64,6 +65,11 @@ elif [ ${model} == speech-command ]; then
   wget https://storage.googleapis.com/download.tensorflow.org/models/tflite/conv_actions_tflite.zip
   unzip conv_actions_tflite.zip
   rm conv_actions_tflite.zip
+
+elif [ ${model} ==  image-segmentation-tflite ]; then
+  mkdir -p tflite_img_segment_model
+  cd tflite_img_segment_model
+  wget https://storage.googleapis.com/download.tensorflow.org/models/tflite/gpu/deeplabv3_257_mv_gpu.tflite
 
 else
   echo -e "${model}:not a valid model_name\n"
