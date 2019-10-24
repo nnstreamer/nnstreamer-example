@@ -1,7 +1,7 @@
 project('nnstreamer', 'c',
   version: '1.0.0',
   license: ['Proprietary'],
-  meson_version: '>=0.42.0',
+  meson_version: '>=0.50.0',
 )
 
 cc = meson.get_compiler('c')
