@@ -8,7 +8,7 @@
  * Get model by
  * $ cd $NNST_ROOT/bin
  * $ bash get-model.sh object-detection-tf
- * 
+ *
  * Run example :
  * Before running this example, GST_PLUGIN_PATH should be updated for nnstreamer plug-in.
  * $ export GST_PLUGIN_PATH=$GST_PLUGIN_PATH:<nnstreamer plugin path>
@@ -532,8 +532,8 @@ new_data_cb (GstElement * element, GstBuffer * buffer, gpointer user_data)
 
   /**
    * tensor type is float32.
-   * [0] dim of boxes > BOX_SIZE : 1 : DETECTION_MAX : 1
-   * [1] dim of labels > LABEL_SIZE : DETECTION_MAX : 1 : 1
+   * [0] dim of boxes > BOX_SIZE : 1 : DETECTION_MAX : 1 (4:1:1917:1)
+   * [1] dim of labels > LABEL_SIZE : DETECTION_MAX : 1 (91:1917:1)
    */
   g_assert (gst_buffer_n_memory (buffer) == 2);
 
@@ -701,6 +701,12 @@ main (int argc, char ** argv)
 
   _print_log ("%s\n", str_pipeline);
 
+  /**
+   * tensor info (ssd_mobilenet_v2_coco.tflite)
+   * input[0] >> type:7 (float32), dim[3:300:300:1] video stream (RGB 300x300)
+   * output[0] >> type:7 (float32), dim[4:1:1917:1] BOX_SIZE:1:DETECTION_MAX:1
+   * output[1] >> type:7 (float32), dim[91:1917:1] LABEL_SIZE:DETECTION_MAX:1
+   */
   g_app.pipeline = gst_parse_launch (str_pipeline, NULL);
   g_free (str_pipeline);
   _check_cond_err (g_app.pipeline != NULL);

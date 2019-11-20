@@ -35,7 +35,6 @@ typedef struct appdata
   /* NNStreamer handle and tensors info */
   ml_single_h single;
   ml_tensors_info_h in_info;
-  ml_tensors_info_h out_info;
 } appdata_s;
 
 /**
@@ -45,7 +44,6 @@ static bool
 nns_single_initialize (appdata_s * ad)
 {
   char test_model[512];
-  ml_tensor_dimension in_dim, out_dim;
   char *shared_path = app_get_resource_path ();
   int status;
 
@@ -60,32 +58,20 @@ nns_single_initialize (appdata_s * ad)
       "mobilenet_v1_1.0_224_quant.tflite");
   dlog_print (DLOG_ERROR, LOG_TAG, "Test modal path: %s", test_model);
 
-  /* Set in/out tensors info */
-  ml_tensors_info_create (&ad->in_info);
-  ml_tensors_info_create (&ad->out_info);
-
-  in_dim[0] = 3;
-  in_dim[1] = 224;
-  in_dim[2] = 224;
-  in_dim[3] = 1;
-  ml_tensors_info_set_count (ad->in_info, 1);
-  ml_tensors_info_set_tensor_type (ad->in_info, 0, ML_TENSOR_TYPE_UINT8);
-  ml_tensors_info_set_tensor_dimension (ad->in_info, 0, in_dim);
-
-  out_dim[0] = 1001;
-  out_dim[1] = 1;
-  out_dim[2] = 1;
-  out_dim[3] = 1;
-  ml_tensors_info_set_count (ad->out_info, 1);
-  ml_tensors_info_set_tensor_type (ad->out_info, 0, ML_TENSOR_TYPE_UINT8);
-  ml_tensors_info_set_tensor_dimension (ad->out_info, 0, out_dim);
-
   /* Create SingleShot handle */
-  status = ml_single_open (&ad->single, test_model, ad->in_info, ad->out_info,
+  status = ml_single_open (&ad->single, test_model, NULL, NULL,
       ML_NNFW_TYPE_TENSORFLOW_LITE, ML_NNFW_HW_ANY);
   if (status != ML_ERROR_NONE) {
     dlog_print (DLOG_ERROR, LOG_TAG,
         "Failed to create single handle with model %s.", test_model);
+    return false;
+  }
+
+  status = ml_single_get_input_info (ad->single, &ad->in_info);
+  if (status != ML_ERROR_NONE) {
+    dlog_print (DLOG_ERROR, LOG_TAG,
+        "Failed to get the input tensors information.");
+    ml_single_close (ad->single);
     return false;
   }
 
@@ -108,7 +94,6 @@ nns_single_close (appdata_s * ad)
     }
 
     ml_tensors_info_destroy (ad->in_info);
-    ml_tensors_info_destroy (ad->out_info);
   }
   else
   {

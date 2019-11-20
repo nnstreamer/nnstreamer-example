@@ -502,9 +502,9 @@ main (int argc, char **argv)
 
   /**
    * speech recognition tensor info (conv_actions_frozen.tflite)
-   * input[0] (tensor-idx [14] rank [2]) >> type[7] dim[1:16000:1:1] audio stream
-   * input[1] (tensor-idx [15] rank [1]) >> type[0] dim[1:1:1:1] samplerate list
-   * output[0] (tensor-idx [16] rank [2]) >> type[7] dim[12:1:1:1] result (scores)
+   * input[0] (tensor-idx [14] rank [2]) >> type[7] dim[1:16000] audio stream
+   * input[1] (tensor-idx [15] rank [1]) >> type[0] dim[1] samplerate list
+   * output[0] (tensor-idx [16] rank [2]) >> type[7] dim[12:1] result (scores)
    */
 
   _print_log ("%s\n", str_pipeline);

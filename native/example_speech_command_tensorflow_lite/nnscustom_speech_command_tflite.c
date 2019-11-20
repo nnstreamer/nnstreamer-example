@@ -87,9 +87,6 @@ set_inputDim (void *_data, const GstTensorFilterProperties * prop,
   out_info->info[t].type = _NNS_INT32;
 
   out_info->info[t].dimension[0] = in_info->num_tensors;
-  for (i = 1; i < NNS_TENSOR_RANK_LIMIT; i++) {
-    out_info->info[t].dimension[i] = 1;
-  }
 
   return 0;
 }

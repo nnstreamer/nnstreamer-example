@@ -546,7 +546,7 @@ main (int argc, char ** argv)
       "t_raw. ! queue leaky=2 max-size-buffers=2 ! videoscale ! tensor_converter ! "
       "tensor_filter framework=tensorflow model=%s "
       "input=3:640:480:1 inputname=image_tensor inputtype=uint8 "
-      "output=1:1:1:1,100:1:1:1,100:1:1:1,4:100:1:1 "
+      "output=1,100:1,100:1,4:100:1 "
       "outputname=num_detections,detection_classes,detection_scores,detection_boxes "
       "outputtype=float32,float32,float32,float32 ! "
       "tensor_sink name=tensor_sink ",
