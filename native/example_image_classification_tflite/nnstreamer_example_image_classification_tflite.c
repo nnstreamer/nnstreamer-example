@@ -449,6 +449,11 @@ main (int argc, char **argv)
 
   _print_log ("%s\n", str_pipeline);
 
+  /**
+   * tensor info (mobilenet_v1_1.0_224_quant.tflite)
+   * input[0] >> type:5 (uint8), dim[3:224:224:1] video stream (RGB 224x224)
+   * output[0] >> type:5 (uint8), dim[1001:1] LABEL_SIZE:1
+   */
   g_app.pipeline = gst_parse_launch (str_pipeline, NULL);
   g_free (str_pipeline);
   _check_cond_err (g_app.pipeline != NULL);

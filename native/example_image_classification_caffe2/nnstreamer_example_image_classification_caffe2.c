@@ -466,7 +466,7 @@ main (int argc, char **argv)
       "tensor_transform mode=arithmetic option=typecast:float32,add:-123,div:63 ! "
       "tensor_filter framework=caffe2 model=\"%s,%s\" "
       "inputname=data input=224:224:3:1 inputtype=float32 "
-      "output=1000:1:1:1 outputtype=float32 outputname=softmax ! "
+      "output=1000:1 outputtype=float32 outputname=softmax ! "
       "tensor_sink name=tensor_sink",
       VIDEO_WIDTH, VIDEO_HEIGHT,
       g_app.caffe2_info.init_model_path, g_app.caffe2_info.pred_model_path);
