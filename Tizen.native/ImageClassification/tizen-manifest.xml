@@ -11,4 +11,6 @@
 	<privileges>
 		<privilege>http://tizen.org/privilege/camera</privilege>
 	</privileges>
+  <feature name="http://tizen.org/feature/machine_learning">true</feature>
+  <feature name="http://tizen.org/feature/machine_learning.inference">true</feature>
 </manifest>
