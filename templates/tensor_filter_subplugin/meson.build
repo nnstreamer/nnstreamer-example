@@ -24,7 +24,7 @@ sources = [
   'src/tensor_filter_subplugin.c'
 ]
 
-subplugin_shared = shared_library('TEMPLATE',
+subplugin_shared = shared_library('nnstreamer_filter_TEMPLATE',
   sources,
   dependencies: base_deps,
   install: true,
