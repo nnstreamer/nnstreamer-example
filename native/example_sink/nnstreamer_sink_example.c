@@ -339,7 +339,7 @@ _test_pipeline (test_media_type type)
       str_pipeline =
           g_strdup_printf
           ("appsrc name=appsrc caps=text/x-raw,format=utf8 ! "
-          "tensor_converter ! tensor_sink name=tensor_sink");
+          "tensor_converter input_dim = 512 ! tensor_sink name=tensor_sink");
       break;
 
     default:

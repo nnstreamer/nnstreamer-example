@@ -12,6 +12,8 @@ if have_tensorflow_lite
   subdir('example_filter_performance_profile')
   subdir('example_speech_command_tensorflow_lite')
   subdir('example_two_tensor_stream')
+  subdir('example_text_classification')
+
 endif
 
 if have_caffe2
