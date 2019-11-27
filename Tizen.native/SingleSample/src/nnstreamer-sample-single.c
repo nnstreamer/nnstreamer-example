@@ -52,7 +52,7 @@ nns_single_initialize (appdata_s * ad)
    *
    * tensor info (mobilenet_v1_1.0_224_quant.tflite)
    * input[0] >> type:5 (uint8), dim[3:224:224:1] video stream (RGB 224x224)
-   * output[0] >> type:5 (uint8), dim[1001:1:1:1] LABEL_SIZE
+   * output[0] >> type:5 (uint8), dim[1001:1] LABEL_SIZE
    */
   snprintf (test_model, 512, "%s%s", shared_path,
       "mobilenet_v1_1.0_224_quant.tflite");
