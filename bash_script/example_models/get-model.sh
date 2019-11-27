@@ -10,6 +10,7 @@ print_usage()
   echo "               object-detection-tflite"
   echo "               speech-command"
   echo "               image-segmentation-tflite"
+  echo "               text-classification-tflite"
   exit 1
 }
 
@@ -71,6 +72,12 @@ elif [ ${model} ==  image-segmentation-tflite ]; then
   cd tflite_img_segment_model
   wget https://storage.googleapis.com/download.tensorflow.org/models/tflite/gpu/deeplabv3_257_mv_gpu.tflite
 
+elif [ ${model} == text-classification-tflite ]; then
+  mkdir -p tflite_text_classification
+  cd tflite_text_classification
+  wget https://github.com/nnsuite/testcases/raw/master/DeepLearningModels/tensorflow-lite/text_classification_tflite/text_classification.tflite
+  wget https://github.com/nnsuite/testcases/raw/master/DeepLearningModels/tensorflow-lite/text_classification_tflite/labels.txt
+  wget https://github.com/nnsuite/testcases/raw/master/DeepLearningModels/tensorflow-lite/text_classification_tflite/vocab.txt
 else
   echo -e "${model}:not a valid model_name\n"
   print_usage
