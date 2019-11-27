@@ -288,7 +288,7 @@ _test_src_timer_cb (gpointer user_data)
         return FALSE;
       }
 
-      text_data = g_strdup_printf ("example for text [%d/20]", buffer_index);
+      text_data = g_strdup_printf ("example for text [%02d/20]", buffer_index);
       buf = gst_buffer_new_wrapped (text_data, strlen (text_data));
 
       GST_BUFFER_PTS (buf) = 20 * GST_MSECOND * buffer_index;
@@ -335,11 +335,11 @@ _test_pipeline (test_media_type type)
       break;
 
     case TEST_TYPE_TEXT:
-      /* text 20 buffers */
+      /* text 20 buffers, you should denote the buffer size with the property input-dim in converter */
       str_pipeline =
           g_strdup_printf
-          ("appsrc name=appsrc caps=text/x-raw,format=utf8 ! "
-          "tensor_converter ! tensor_sink name=tensor_sink");
+          ("appsrc name=appsrc ! text/x-raw,format=utf8 ! "
+          "tensor_converter input-dim=24 ! tensor_sink name=tensor_sink");
       break;
 
     default:
