@@ -114,13 +114,18 @@ new_data_cb (GstElement * element, GstBuffer * buffer, gpointer user_data)
 
   GstMemory *mem_res;
   GstMapInfo info_res;
-  gchar *converted_val;
+  gfloat *output;
 
   mem_res = gst_buffer_get_memory (buffer, 0);
   g_assert (gst_memory_map (mem_res, &info_res, GST_MAP_READ));
-  converted_val =  (gchar *)info_res.data;
+  output =  (gfloat *)info_res.data;
 
-  g_print("Sink pad data : %s\n",converted_val);
+  g_print("Sink pad data : %f \n",output[0]);
+  g_print("Sink pad data : %f \n",output[1]);
+  g_print("Sink pad data : %f \n",output[2]);
+  g_print("Sink pad data : %f \n",output[3]);
+  g_print("Sink pad data : %f \n",output[4]);
+  g_print("Sink pad data : %f \n",output[5]);
 
   gst_memory_unmap (mem_res, &info_res);
   gst_memory_unref (mem_res);
@@ -154,9 +159,6 @@ load_model_files (app_data_s * app)
   /* load label file */
   if (g_file_get_contents (label, &contents, NULL, NULL)) {
 	app->labels = g_strsplit (contents, "\n", -1);
-    
-	g_print("label 1 : %s \n", app->labels[0]);
-	g_print("label 2 : %s \n", app->labels[1]);
 
 	g_free (contents);
   } else {
@@ -201,10 +203,6 @@ load_model_files (app_data_s * app)
     goto error;
   }
 
-  gint test_val = GPOINTER_TO_INT(g_hash_table_lookup(app->words, "radar"));
-  g_print("radar : %d \n",test_val);
-  g_assert(test_val == 9959);
-
   error:
 	g_free (label);
 	g_free (vocab);
@@ -240,13 +238,14 @@ handle_input_string (app_data_s * app)
   float_array[0] = (gfloat) start;
   
   tokens = g_strsplit_set(sentence," \n\t",MAX_SENTENCE_LENGTH);
-  tokens_len = g_strv_length(tokens) - 1;
+  tokens_len = g_strv_length(tokens);
 
-  for(i=0;i<tokens_len;i++) {
-    value = GPOINTER_TO_INT(g_hash_table_lookup(app->words, tokens[i]));
-    float_array[i+1]= (gfloat) (value>0?value:unknown);
-    g_print("Converted float array : %.1lf \n",float_array[i+1]);
+  for(i=1;i<tokens_len;i++) {
+    value = GPOINTER_TO_INT(g_hash_table_lookup(app->words, tokens[i - 1]));
+    float_array[i]= (gfloat) (value>0?value:unknown);
+    g_print("Converted float array : %.1lf \n",float_array[i]);
   }
+  
   while(i<MAX_SENTENCE_LENGTH) {
 	  float_array[i++] = (gfloat) pad;
   }
@@ -255,7 +254,7 @@ handle_input_string (app_data_s * app)
   appsrc = gst_bin_get_by_name (GST_BIN (app->pipeline), "appsrc");
   g_assert (appsrc != NULL);
 
-  buf = gst_buffer_new_wrapped (sentence, MAX_SENTENCE_LENGTH);
+  buf = gst_buffer_new_wrapped (float_array, MAX_SENTENCE_LENGTH);
   g_assert(buf);
   
   g_assert (gst_app_src_push_buffer (GST_APP_SRC (appsrc), buf) == GST_FLOW_OK);
