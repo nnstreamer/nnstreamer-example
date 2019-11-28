@@ -104,34 +104,6 @@ bus_message_cb (GstBus * bus, GstMessage * message, gpointer user_data)
   }
 }
 
-/**
- * @brief Callback for tensor sink signal.
- */
-static void
-new_data_cb (GstElement * element, GstBuffer * buffer, gpointer user_data)
-{
-  g_print("New data is arrived..\n");
-
-  GstMemory *mem_res;
-  GstMapInfo info_res;
-  gfloat *output;
-
-  mem_res = gst_buffer_get_memory (buffer, 0);
-  g_assert (gst_memory_map (mem_res, &info_res, GST_MAP_READ));
-  output =  (gfloat *)info_res.data;
-
-  g_print("Sink pad data : %f \n",output[0]);
-  g_print("Sink pad data : %f \n",output[1]);
-  g_print("Sink pad data : %f \n",output[2]);
-  g_print("Sink pad data : %f \n",output[3]);
-  g_print("Sink pad data : %f \n",output[4]);
-  g_print("Sink pad data : %f \n",output[5]);
-
-  gst_memory_unmap (mem_res, &info_res);
-  gst_memory_unref (mem_res);
-
-
-}
 
 /**
  * @brief Function to load dictionary.
@@ -162,32 +134,32 @@ load_model_files (app_data_s * app)
 
 	g_free (contents);
   } else {
-    g_critical ("Failed to load label file.");
-    failed = TRUE;
+	g_critical ("Failed to load label file.");
+	failed = TRUE;
 	goto error;
   }
 
   /* load dictionary */
   if (g_file_get_contents (vocab, &contents, NULL, NULL)) {
-    gchar **dics = g_strsplit (contents, "\n", -1);
-    guint dics_len = g_strv_length (dics);
-    guint i;
+	gchar **dics = g_strsplit (contents, "\n", -1);
+	guint dics_len = g_strv_length (dics);
+	guint i;
 
-    /* init hash table */
-    app->words = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
-    g_assert (app->words);
+	/* init hash table */
+	app->words = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+	g_assert (app->words);
 
-    for (i = 0; i < dics_len; i++) {
-      /* get word and index */
-      gchar **word = g_strsplit (dics[i], " ", 2);
+	for (i = 0; i < dics_len; i++) {
+	  /* get word and index */
+	  gchar **word = g_strsplit (dics[i], " ", 2);
 
-      if (g_strv_length (word) == 2) {
-      gint word_index = (gint) g_ascii_strtoll (word[1], NULL, 10);
+	  if (g_strv_length (word) == 2) {
+	  gint word_index = (gint) g_ascii_strtoll (word[1], NULL, 10);
 
-      gpointer key = g_strdup (word[0]);
-      gpointer value = GINT_TO_POINTER (word_index);
+	  gpointer key = g_strdup (word[0]);
+	  gpointer value = GINT_TO_POINTER (word_index);
 
-      g_assert (g_hash_table_insert (app->words, key, value));
+	  g_assert (g_hash_table_insert (app->words, key, value));
 	  } else {
 		  g_print("Failed to parse voca.\n");
 	  }
@@ -195,12 +167,12 @@ load_model_files (app_data_s * app)
 	  g_strfreev (word);
 	  }
 
-    g_strfreev (dics);
-    g_free (contents);
+	g_strfreev (dics);
+	g_free (contents);
   } else {
-    g_critical ("Failed to load dictionary file.");
-    failed = TRUE;
-    goto error;
+	g_critical ("Failed to load dictionary file.");
+	failed = TRUE;
+	goto error;
   }
 
   error:
@@ -218,11 +190,13 @@ static void
 handle_input_string (app_data_s * app)
 {
   GstBuffer *buf;
-  GstElement *appsrc;
   gchar **tokens;
   gint tokens_len, i, value, start, unknown, pad;
-  static gfloat float_array[MAX_SENTENCE_LENGTH]={0.0, };
+  gfloat *float_array;
 
+  float_array = g_malloc0 (sizeof(gfloat)*MAX_SENTENCE_LENGTH);
+  g_assert(float_array);
+  
   /* Get user input */
   gchar sentence[MAX_SENTENCE_LENGTH] = { 0, };
   g_print("Please enter your movie review : ");
@@ -241,23 +215,46 @@ handle_input_string (app_data_s * app)
   tokens_len = g_strv_length(tokens);
 
   for(i=1;i<tokens_len;i++) {
-    value = GPOINTER_TO_INT(g_hash_table_lookup(app->words, tokens[i - 1]));
-    float_array[i]= (gfloat) (value>0?value:unknown);
-    g_print("Converted float array : %.1lf \n",float_array[i]);
+	  value = GPOINTER_TO_INT(g_hash_table_lookup(app->words, tokens[i - 1]));
+	  float_array[i]= (gfloat) (value>0?value:unknown);
   }
   
   while(i<MAX_SENTENCE_LENGTH) {
 	  float_array[i++] = (gfloat) pad;
   }
   
-  /* get appsrc element using name */
-  appsrc = gst_bin_get_by_name (GST_BIN (app->pipeline), "appsrc");
-  g_assert (appsrc != NULL);
-
-  buf = gst_buffer_new_wrapped (float_array, MAX_SENTENCE_LENGTH);
+  buf = gst_buffer_new_wrapped (float_array, MAX_SENTENCE_LENGTH*sizeof(gfloat));
   g_assert(buf);
   
-  g_assert (gst_app_src_push_buffer (GST_APP_SRC (appsrc), buf) == GST_FLOW_OK);
+  g_assert (gst_app_src_push_buffer (GST_APP_SRC (app->src), buf) == GST_FLOW_OK);
+}
+
+/**
+ * @brief Callback for tensor sink signal.
+ */
+static void
+new_data_cb (GstElement * element, GstBuffer * buffer, gpointer user_data)
+{
+  GstMemory *mem_res;
+  GstMapInfo info_res;
+  gfloat *output;
+
+  mem_res = gst_buffer_get_memory (buffer, 0);
+  g_assert (gst_memory_map (mem_res, &info_res, GST_MAP_READ));
+  output =  (gfloat *)info_res.data;
+
+  g_print("Output : \n");
+  if(output[0]>=output[1])
+  {
+    g_print("  Negative : %.6f\n",output[0]);
+    g_print("  Positive : %.6f\n",output[1]);
+  } else {
+    g_print("  Positive : %.6f\n",output[1]);
+    g_print("  Negative : %.6f\n",output[0]);
+  }
+
+  gst_memory_unmap (mem_res, &info_res);
+  gst_memory_unref (mem_res);
 }
 
 /**
@@ -269,7 +266,8 @@ main (int argc, char **argv)
 	app_data_s *app;
   gchar *pipeline;
   GstElement *element;
-
+  gchar *str_dim, *str_type, *str_caps;
+  GstCaps *caps;
 
   /* init gstreamer */
   gst_init (&argc, &argv);
@@ -283,9 +281,10 @@ main (int argc, char **argv)
 
   /* init pipeline, sample pipeline.. need to be changed */
    pipeline = 
-       g_strdup_printf 
-       ("appsrc name=appsrc caps=text/x-raw,format=utf8 ! "
-        "tensor_converter input-dim = 256 ! tensor_sink name=tensor_sink");
+	   g_strdup_printf 
+	   ("appsrc name=appsrc ! "
+	  "tensor_filter name=tfilter framework=tensorflow-lite model=%s ! "
+	  "tensor_sink name=tensor_sink", app->model_file);
   
   app->pipeline = gst_parse_launch (pipeline, NULL);
   g_free (pipeline);
@@ -294,7 +293,6 @@ main (int argc, char **argv)
   /* bus and message callback */
   app->bus = gst_element_get_bus (app->pipeline);
   g_assert (app->bus);
-
 
   gst_bus_add_signal_watch (app->bus);
   g_signal_connect (app->bus, "message", G_CALLBACK (bus_message_cb), app);
@@ -307,7 +305,31 @@ main (int argc, char **argv)
   g_signal_connect (element, "new-data",(GCallback) new_data_cb, NULL);
   gst_object_unref (element);
 
+  /* appsrc element to push input buffer */
+  app->src = gst_bin_get_by_name (GST_BIN (app->pipeline), "appsrc");
+  g_assert (app->src);
 
+   /* get tensor metadata to set caps in appsrc */
+  element = gst_bin_get_by_name (GST_BIN (app->pipeline), "tfilter");
+  g_assert (element);
+
+  str_dim = str_type = NULL;
+  g_object_get (element, "input", &str_dim, "inputtype", &str_type, NULL);
+
+  str_caps =
+	  g_strdup_printf
+	  ("other/tensor,dimension=(string)%s,type=(string)%s,framerate=(fraction)0/1",
+	  str_dim, str_type);
+  
+  caps = gst_caps_from_string (str_caps);
+
+  gst_app_src_set_caps (GST_APP_SRC (app->src), caps);
+
+  g_free (str_dim);
+  g_free (str_type);
+  g_free (str_caps);
+  gst_caps_unref (caps);
+  gst_object_unref (element);
 
   /* Start playing */
   gst_element_set_state (app->pipeline, GST_STATE_PLAYING);
@@ -318,7 +340,7 @@ main (int argc, char **argv)
   g_usleep (200 * 1000);
 
   /* stop the pipeline */
-  //gst_element_set_state (app->pipeline, GST_STATE_NULL);
+  gst_element_set_state (app->pipeline, GST_STATE_NULL);
 
 
  /* close app */
