@@ -32,6 +32,88 @@ typedef struct
 
 
 /**
+ * @brief Function to print error message.
+ */
+static void
+parse_err_message (GstMessage * message)
+{
+  gchar *debug;
+  GError *error;
+
+  g_return_if_fail (message != NULL);
+
+  switch (GST_MESSAGE_TYPE (message)) {
+	case GST_MESSAGE_ERROR:
+	  gst_message_parse_error (message, &error, &debug);
+	  break;
+	case GST_MESSAGE_WARNING:
+	  gst_message_parse_warning (message, &error, &debug);
+	  break;
+	default:
+	  return;
+  }
+
+  gst_object_default_error (GST_MESSAGE_SRC (message), error, debug);
+  g_error_free (error);
+  g_free (debug);
+}
+
+/**
+ * @brief Function to print qos message.
+ */
+static void
+parse_qos_message (GstMessage * message)
+{
+  GstFormat format;
+  guint64 processed;
+  guint64 dropped;
+
+  gst_message_parse_qos_stats (message, &format, &processed, &dropped);
+  g_warning ("format[%d] processed[%" G_GUINT64_FORMAT "] dropped[%"
+	  G_GUINT64_FORMAT "]", format, processed, dropped);
+}
+
+/**
+ * @brief Callback for message.
+ */
+static void
+bus_message_cb (GstBus * bus, GstMessage * message, gpointer user_data)
+{
+  app_data_s *app;
+
+  app = (app_data_s *) user_data;
+
+  switch (GST_MESSAGE_TYPE (message)) {
+	case GST_MESSAGE_EOS:
+	  app->running = FALSE;
+	  break;
+	case GST_MESSAGE_ERROR:
+	  parse_err_message (message);
+	  app->running = FALSE;
+	  break;
+	case GST_MESSAGE_WARNING:
+	  parse_err_message (message);
+	  break;
+	case GST_MESSAGE_STREAM_START:
+	  break;
+	case GST_MESSAGE_QOS:
+	  parse_qos_message (message);
+	  break;
+	default:
+	  break;
+  }
+}
+
+/**
+ * @brief Callback for tensor sink signal.
+ */
+static void
+new_data_cb (GstElement * element, GstBuffer * buffer, gpointer user_data)
+{
+  g_print("New data is arrived..\n");
+}
+
+/**
  * @brief Function to load dictionary.
  */
 static gboolean
@@ -94,7 +176,7 @@ load_model_files (app_data_s * app)
 	  }
 
 	  g_strfreev (word);
-	}
+	  }
 
 	g_strfreev (dics);
 	g_free (contents);
@@ -104,13 +186,13 @@ load_model_files (app_data_s * app)
 	goto error;
   }
 
-gint test_val = GPOINTER_TO_INT(g_hash_table_lookup(app->words, "radar"));
-g_print("radar : %d \n",test_val);
-g_assert(test_val == 9959);
+  gint test_val = GPOINTER_TO_INT(g_hash_table_lookup(app->words, "radar"));
+  g_print("radar : %d \n",test_val);
+  g_assert(test_val == 9959);
 
-error:
-  g_free (label);
-  g_free (vocab);
+  error:
+	g_free (label);
+	g_free (vocab);
 
   app->model_file = model;
   return !failed;
@@ -143,12 +225,12 @@ handle_input_string (app_data_s * app)
   tokens_len = g_strv_length(tokens) - 1;
 
   for(i=0;i<tokens_len;i++) {
-    value = GPOINTER_TO_INT(g_hash_table_lookup(app->words, tokens[i]));
-    buf[i+1]= (gfloat) (value>0?value:unknown);
-    g_print("Converted float array : %lf \n",buf[i+1]);
+	value = GPOINTER_TO_INT(g_hash_table_lookup(app->words, tokens[i]));
+	buf[i+1]= (gfloat) (value>0?value:unknown);
+	g_print("Converted float array : %lf \n",buf[i+1]);
   }
   while(i<MAX_SENTENCE_LENGTH) {
-    buf[i++] = (gfloat) pad;
+	buf[i++] = (gfloat) pad;
   }
 
 }
@@ -160,6 +242,9 @@ int
 main (int argc, char **argv)
 {
 	app_data_s *app;
+  gchar *pipeline;
+  GstElement *element;
+
 
   /* init gstreamer */
   gst_init (&argc, &argv);
@@ -171,8 +256,47 @@ main (int argc, char **argv)
   /* load model files */
   g_assert (load_model_files (app));
 
+  /* init pipeline, sample pipeline.. need to be changed */
+   pipeline = 
+       g_strdup_printf 
+       ("appsrc name=appsrc caps=text/x-raw,format=utf8 ! "
+          "tensor_converter input-dim = 30 ! tensor_sink name=tensor_sink");
+  
+  app->pipeline = gst_parse_launch (pipeline, NULL);
+  g_free (pipeline);
+  g_assert (app->pipeline);
+
+  /* bus and message callback */
+  app->bus = gst_element_get_bus (app->pipeline);
+  g_assert (app->bus);
+
+
+  gst_bus_add_signal_watch (app->bus);
+  g_signal_connect (app->bus, "message", G_CALLBACK (bus_message_cb), app);
+
+  /* get tensor sink element using name */
+  element = gst_bin_get_by_name (GST_BIN (app->pipeline), "tensor_sink");
+  g_assert (element != NULL);
+
+  /* tensor sink signal : new data callback */
+  g_signal_connect (element, "new-data",(GCallback) new_data_cb, NULL);
+
   /* get user input */
   handle_input_string (app);
+
+  /* Start playing */
+  gst_element_set_state (app->pipeline, GST_STATE_PLAYING);
+
+  g_usleep (200 * 1000);
+
+  /* stop the pipeline */
+  gst_element_set_state (app->pipeline, GST_STATE_NULL);
+
+
+ /* close app */
+  gst_bus_remove_signal_watch (app->bus);
+  gst_object_unref (app->bus);
+  gst_object_unref (app->pipeline);
 
   g_free (app->model_file);
   g_strfreev (app->labels);
