@@ -279,7 +279,7 @@ main (int argc, char **argv)
   /* load model files */
   g_assert (load_model_files (app));
 
-  /* init pipeline, sample pipeline.. need to be changed */
+  /* init pipeline */
    pipeline = 
 	   g_strdup_printf 
 	   ("appsrc name=appsrc ! "
@@ -334,10 +334,16 @@ main (int argc, char **argv)
   /* Start playing */
   gst_element_set_state (app->pipeline, GST_STATE_PLAYING);
 
+  /* ready to get input sentence */
+  app->running = TRUE;
+
   /* get user input */
-  handle_input_string (app);
+  while(app->running) {
+    g_usleep (200 * 1000);
+    handle_input_string (app);
+  }
   
-  g_usleep (200 * 1000);
+  
 
   /* stop the pipeline */
   gst_element_set_state (app->pipeline, GST_STATE_NULL);
