@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Environment;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
@@ -83,7 +84,8 @@ public class MainActivity extends Activity {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode,
+                @NonNull String permissions[], @NonNull int[] grantResults) {
         if (requestCode == PERMISSION_REQUEST_CODE) {
             for (int grant : grantResults) {
                 if (grant != PackageManager.PERMISSION_GRANTED) {
@@ -197,23 +199,6 @@ public class MainActivity extends Activity {
 
     /**
      * Print tensors info.
-     *
-     * The data type of tensor in NNStreamer:
-     * {@link NNStreamer#TENSOR_TYPE_INT32}
-     * {@link NNStreamer#TENSOR_TYPE_UINT32}
-     * {@link NNStreamer#TENSOR_TYPE_INT16}
-     * {@link NNStreamer#TENSOR_TYPE_UINT16}
-     * {@link NNStreamer#TENSOR_TYPE_INT8}
-     * {@link NNStreamer#TENSOR_TYPE_UINT8}
-     * {@link NNStreamer#TENSOR_TYPE_FLOAT64}
-     * {@link NNStreamer#TENSOR_TYPE_FLOAT32}
-     * {@link NNStreamer#TENSOR_TYPE_UNKNOWN}
-     *
-     * The maximum rank that NNStreamer supports.
-     * {@link NNStreamer#TENSOR_RANK_LIMIT}
-     *
-     * The maximum number of tensor instances that tensors may have.
-     * {@link NNStreamer#TENSOR_SIZE_LIMIT}
      */
     private void printTensorsInfo(TensorsInfo info) {
         int num = info.getTensorsCount();
@@ -295,13 +280,6 @@ public class MainActivity extends Activity {
 
     /**
      * Example to run pipeline.
-     *
-     * The state of pipeline:
-     * {@link NNStreamer#PIPELINE_STATE_UNKNOWN}
-     * {@link NNStreamer#PIPELINE_STATE_NULL}
-     * {@link NNStreamer#PIPELINE_STATE_READY}
-     * {@link NNStreamer#PIPELINE_STATE_PAUSED}
-     * {@link NNStreamer#PIPELINE_STATE_PLAYING}
      */
     private void runPipe(boolean addStateCb) {
         /* example with image classification tf-lite model */
@@ -324,7 +302,7 @@ public class MainActivity extends Activity {
             if (addStateCb) {
                 stateCb = new Pipeline.StateChangeCallback() {
                     @Override
-                    public void onStateChanged(int state) {
+                    public void onStateChanged(Pipeline.State state) {
                         Log.d(TAG, "The pipeline state changed to " + state);
                     }
                 };
@@ -333,14 +311,14 @@ public class MainActivity extends Activity {
             Pipeline pipe = new Pipeline(desc, stateCb);
 
             /* register sink callback */
-            pipe.setSinkCallback("sinkx", new Pipeline.NewDataCallback() {
+            pipe.registerSinkCallback("sinkx", new Pipeline.NewDataCallback() {
                 int received = 0;
 
                 @Override
-                public void onNewDataReceived(TensorsData data, TensorsInfo info) {
+                public void onNewDataReceived(TensorsData data) {
                     Log.d(TAG, "Received new data callback " + (++received));
 
-                    printTensorsInfo(info);
+                    printTensorsInfo(data.getTensorsInfo());
                     printTensorsData(data);
                 }
             });
@@ -351,10 +329,12 @@ public class MainActivity extends Activity {
             pipe.start();
 
             /* push input buffer */
+            TensorsInfo info = new TensorsInfo();
+            info.addTensorInfo(NNStreamer.TensorType.UINT8, new int[]{3,224,224,1});
+
             for (int i = 0; i < 15; i++) {
                 /* dummy input */
-                TensorsData in = new TensorsData();
-                in.addTensorData(TensorsData.allocateByteBuffer(3 * 224 * 224));
+                TensorsData in = TensorsData.allocate(info);
 
                 Log.d(TAG, "Push input data " + (i + 1));
 
@@ -386,26 +366,26 @@ public class MainActivity extends Activity {
             Pipeline pipe = new Pipeline(desc);
 
             /* register sink callback */
-            pipe.setSinkCallback("sink1", new Pipeline.NewDataCallback() {
+            pipe.registerSinkCallback("sink1", new Pipeline.NewDataCallback() {
                 int received = 0;
 
                 @Override
-                public void onNewDataReceived(TensorsData data, TensorsInfo info) {
+                public void onNewDataReceived(TensorsData data) {
                     Log.d(TAG, "Received new data callback at sink1 " + (++received));
 
-                    printTensorsInfo(info);
+                    printTensorsInfo(data.getTensorsInfo());
                     printTensorsData(data);
                 }
             });
 
-            pipe.setSinkCallback("sink2", new Pipeline.NewDataCallback() {
+            pipe.registerSinkCallback("sink2", new Pipeline.NewDataCallback() {
                 int received = 0;
 
                 @Override
-                public void onNewDataReceived(TensorsData data, TensorsInfo info) {
+                public void onNewDataReceived(TensorsData data) {
                     Log.d(TAG, "Received new data callback at sink2 " + (++received));
 
-                    printTensorsInfo(info);
+                    printTensorsInfo(data.getTensorsInfo());
                     printTensorsData(data);
                 }
             });
@@ -414,10 +394,12 @@ public class MainActivity extends Activity {
             pipe.start();
 
             /* push input buffer */
+            TensorsInfo info = new TensorsInfo();
+            info.addTensorInfo(NNStreamer.TensorType.UINT8, new int[]{3,100,100,1});
+
             for (int i = 0; i < 15; i++) {
                 /* dummy input */
-                TensorsData in = new TensorsData();
-                in.addTensorData(TensorsData.allocateByteBuffer(3 * 100 * 100));
+                TensorsData in = info.allocate();
 
                 Log.d(TAG, "Push input data " + (i + 1));
 
@@ -458,26 +440,26 @@ public class MainActivity extends Activity {
             Pipeline pipe = new Pipeline(desc);
 
             /* register sink callback */
-            pipe.setSinkCallback("sink1", new Pipeline.NewDataCallback() {
+            pipe.registerSinkCallback("sink1", new Pipeline.NewDataCallback() {
                 int received = 0;
 
                 @Override
-                public void onNewDataReceived(TensorsData data, TensorsInfo info) {
+                public void onNewDataReceived(TensorsData data) {
                     Log.d(TAG, "Received new data callback at sink1 " + (++received));
 
-                    printTensorsInfo(info);
+                    printTensorsInfo(data.getTensorsInfo());
                     printTensorsData(data);
                 }
             });
 
-            pipe.setSinkCallback("sink2", new Pipeline.NewDataCallback() {
+            pipe.registerSinkCallback("sink2", new Pipeline.NewDataCallback() {
                 int received = 0;
 
                 @Override
-                public void onNewDataReceived(TensorsData data, TensorsInfo info) {
+                public void onNewDataReceived(TensorsData data) {
                     Log.d(TAG, "Received new data callback at sink2 " + (++received));
 
-                    printTensorsInfo(info);
+                    printTensorsInfo(data.getTensorsInfo());
                     printTensorsData(data);
                 }
             });
@@ -486,10 +468,12 @@ public class MainActivity extends Activity {
             pipe.start();
 
             /* push input buffer */
+            TensorsInfo info = new TensorsInfo();
+            info.addTensorInfo(NNStreamer.TensorType.UINT8, new int[]{3,100,100,1});
+
             for (int i = 0; i < 15; i++) {
                 /* dummy input */
-                TensorsData in = new TensorsData();
-                in.addTensorData(TensorsData.allocateByteBuffer(3 * 100 * 100));
+                TensorsData in = TensorsData.allocate(info);
 
                 Log.d(TAG, "Push input data " + (i + 1));
 
@@ -526,15 +510,15 @@ public class MainActivity extends Activity {
             CustomFilter customPassthrough = CustomFilter.registerCustomFilter("custom-passthrough",
                     new CustomFilter.CustomFilterCallback() {
                 @Override
-                public TensorsInfo getOutputInfo(TensorsInfo inInfo) {
+                public TensorsInfo getOutputInfo(TensorsInfo in) {
                     Log.d(TAG, "Received info callback in custom-passthrough");
-                    return inInfo;
+                    return in;
                 }
 
                 @Override
-                public TensorsData invoke(TensorsData inData, TensorsInfo inInfo, TensorsInfo outInfo) {
+                public TensorsData invoke(TensorsData in) {
                     Log.d(TAG, "Received invoke callback in custom-passthrough");
-                    return inData;
+                    return in;
                 }
             });
 
@@ -542,30 +526,31 @@ public class MainActivity extends Activity {
             CustomFilter customConvert = CustomFilter.registerCustomFilter("custom-convert",
                     new CustomFilter.CustomFilterCallback() {
                 @Override
-                public TensorsInfo getOutputInfo(TensorsInfo inInfo) {
+                public TensorsInfo getOutputInfo(TensorsInfo in) {
                     Log.d(TAG, "Received info callback in custom-convert");
 
-                    TensorsInfo out = inInfo;
-                    out.setTensorType(0, NNStreamer.TENSOR_TYPE_FLOAT32);
-
-                    return out;
+                    in.setTensorType(0, NNStreamer.TensorType.FLOAT32);
+                    return in;
                 }
 
                 @Override
-                public TensorsData invoke(TensorsData inData, TensorsInfo inInfo, TensorsInfo outInfo) {
+                public TensorsData invoke(TensorsData in) {
                     Log.d(TAG, "Received invoke callback in custom-convert");
 
-                    ByteBuffer input = inData.getTensorData(0);
-                    ByteBuffer output = TensorsData.allocateByteBuffer(4 * 10);
+                    TensorsInfo info = in.getTensorsInfo();
+                    ByteBuffer input = in.getTensorData(0);
+
+                    info.setTensorType(0, NNStreamer.TensorType.FLOAT32);
+
+                    TensorsData out = info.allocate();
+                    ByteBuffer output = out.getTensorData(0);
 
                     for (int i = 0; i < 10; i++) {
                         float value = (float) input.getInt(i * 4);
                         output.putFloat(i * 4, value);
                     }
 
-                    TensorsData out = new TensorsData();
-                    out.addTensorData(output);
-
+                    out.setTensorData(0, output);
                     return out;
                 }
             });
@@ -574,17 +559,20 @@ public class MainActivity extends Activity {
             CustomFilter customAdd = CustomFilter.registerCustomFilter("custom-add",
                     new CustomFilter.CustomFilterCallback() {
                 @Override
-                public TensorsInfo getOutputInfo(TensorsInfo inInfo) {
+                public TensorsInfo getOutputInfo(TensorsInfo in) {
                     Log.d(TAG, "Received info callback in custom-add");
-                    return inInfo;
+                    return in;
                 }
 
                 @Override
-                public TensorsData invoke(TensorsData inData, TensorsInfo inInfo, TensorsInfo outInfo) {
+                public TensorsData invoke(TensorsData in) {
                     Log.d(TAG, "Received invoke callback in custom-add");
 
-                    ByteBuffer input = inData.getTensorData(0);
-                    ByteBuffer output = TensorsData.allocateByteBuffer(4 * 10);
+                    TensorsInfo info = in.getTensorsInfo();
+                    ByteBuffer input = in.getTensorData(0);
+
+                    TensorsData out = info.allocate();
+                    ByteBuffer output = out.getTensorData(0);
 
                     for (int i = 0; i < 10; i++) {
                         float value = input.getFloat(i * 4);
@@ -594,9 +582,7 @@ public class MainActivity extends Activity {
                         output.putFloat(i * 4, value);
                     }
 
-                    TensorsData out = new TensorsData();
-                    out.addTensorData(output);
-
+                    out.setTensorData(0, output);
                     return out;
                 }
             });
@@ -611,14 +597,14 @@ public class MainActivity extends Activity {
             Pipeline pipe = new Pipeline(desc);
 
             /* register sink callback */
-            pipe.setSinkCallback("sinkx", new Pipeline.NewDataCallback() {
+            pipe.registerSinkCallback("sinkx", new Pipeline.NewDataCallback() {
                 int received = 0;
 
                 @Override
-                public void onNewDataReceived(TensorsData data, TensorsInfo info) {
+                public void onNewDataReceived(TensorsData data) {
                     Log.d(TAG, "Received new data callback at sinkx " + (++received));
 
-                    printTensorsInfo(info);
+                    printTensorsInfo(data.getTensorsInfo());
                     printTensorsData(data);
 
                     ByteBuffer output = data.getTensorData(0);
@@ -633,15 +619,18 @@ public class MainActivity extends Activity {
             pipe.start();
 
             /* push input buffer */
+            TensorsInfo info = new TensorsInfo();
+            info.addTensorInfo(NNStreamer.TensorType.INT32, new int[]{10,1,1,1});
+
             for (int i = 0; i < 15; i++) {
-                ByteBuffer input = TensorsData.allocateByteBuffer(4 * 10);
+                TensorsData in = info.allocate();
+                ByteBuffer input = in.getTensorData(0);
 
                 for (int j = 0; j < 10; j++) {
                     input.putInt(j * 4, j);
                 }
 
-                TensorsData in = new TensorsData();
-                in.addTensorData(input);
+                in.setTensorData(0, input);
 
                 pipe.inputData("srcx", in);
                 Thread.sleep(50);
