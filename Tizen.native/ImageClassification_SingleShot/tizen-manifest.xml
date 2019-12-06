@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<manifest xmlns="http://tizen.org/ns/packages" api-version="5.5" package="sec.odl.imageclassification_single" version="1.0.0">
+    <profile name="mobile"/>
+    <ui-application appid="sec.odl.imageclassification_single" exec="imageclassification_single" multiple="false" nodisplay="false" taskmanage="true" type="capp">
+        <label>imageclassification_single</label>
+        <icon>icon.png</icon>
+    </ui-application>
+    <privileges>
+        <privilege>http://tizen.org/privilege/mediastorage</privilege>
+    </privileges>
+    <feature name="http://tizen.org/feature/machine_learning">true</feature>
+    <feature name="http://tizen.org/feature/machine_learning.inference">true</feature>
+</manifest>
