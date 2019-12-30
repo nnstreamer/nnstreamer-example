@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<manifest xmlns="http://tizen.org/ns/packages" api-version="5.5" package="org.example.textclassification" version="1.0.0">
+    <profile name="mobile" />
+    <ui-application appid="org.example.textclassification" exec="textclassification" multiple="false" nodisplay="false" taskmanage="true" type="capp">
+        <label>textclassification</label>
+        <icon>textclassification.png</icon>
+    </ui-application>
+    <feature name="http://tizen.org/feature/screen.size.all"/>
+</manifest>
