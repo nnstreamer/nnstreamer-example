@@ -126,6 +126,9 @@ TEMPLATE_invoke (const GstTensorFilterProperties * prop,
 static gchar filter_subplugin_TEMPLATE[] = "TEMPLATE";
 
 static GstTensorFilterFramework NNS_support_TEMPLATE = {
+#ifdef GST_TENSOR_FILTER_API_VERSION_DEFINED
+  .version = GST_TENSOR_FILTER_FRAMEWORK_V0,
+#else
   .name = filter_subplugin_TEMPLATE,
   .allow_in_place = FALSE,
   .allocate_in_invoke = FALSE,
@@ -133,6 +136,7 @@ static GstTensorFilterFramework NNS_support_TEMPLATE = {
   .invoke_NN = TEMPLATE_invoke,
   .getInputDimension = TEMPLATE_getInputDim,
   .getOutputDimension = TEMPLATE_getOutputDim,
+#endif
   .open = TEMPLATE_open,
   .close = TEMPLATE_close,
 };
@@ -141,6 +145,15 @@ static GstTensorFilterFramework NNS_support_TEMPLATE = {
 void
 init_filter_TEMPLATE (void)
 {
+#ifdef GST_TENSOR_FILTER_API_VERSION_DEFINED
+  NNS_support_TEMPLATE.name = filter_subplugin_TEMPLATE;
+  NNS_support_TEMPLATE.allow_in_place = FALSE;
+  NNS_support_TEMPLATE.allocate_in_invoke = FALSE;
+  NNS_support_TEMPLATE.run_without_model = FALSE;
+  NNS_support_TEMPLATE.invoke_NN = TEMPLATE_invoke;
+  NNS_support_TEMPLATE.getInputDimension = TEMPLATE_getInputDim;
+  NNS_support_TEMPLATE.getOutputDimension = TEMPLATE_getOutputDim;
+#endif
   nnstreamer_filter_probe (&NNS_support_TEMPLATE);
 }
 
