@@ -13,6 +13,7 @@ if have_tensorflow_lite
   subdir('example_speech_command_tensorflow_lite')
   subdir('example_two_tensor_stream')
   subdir('example_text_classification')
+  subdir('example_pose_estimation_tflite')
 endif
 
 if have_caffe2
