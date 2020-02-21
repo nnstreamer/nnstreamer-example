@@ -13,16 +13,19 @@
 #include <stdio.h>
 #include <nnstreamer.h>
 
+#define MODEL_NB  1
+#define MODEL_SO  2
+#define JPG_PATH  3
+
 #define MODEL_WIDTH 299
 #define MODEL_HEIGHT  299
 #define CH  3
 #define LABEL_SIZE  5
 
 gchar * pipeline;
-gchar * res_path;
 gchar * img_path;
-gchar * model1_path;
-gchar * model2_path;
+gchar * model_nb;
+gchar * model_so;
 
 ml_pipeline_h handle;
 ml_pipeline_sink_h sinkhandle;
@@ -89,10 +92,9 @@ get_label_from_tensor_sink (const ml_tensors_data_h data,
   ml_pipeline_sink_unregister(sinkhandle);
   ml_pipeline_destroy(handle);
 
-  g_free(model1_path);
-  g_free(model2_path);
+  g_free(model_nb);
+  g_free(model_so);
   g_free(img_path);
-  g_free(res_path);
   g_free(pipeline);
 }
 
@@ -101,21 +103,21 @@ get_label_from_tensor_sink (const ml_tensors_data_h data,
  */
 int main(int argc, char *argv[]){
   int status;
-  img_path = g_strdup_printf("%s", argv[1]);
-  model1_path = g_strdup_printf("/usr/share/dann/inception-v3.nb");
-  model2_path = g_strdup_printf("/usr/lib/nnstreamer/filters/libinceptionv3.so");
+  model_nb = g_strdup_printf("%s", argv[MODEL_NB]);
+  model_so = g_strdup_printf("%s", argv[MODEL_SO]);
+  img_path = g_strdup_printf("%s", argv[JPG_PATH]);
 
+  printf("MODEL_NB path: %s\n", model_nb);
+  printf("MODEL_SO path: %s\n", model_so);
   printf("IMAGE path: %s\n", img_path);
-  printf("MODEL1 path: %s\n", model1_path);
-  printf("MODEL2 path: %s\n", model2_path);
 
-  if(!g_file_test (model1_path, G_FILE_TEST_EXISTS)){
-    printf("[%s] IS NOT EXISTED!!\n", model1_path);
+  if(!g_file_test (model_nb, G_FILE_TEST_EXISTS)){
+    printf("[%s] IS NOT EXISTED!!\n", model_nb);
     return 0;
   }
 
-  if(!g_file_test (model2_path, G_FILE_TEST_EXISTS)){
-    printf("[%s] IS NOT EXISTED!!\n", model2_path);
+  if(!g_file_test (model_so, G_FILE_TEST_EXISTS)){
+    printf("[%s] IS NOT EXISTED!!\n", model_so);
     return 0;
   }
 
@@ -135,8 +137,8 @@ int main(int argc, char *argv[]){
           img_path,
           MODEL_WIDTH,
           MODEL_HEIGHT,
-          model1_path,
-          model2_path
+          model_nb,
+          model_so
           );
 
   printf("[%d] pipeline: %s\n", __LINE__, pipeline);

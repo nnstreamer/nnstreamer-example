@@ -14,16 +14,19 @@
 #include <nnstreamer.h>
 #include <nnstreamer-single.h>
 
+#define MODEL_NB  1
+#define MODEL_SO  2
+#define FILE_PATH  3
+
 #define MODEL_WIDTH 299
 #define MODEL_HEIGHT  299
 #define CH  3
 #define LABEL_SIZE  5
 
-gchar * res_path;
-gchar * img_path;
+gchar * file_path;
 gchar * model_path;
-gchar * model1_path;
-gchar * model2_path;
+gchar * model_nb;
+gchar * model_so;
 
 /**
  * @brief get the error name rather than code number
@@ -62,7 +65,7 @@ char* getErrorName(int status){
   long filelen;
   int ret = -1;
 
-  fileptr = fopen(img_path, "rb");
+  fileptr = fopen(file_path, "rb");
   fseek(fileptr, 0, SEEK_END);
   filelen = ftell(fileptr);
   rewind(fileptr);
@@ -91,27 +94,27 @@ int main(int argc, char *argv[]){
   int label_num = -1;
 
   int status;
-  img_path = g_strdup_printf("%s", argv[1]);
-  model1_path = g_strdup_printf("/usr/share/dann/inception-v3.nb");
-  model2_path = g_strdup_printf("/usr/lib/nnstreamer/filters/libinceptionv3.so");
-  model_path = g_strdup_printf("%s,%s", model1_path, model2_path);
+  model_nb = g_strdup_printf("%s", argv[MODEL_NB]);
+  model_so = g_strdup_printf("%s", argv[MODEL_SO]);
+  file_path = g_strdup_printf("%s", argv[FILE_PATH]);
+  model_path = g_strdup_printf("%s,%s", model_nb, model_so);
 
-  printf("IMAGE path: %s\n", img_path);
-  printf("MODEL1 path: %s\n", model1_path);
-  printf("MODEL2 path: %s\n", model2_path);
+  printf("MODEL_NB path: %s\n", model_nb);
+  printf("MODEL_SO path: %s\n", model_so);
+  printf("FILE path: %s\n", file_path);
 
-  if(!g_file_test (model1_path, G_FILE_TEST_EXISTS)){
-    printf("[%s] IS NOT EXISTED!!\n", model1_path);
+  if(!g_file_test (model_nb, G_FILE_TEST_EXISTS)){
+    printf("[%s] IS NOT EXISTED!!\n", model_nb);
     goto finish;
   }
 
-  if(!g_file_test (model2_path, G_FILE_TEST_EXISTS)){
-    printf("[%s] IS NOT EXISTED!!\n", model2_path);
+  if(!g_file_test (model_so, G_FILE_TEST_EXISTS)){
+    printf("[%s] IS NOT EXISTED!!\n", model_so);
     goto finish;
   }
 
-  if(!g_file_test (img_path, G_FILE_TEST_EXISTS)){
-    printf("[%s] IS NOT EXISTED!!\n", img_path);
+  if(!g_file_test (file_path, G_FILE_TEST_EXISTS)){
+    printf("[%s] IS NOT EXISTED!!\n", file_path);
     goto finish;
   }
 
@@ -122,10 +125,10 @@ int main(int argc, char *argv[]){
     goto finish;
   }
 
-  // status = ml_single_open(&single, model_path, NULL, NULL,
-  //     ML_NNFW_TYPE_VIVANTE, ML_NNFW_HW_ANY);
   status = ml_single_open(&single, model_path, NULL, NULL,
-      ML_NNFW_TYPE_ANY, ML_NNFW_HW_ANY);
+      ML_NNFW_TYPE_VIVANTE, ML_NNFW_HW_ANY);
+  // status = ml_single_open(&single, model_path, NULL, NULL,
+      // ML_NNFW_TYPE_ANY, ML_NNFW_HW_ANY);
 
   status = ml_single_get_input_info(single, &in_info);
   if(status != ML_ERROR_NONE){
@@ -174,9 +177,9 @@ finish:
   ml_tensors_info_destroy(in_info);
   ml_single_close(single);
   g_free(model_path);
-  g_free(model1_path);
-  g_free(model2_path);
-  g_free(img_path);
+  g_free(model_nb);
+  g_free(model_so);
+  g_free(file_path);
   g_free(input_buf);
 
   return 0;
