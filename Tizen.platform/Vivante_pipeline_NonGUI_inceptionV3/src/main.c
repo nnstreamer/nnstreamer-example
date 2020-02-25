@@ -74,7 +74,7 @@ get_label_from_tensor_sink (const ml_tensors_data_h data,
   } else {
     printf("Data extracted well\n");
   }
-  printf("datasize %llu\n", data_size);
+  printf("Output Data Size: %llu\n", data_size);
   for (int i = 0; i < LABEL_SIZE; i++) {
     if (output[i] > 0 && output[i] > max) {
       max = output[i];
