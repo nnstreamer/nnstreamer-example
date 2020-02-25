@@ -159,7 +159,8 @@ int main(int argc, char *argv[]){
     goto finish;
   }
 
-  for (int i = 0; i < data_size; i++) {
+  printf("Output Data Size: %llu\n", data_size);
+  for (int i = 0; i < LABEL_SIZE; i++) {
     if (output_buf[i] > 0 && output_buf[i] > max) {
       max = output_buf[i];
       label_num = i;
