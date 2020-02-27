@@ -9,7 +9,7 @@ Source0:	%{name}-%{version}.tar.gz
 Source1001:	%{name}.manifest
 
 Requires:	nnstreamer-vivante
-Requires:	vivante-nnstreamer-filter-inceptionv3
+Requires:	vivante-neural-network-models
 BuildRequires:	glib2-devel
 BuildRequires:  capi-base-common-devel
 BuildRequires:	pkgconfig(nnstreamer)
@@ -28,14 +28,14 @@ gcc src/main.c -o %{name} -lglib-2.0 -lcapi-nnstreamer
 
 %install
 mkdir -p %{buildroot}%{_bindir}
-mkdir -p %{buildroot}%{_datadir}/%{name}
+mkdir -p %{buildroot}%{_datadir}/vivante/res
 install -m 755 %{name} %{buildroot}%{_bindir}/%{name}
-install -m 644 res/sample_pizza_299x299.jpg %{buildroot}%{_datadir}/%{name}/sample_pizza_299x299.jpg
+install -m 644 res/sample_pizza_299x299/jpg %{buildroot}%{_datadir}/vivante/res/sample_pizza_299x299.jpg
 
 %files
 %manifest %{name}.manifest
 %{_bindir}/%{name}
-%{_datadir}/%{name}/sample_pizza_299x299.jpg
+%{_datadir}/vivante/res/sample_pizza_299x299.jpg
 
 %changelog
 * Tue Feb 18 2020 HyoungJoo Ahn <hello.ahn@samsung.com>

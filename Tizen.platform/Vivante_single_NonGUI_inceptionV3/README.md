@@ -11,8 +11,8 @@ After gbs build and install at your target, you can execute it with below comman
 $ vivante-inceptionv3-single ${PATH_TO_NB_FILE} ${PATH_TO_SO_FILE} ${PATH_TO_INPUT_FILE}
 # e.g. $ vivante-inceptionv3-single \
 > /usr/share/dann/inception-v3.nb \
-> /usr/lib/nnstreamer/filters/libinceptionv3.so \
-> /usr/share/vivante-inceptionv3-single/sample_pizza_299x299
+> /usr/share/vivante/inceptionv3/libinceptionv3.so \
+> /usr/share/vivante/res/sample_pizza_299x299
 ```
 
 If you don't have input(bytestream) file, you can make it with this command
@@ -24,12 +24,12 @@ The result should be similar with below
 ```bash
 root@localhost:~# vivante-inceptionv3-single \
 > /usr/share/dann/inception-v3.nb \
-> /usr/lib/nnstreamer/filters/libinceptionv3.so \
-> /usr/share/vivante-inceptionv3-single/sample_pizza_299x299
+> /usr/share/vivante/inceptionv3/libinceptionv3.so \
+> /usr/share/vivante/res/sample_pizza_299x299
 
 MODEL_NB path: /usr/share/dann/inception-v3.nb
-MODEL_SO path: /usr/lib/nnstreamer/filters/libinceptionv3.so
-FILE path: /usr/share/vivante-inceptionv3-single/sample_pizza_299x299
+MODEL_SO path: /usr/share/vivante/inceptionv3/libinceptionv3.so
+FILE path: /usr/sharevivante/res/sample_pizza_299x299
 D [setup_node:368]Setup node id[0] uid[0] op[NBG]
 D [print_tensor:136]in(0) : id[   1] vtl[0] const[0] shape[ 3, 299, 299, 1   ] fmt[u8 ] qnt[ASM zp=128, scale=0.007812]
 D [print_tensor:136]out(0): id[   0] vtl[0] const[0] shape[ 5, 1             ] fmt[f16] qnt[NONE]
