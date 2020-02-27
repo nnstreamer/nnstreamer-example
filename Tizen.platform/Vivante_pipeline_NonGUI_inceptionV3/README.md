@@ -11,20 +11,20 @@ After gbs build and install at your target, you can execute it with below comman
 $ vivante-inceptionv3-pipeline ${PATH_TO_NB_FILE} ${PATH_TO_SO_FILE} ${PATH_TO_JPEG}
 # e.g. $ vivante-inceptionv3-pipeline \
 > /usr/share/dann/inception-v3.nb \
-> /usr/lib/nnstreamer/filters/libinceptionv3.so \
-> /usr/share/vivante-inceptionv3-pipeline/sample_pizza_299x299.jpg
+> /usr/share/vivante/inceptionv3/libinceptionv3.so \
+> /usr/share/vivante/res/sample_pizza_299x299.jpg
 ```
 
 The result should be similar with below
 ```bash
 root@localhost:~# vivante-inceptionv3-pipeline \
 > /usr/share/dann/inception-v3.nb \
-> /usr/lib/nnstreamer/filters/libinceptionv3.so \
-> /usr/share/vivante-inceptionv3-pipeline/sample_pizza_299x299.jpg 
+> /usr/share/vivante/inceptionv3/libinceptionv3.so \
+> /usr/share/vivante/res/sample_pizza_299x299.jpg 
 
 MODEL_NB path: /usr/share/dann/inception-v3.nb
-MODEL_SO path: /usr/lib/nnstreamer/filters/libinceptionv3.so
-IMAGE path: /usr/share/vivante-inceptionv3-pipeline/sample_pizza_299x299.jpg
+MODEL_SO path: /usr/share/vivante/inceptionv3/libinceptionv3.so
+IMAGE path: /usr/share/vivante/res/sample_pizza_299x299.jpg
 [146] pipeline: filesrc location="/usr/share/vivante-inceptionv3-pipeline/sample_pizza_299x299.jpg" blocksize=-1 ! jpegdec ! videoconvert ! video/x-raw,fox
 D [setup_node:368]Setup node id[0] uid[0] op[NBG]
 D [print_tensor:136]in(0) : id[   1] vtl[0] const[0] shape[ 3, 299, 299, 1   ] fmt[u8 ] qnt[ASM zp=128, scale=0.007812]
