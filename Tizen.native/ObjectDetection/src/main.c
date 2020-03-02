@@ -1,17 +1,10 @@
-/*
- * Copyright (c) 2016 Samsung Electronics Co., Ltd
- *
- * Licensed under the Flora License, Version 1.1 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://floralicense.org/license/
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+/**
+ * @file main.c
+ * @date 28 Feb 2020
+ * @brief TIZEN Native Example App with NNStreamer/C-API.
+ * @see  https://github.com/nnsuite/nnstreamer
+ * @author Parichay Kapoor <pk.kapoor@samsung.com>
+ * @bug No known bugs except for NYI items
  */
 
 #include <app.h>
@@ -19,6 +12,7 @@
 #include <system_settings.h>
 #include <efl_extension.h>
 #include <dlog.h>
+#include <privacy_privilege_manager.h>
 
 #include "main.h"
 #include "view.h"
@@ -37,17 +31,47 @@ const gchar ssd_label[] = "coco_labels_list.txt";
 const gchar ssd_box_priors[] = "box_priors.txt";
 
 /**
+ * @brief Destroy the pipeline and related elements
+ */
+void destroy_pipeline()
+{
+  ml_pipeline_sink_unregister(sinkhandle);
+  ml_pipeline_src_release_handle(srchandle);
+  ml_pipeline_destroy(handle);
+  ml_tensors_info_destroy(info);
+
+  if (pipeline)
+    g_free(pipeline);
+  if (inArray)
+    g_free(inArray);
+}
+
+/**
+ * @brief get output from the tensor_sink and send to the caller
+ */
+void
+get_output_from_tensor_sink (const ml_tensors_data_h data,
+    const ml_tensors_info_h info, void *user_data)
+{
+  size_t data_size;
+  uint8_t *output;
+
+  ml_tensors_data_get_tensor_data (data, 0, (void **) &output, &data_size);
+//  update_gui (NULL, output, data_size);
+  ecore_pipe_write(data_output_pipe, output, data_size);
+}
+
+/**
  * @brief Initialize the pipeline with model path
  * @return 0 on success, -errno on error
  */
 int init_pipeline()
 {
-  int status = -;
+  int status = -1;
   gchar *res_path = app_get_resource_path();
   gchar *model_path = g_strdup_printf ("%s/%s", res_path, ssd_model);
   gchar *label_path = g_strdup_printf ("%s/%s", res_path, ssd_label);
   gchar *box_prior_path = g_strdup_printf ("%s/%s", res_path, ssd_box_priors);
-  // char * filesrc_path = g_strdup_printf ("%s/%s", res_path, "result.avi");
   ml_tensor_dimension dim = { CH, CAM_WIDTH, CAM_HEIGHT, 1 };
 
   pipeline = NULL;
@@ -66,7 +90,7 @@ int init_pipeline()
         /** Pass the decoder output output to the video mixer */
         "dec. ! videomixer name=mix sink_0::zorder=2 sink_1::zorder=1 ! "
         "videoconvert ! videoscale ! video/x-raw,width=%d,height=%d,format=RGB,framerate=30/1 ! "
-        "tensor_converter ! tensor_sink name=res_sink "
+        "tensor_converter ! tensor_sink name=sinkix "
         /** Also give the original video to the video mixer */
         "t. ! queue leaky=2 max-size-buffers=10 ! mix.",
       CAM_WIDTH, CAM_HEIGHT, MODEL_WIDTH, MODEL_HEIGHT,
@@ -75,7 +99,7 @@ int init_pipeline()
       CAM_WIDTH, CAM_HEIGHT);
 
   inArray = (uint8_t *) g_malloc(sizeof(uint8_t) * CAM_WIDTH * CAM_HEIGHT * CH);
-  if (inArray)
+  if (!inArray)
     goto fail_exit;
 
   status = ml_pipeline_construct(pipeline, NULL, NULL, &handle);
@@ -87,7 +111,7 @@ int init_pipeline()
     goto fail_exit;
 
   status = ml_pipeline_sink_register(handle, "sinkx",
-      get_label_from_tensor_sink, NULL, &sinkhandle);
+      get_output_from_tensor_sink, NULL, &sinkhandle);
   if (status != ML_ERROR_NONE)
     goto fail_exit;
 
@@ -128,17 +152,34 @@ fail_exit:
   return status;
 }
 
-void destroy_pipeline()
-{
-  ml_pipeline_sink_unregister(sinkhandle);
-  ml_pipeline_src_release_handle(srchandle);
-  ml_pipeline_destroy(handle);
-  ml_tensors_info_destroy(info);
+/**
+ * @brief ask the privilege
+ */
+void app_request_multiple_response_cb(ppm_call_cause_e cause,
+    const ppm_request_result_e * results, const char **privileges,
+    size_t privileges_count, void *user_data) {
+  unsigned int allowed_count = 0;
 
-  if (pipeline)
-    g_free(pipeline);
-  if (inArray)
-    g_free(inArray);
+  if (cause == PRIVACY_PRIVILEGE_MANAGER_CALL_CAUSE_ERROR) {
+    dlog_print(DLOG_ERROR, LOG_TAG, "Failed to make privilege checker");
+    return;
+  }
+  for (int it = 0; it < privileges_count; ++it) {
+    switch (results[it]) {
+    case PRIVACY_PRIVILEGE_MANAGER_REQUEST_RESULT_ALLOW_FOREVER:
+      allowed_count++;
+      break;
+    case PRIVACY_PRIVILEGE_MANAGER_REQUEST_RESULT_DENY_FOREVER:
+      break;
+    case PRIVACY_PRIVILEGE_MANAGER_REQUEST_RESULT_DENY_ONCE:
+      break;
+    }
+  }
+
+  if (allowed_count == privileges_count) {
+    init_pipeline();
+    view_create(user_data);
+  }
 }
 
 /**
@@ -146,10 +187,10 @@ void destroy_pipeline()
  */
 void app_check_and_request_permissions()
 {
-  ppm_check_result_e results[1];
+  ppm_check_result_e results[2];
   const char *privileges[] = { "http://tizen.org/privilege/camera",
     "http://tizen.org/privilege/mediastorage" };
-  char *askable_privileges[1];
+  const char *askable_privileges[2];
   int askable_privileges_count = 0;
   unsigned int allowed_count = 0;
   unsigned int privileges_count = sizeof(privileges) / sizeof(privileges[0]);
@@ -211,15 +252,10 @@ static bool app_create(void *user_data)
     return false;
   }
 
-  custom_data = (CustomData *) malloc (sizeof (CustomData));
-  custom_data->initialized = false;
-  custom_data->media_width = 640;
-  custom_data->media_height = 480;
-
-  custom_data->pipe = ecore_pipe_add (update_gui, NULL);
-  if (!custom_data->pipe) {
-    dlog_print(DLOG_ERROR, LOG_TAG, "Failed to make pipe");
-    free (custom_data);
+  data_output_pipe = ecore_pipe_add (update_gui, NULL);
+  if (!data_output_pipe) {
+    dlog_print(DLOG_ERROR, LOG_TAG, "Failed to make data_output_pipe");
+    destroy_pipeline();
     return false;
   }
 
@@ -272,7 +308,7 @@ static void app_resume(void *user_data)
 static void app_terminate(void *user_data)
 {
   /* Release all resources. */
-  ecore_pipe_del(custom_data->pipe);
+  ecore_pipe_del(data_output_pipe);
   destroy_pipeline();
 }
 
@@ -313,7 +349,7 @@ int main(int argc, char *argv[])
   event_callback.resume = app_resume;
   event_callback.app_control = app_control;
 
-  /*
+  /**
    * If you want to handle more events,
    * please check the application life cycle guide.
    */

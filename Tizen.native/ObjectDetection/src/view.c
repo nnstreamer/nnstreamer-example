@@ -1,41 +1,19 @@
-/*
- * Copyright (c) 2016 Samsung Electronics Co., Ltd
- *
- * Licensed under the Flora License, Version 1.1 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://floralicense.org/license/
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+/**
+ * @file view.c
+ * @date 28 Feb 2020
+ * @brief TIZEN Native Example App with NNStreamer/C-API.
+ * @see  https://github.com/nnsuite/nnstreamer
+ * @author Parichay Kapoor <pk.kapoor@samsung.com>
+ * @bug No known bugs except for NYI items
  */
 
 #include "main.h"
 #include "view.h"
 #include "data.h"
 
-//Evas_Object *GLOBAL_DEBUG_BOX;
-
 /**
- * @brief Adds the text to the log entry.
- *
- * @param text  The text to be appended
+ * @brief Struct containing window, conformant and navigation objects
  */
-//void _add_entry_text(const char *text)
-//{
-//    Evas_Coord c_y;
-//
-//    elm_entry_entry_append(GLOBAL_DEBUG_BOX, text);
-//    elm_entry_entry_append(GLOBAL_DEBUG_BOX, "<br>");
-//    elm_entry_cursor_end_set(GLOBAL_DEBUG_BOX);
-//    elm_entry_cursor_geometry_get(GLOBAL_DEBUG_BOX, NULL, &c_y, NULL, NULL);
-//    elm_scroller_region_show(GLOBAL_DEBUG_BOX, 0, c_y, 0, 0);
-//}
-
 static struct view_info {
     Evas_Object *win;
     Evas_Object *conform;
@@ -45,25 +23,6 @@ static struct view_info {
     .conform = NULL,
     .navi = NULL,
 };
-
-/**
- * @brief Called when the main window of the application is closed.
- * @details It minimizes the applications preventing it from closing.
- * @remarks This function matches the Elm_Naviframe_Item_Pop_Cb() signature
- *          defined in the elm_naviframe_item.eo.legacy.h header file.
- *
- * @param data  The user data passed via void pointer (not used here)
- * @param item  The object that is going to be popped. This argument is not
- *              used in this case.
- *
- * @return @c EINA_TRUE to proceed with popping the object, otherwise @c
- *         EINA_FALSE to cancel the item popping process.
- */
-//static Eina_Bool _pop_cb(void *data, Elm_Object_Item *item)
-//{
-//    elm_win_lower(s_info.win);
-//    return EINA_FALSE;
-//}
 
 /**
  * @brief Creates a new button.
@@ -88,26 +47,6 @@ Evas_Object *_new_button(Evas_Object *display, char *name, void *callback)
 }
 
 /**
- * @brief Clears the debug display.
- * @details Called when the "Clear" button is clicked.
- * @remarks This function matches the Evas_Smart_Cb() signature defined in the
- *          Evas_Legacy.h header file.
- *
- * @param data        The user data passed via void pointer. This argument is not
- *                    used in this case.
- * @param object      A handle to the object on which the event occurred. In this
- *                    case it's a pointer to the button object. This argument is not
- *                    used in this case.
- * @param event_info  A pointer to a data which is totally dependent on the smart
- *                    object's implementation and semantic for the given event. This
- *                    argument is not used in this case.
- */
-//static void _btn_clear_cb(void *data, Evas_Object *object, void *event_info)
-//{
-//    elm_entry_entry_set(GLOBAL_DEBUG_BOX, "");
-//}
-
-/**
  * @brief Creates a new view.
  *
  * @param name      The subtitle for the newly created view
@@ -118,25 +57,7 @@ Evas_Object *_new_button(Evas_Object *display, char *name, void *callback)
  */
 Evas_Object *_create_new_cd_display(char *name, void *callback)
 {
-    /* Create a scroller */
-//    Evas_Object *scroller = elm_scroller_add(s_info.win);
-//    evas_object_size_hint_weight_set(scroller, EVAS_HINT_EXPAND,
-//            EVAS_HINT_EXPAND);
-
-    /* Create a new item */
-//    Elm_Object_Item *item = elm_naviframe_item_push(s_info.navi, "Multimedia",
-//            NULL, NULL, scroller, NULL);
-//    elm_object_item_part_text_set(item, "subtitle", name);
-
-//    if (callback != NULL)
-//        elm_naviframe_item_pop_cb_set(item, (Elm_Naviframe_Item_Pop_Cb) callback,
-//                NULL);
-//    else
-//        elm_naviframe_item_pop_cb_set(item, _pop_cb, NULL);
-
     /* Create main box */
-//    Evas_Object *box = elm_box_add(scroller);
-//    elm_object_content_set(scroller, box);
     Evas_Object *box = elm_box_add(s_info.win);
     elm_object_content_set(s_info.win, box);
     elm_box_horizontal_set(box, EINA_FALSE);
@@ -145,42 +66,6 @@ Evas_Object *_create_new_cd_display(char *name, void *callback)
     evas_object_show(box);
 
     return box;
-
-    /* Create a box for adding content */
-    //    Evas_Coord padding_between_buttons = 3;
-    //    elm_box_padding_set(bbox, 0, padding_between_buttons);
-//    Evas_Object *bbox = elm_box_add(box);
-//    elm_box_horizontal_set(bbox, EINA_FALSE);
-//    evas_object_size_hint_align_set(bbox, EVAS_HINT_FILL, EVAS_HINT_FILL);
-//    evas_object_size_hint_weight_set(bbox, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-//    elm_box_pack_end(box, bbox);
-//    evas_object_show(bbox);
-
-    /* Create a box for entry */
-//    Evas_Object *ebox = elm_box_add(box);
-//    elm_box_horizontal_set(ebox, EINA_FALSE);
-//    evas_object_size_hint_align_set(ebox, EVAS_HINT_FILL, EVAS_HINT_FILL);
-//    evas_object_size_hint_weight_set(ebox, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-//    elm_box_pack_end(box, ebox);
-//    evas_object_show(ebox);
-
-    /* Create a message box */
-//    GLOBAL_DEBUG_BOX = elm_entry_add(ebox);
-//    elm_entry_editable_set(GLOBAL_DEBUG_BOX, EINA_FALSE);
-//    elm_entry_scrollable_set(GLOBAL_DEBUG_BOX, EINA_TRUE);
-//    elm_scroller_policy_set(GLOBAL_DEBUG_BOX, ELM_SCROLLER_POLICY_OFF,
-//            ELM_SCROLLER_POLICY_ON);
-//    evas_object_size_hint_align_set(GLOBAL_DEBUG_BOX, EVAS_HINT_FILL,
-//            EVAS_HINT_FILL);
-//    evas_object_size_hint_weight_set(GLOBAL_DEBUG_BOX, EVAS_HINT_EXPAND,
-//            EVAS_HINT_EXPAND);
-//    elm_box_pack_end(ebox, GLOBAL_DEBUG_BOX);
-//    evas_object_show(GLOBAL_DEBUG_BOX);
-
-    /* Create the "Clear" button */
-//    _new_button(box, "Clear", _btn_clear_cb);
-
-//    return bbox;
 }
 
 /**
@@ -232,7 +117,7 @@ Evas_Object *view_create_win(const char *pkg_name)
 {
     Evas_Object *win = NULL;
 
-    /*
+    /**
      * Window
      * Create and initialize elm_win.
      * elm_win is mandatory to manipulate the window.
@@ -297,7 +182,7 @@ Evas_Object *view_create_layout(Evas_Object *parent, const char *file_path, cons
  */
 Evas_Object *view_create_conformant_without_indicator(Evas_Object *win)
 {
-    /*
+    /**
      * Conformant
      * Create and initialize elm_conformant.
      * elm_conformant is mandatory for base GUI to have proper size
@@ -328,7 +213,7 @@ Evas_Object *view_create_conformant_without_indicator(Evas_Object *win)
  */
 Evas_Object *view_create_naviframe(Evas_Object *conform)
 {
-    /*
+    /**
      * Naviframe
      * Create and initialize elm_naviframe.
      */
