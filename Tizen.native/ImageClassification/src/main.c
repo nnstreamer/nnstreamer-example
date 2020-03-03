@@ -37,6 +37,8 @@ gchar * pipeline;
  * @return @c true on success (the main loop is started), @c false otherwise (the app is terminated)
  */
 static bool app_create(void *user_data) {
+  app_check_and_request_permissions();
+  init_label_data();
   return true;
 }
 
@@ -264,8 +266,6 @@ void init_label_data() {
  */
 int main(int argc, char *argv[]) {
   int ret;
-  app_check_and_request_permissions();
-  init_label_data();
 
   ui_app_lifecycle_callback_s event_callback = { 0, };
   app_event_handler_h handlers[5] = { NULL, };
