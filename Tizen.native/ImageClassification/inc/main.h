@@ -23,4 +23,7 @@
 #endif
 #define LOG_TAG "NNSTREAMER_CAMERA"
 
+void app_check_and_request_permissions();
+void init_label_data();
+
 #endif
