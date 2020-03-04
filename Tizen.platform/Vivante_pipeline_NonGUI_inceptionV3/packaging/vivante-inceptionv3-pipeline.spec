@@ -30,7 +30,7 @@ gcc src/main.c -o %{name} -lglib-2.0 -lcapi-nnstreamer
 mkdir -p %{buildroot}%{_bindir}
 mkdir -p %{buildroot}%{_datadir}/vivante/res
 install -m 755 %{name} %{buildroot}%{_bindir}/%{name}
-install -m 644 res/sample_pizza_299x299/jpg %{buildroot}%{_datadir}/vivante/res/sample_pizza_299x299.jpg
+install -m 644 res/sample_pizza_299x299.jpg %{buildroot}%{_datadir}/vivante/res/sample_pizza_299x299.jpg
 
 %files
 %manifest %{name}.manifest
