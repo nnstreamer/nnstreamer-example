@@ -4,5 +4,9 @@
 # The lists of people and groups are for github.com
 
 # All members of nnstreamer-team are supposed to review each other
-*           @jaeyun-jung @myungjoo @jijoongmoon @again4you @leemgs @wooksong @helloahn @kparichay
+*	@jaeyun-jung @myungjoo @jijoongmoon @again4you @leemgs @wooksong @helloahn @kparichay
+
+/Tizen.platform/Vivante_pipeline_NonGUI_inceptionV3		@e-talipov @minjin7-song
+
+/Tizen.platform/Vivante_single_NonGUI_inceptionV3		@e-talipov @minjin7-song
 
