@@ -60,8 +60,8 @@ elif [[ ${model} == "object-detection-tflite" ]]; then
   cd tflite_model
   download_url="https://github.com/nnsuite/testcases/raw/master/DeepLearningModels/tensorflow-lite/ssd_mobilenet_v2_coco"
   wget ${download_url}/ssd_mobilenet_v2_coco.tflite
-  wget ${download_url}/ssd_mobilenet_v2_coco/coco_labels_list.txt
-  wget ${download_url}/ssd_mobilenet_v2_coco/box_priors.txt
+  wget ${download_url}/coco_labels_list.txt
+  wget ${download_url}/box_priors.txt
 
 elif [[ ${model} == "speech-command" ]]; then
   mkdir -p speech_model
