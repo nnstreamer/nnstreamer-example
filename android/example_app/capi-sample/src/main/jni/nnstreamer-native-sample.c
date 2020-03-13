@@ -25,7 +25,7 @@
 /**
  * @brief Initialize NNStreamer defined in NNStreamer module.
  */
-extern jboolean nnstreamer_native_initialize (void);
+extern jboolean nnstreamer_native_initialize (JNIEnv * env, jobject context);
 
 /**
  * @brief Callback to get the tensor data from sink element.
@@ -174,7 +174,7 @@ done:
  * @brief Native method to run sample pipeline with NNStreamer.
  */
 jboolean
-Java_org_nnsuite_nnstreamer_sample_MainActivity_nativeRunSample (JNIEnv * env, jobject thiz)
+Java_org_nnsuite_nnstreamer_sample_MainActivity_nativeRunSample (JNIEnv * env, jobject thiz, jobject context)
 {
   LOGI ("Start to run NNStreamer C-API sample.");
 
@@ -182,7 +182,7 @@ Java_org_nnsuite_nnstreamer_sample_MainActivity_nativeRunSample (JNIEnv * env, j
    * Initialize NNStreamer.
    * You SHOULD initialize NNStreamer first.
    */
-  if (!nnstreamer_native_initialize ()) {
+  if (!nnstreamer_native_initialize (env, context)) {
     LOGE ("Failed to initialize NNStreamer.");
     return JNI_FALSE;
   }

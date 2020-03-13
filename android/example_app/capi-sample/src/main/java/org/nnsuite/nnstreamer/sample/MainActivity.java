@@ -2,6 +2,7 @@ package org.nnsuite.nnstreamer.sample;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -20,7 +21,7 @@ public class MainActivity extends Activity {
             Manifest.permission.WRITE_EXTERNAL_STORAGE
     };
 
-    private native boolean nativeRunSample();
+    private native boolean nativeRunSample(Context context);
 
     /* Load nnstreamer-sample library on application startup. */
     static {
@@ -85,7 +86,7 @@ public class MainActivity extends Activity {
      * Call native to run sample pipeline.
      */
     private void runSample() {
-        if (!nativeRunSample()) {
+        if (!nativeRunSample(this)) {
             Log.e(TAG, "Failed to call native sample.");
         }
     }
