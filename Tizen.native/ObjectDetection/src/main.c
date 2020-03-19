@@ -23,7 +23,6 @@ ml_pipeline_src_h srchandle;
 ml_pipeline_sink_h sinkhandle;
 ml_tensors_info_h info;
 
-uint8_t * inArray;
 gchar * pipeline;
 
 const gchar ssd_model[] = "ssd_mobilenet_v2_coco.tflite";
@@ -42,24 +41,8 @@ void destroy_pipeline()
 
   if (pipeline)
     g_free(pipeline);
-  if (inArray)
-    g_free(inArray);
 }
 
-/**
- * @brief get output from the tensor_sink and send to the caller
- */
-void
-get_output_from_tensor_sink (const ml_tensors_data_h data,
-    const ml_tensors_info_h info, void *user_data)
-{
-  size_t data_size;
-  uint8_t *output;
-
-  ml_tensors_data_get_tensor_data (data, 0, (void **) &output, &data_size);
-//  update_gui (NULL, output, data_size);
-  ecore_pipe_write(data_output_pipe, output, data_size);
-}
 
 /**
  * @brief Initialize the pipeline with model path
@@ -72,35 +55,17 @@ int init_pipeline()
   gchar *model_path = g_strdup_printf ("%s/%s", res_path, ssd_model);
   gchar *label_path = g_strdup_printf ("%s/%s", res_path, ssd_label);
   gchar *box_prior_path = g_strdup_printf ("%s/%s", res_path, ssd_box_priors);
-  ml_tensor_dimension dim = { CH, CAM_WIDTH, CAM_HEIGHT, 1 };
 
-  pipeline = NULL;
-  inArray = NULL;
+  ml_tensor_dimension dim = { (int) 1.5 * CAM_WIDTH, CAM_HEIGHT, 1, 1, 1 };
 
-  pipeline = g_strdup_printf(
-      /** Set the source size and format */
-      "appsrc name=srcx ! videoconvert ! videoscale ! "
-      "video/x-raw,width=%d,height=%d,format=RGB,framerate=30/1 ! tee name=t "
-        /** Find the objects and make the boxes */
-        "t. ! queue leaky=2 max-size-buffers=2 ! "
-        "videoconvert ! videoscale ! video/x-raw,width=%d,height=%d,format=RGB ! "
-        "tensor_converter ! tensor_transform mode=arithmetic option=typecast:float32,add:-127.5,div:127.5 ! "
-        "tensor_filter framework=tensorflow-lite model=%s !"
-        "tensor_decoder name=dec mode=bounding_boxes option1=tflite-ssd option2=%s option3=%s option4=%d:%d option5=%d:%d "
-        /** Pass the decoder output output to the video mixer */
-        "dec. ! videomixer name=mix sink_0::zorder=2 sink_1::zorder=1 ! "
-        "videoconvert ! videoscale ! video/x-raw,width=%d,height=%d,format=RGB,framerate=30/1 ! "
-        "tensor_converter ! tensor_sink name=sinkix "
-        /** Also give the original video to the video mixer */
-        "t. ! queue leaky=2 max-size-buffers=10 ! mix.",
-      CAM_WIDTH, CAM_HEIGHT, MODEL_WIDTH, MODEL_HEIGHT,
-      model_path, label_path, box_prior_path,
-      CAM_WIDTH, CAM_HEIGHT, MODEL_WIDTH, MODEL_HEIGHT,
-      CAM_WIDTH, CAM_HEIGHT);
-
-  inArray = (uint8_t *) g_malloc(sizeof(uint8_t) * CAM_WIDTH * CAM_HEIGHT * CH);
-  if (!inArray)
-    goto fail_exit;
+  pipeline = g_strdup_printf(  
+  "appsrc name=srcx ! video/x-raw,width=640,height=480,format=NV12,framerate=30/1 ! "
+  "videoflip method=clockwise ! videoconvert ! videoscale ! video/x-raw,width=300,height=300,format=RGB,framerate=30/1 ! "
+  "tensor_converter ! tensor_transform mode=arithmetic option=typecast:float32,add:-127.5,div:127.5 ! "
+  "tensor_filter framework=tensorflow-lite model=%s ! "
+  "tensor_decoder mode=bounding_boxes option1=tflite-ssd option2=%s option3=%s option4=640:480 option5=300:300 name=dec dec. ! "
+  "video/x-raw,width=640,height=480,format=RGBA,framerate=30/1 ! " 
+  "tensor_converter ! tensor_sink name=sinkx ", model_path, label_path, box_prior_path);
 
   status = ml_pipeline_construct(pipeline, NULL, NULL, &handle);
   if (status != ML_ERROR_NONE)
@@ -127,7 +92,7 @@ int init_pipeline()
   if (status != ML_ERROR_NONE)
     goto fail_exit;
 
-  status = ml_tensors_info_set_tensor_type(info, 0, ML_TENSOR_TYPE_UINT8);
+  status = ml_tensors_info_set_tensor_type(info, 0, ML_TENSOR_TYPE_FLOAT32);
   if (status != ML_ERROR_NONE)
     goto fail_exit;
 
@@ -246,20 +211,6 @@ void app_check_and_request_permissions()
  */
 static bool app_create(void *user_data)
 {
-  app_check_and_request_permissions();
-  if (init_pipeline() != 0) {
-    dlog_print(DLOG_ERROR, LOG_TAG, "Failed to initialize the pipeline");
-    return false;
-  }
-
-  data_output_pipe = ecore_pipe_add (update_gui, NULL);
-  if (!data_output_pipe) {
-    dlog_print(DLOG_ERROR, LOG_TAG, "Failed to make data_output_pipe");
-    destroy_pipeline();
-    return false;
-  }
-
-  view_create(user_data);
   return true;
 }
 
@@ -337,8 +288,17 @@ static void ui_app_lang_changed(app_event_info_h event_info, void *user_data)
  */
 int main(int argc, char *argv[])
 {
-  //	g_setenv("GST_DEBUG", "5", true);
   int ret;
+  
+  app_check_and_request_permissions();
+  ecore_init();
+  data_output_pipe = ecore_pipe_add (update_gui, NULL);
+  if (!data_output_pipe) {
+    dlog_print(DLOG_ERROR, LOG_TAG, "Failed to make data_output_pipe");
+    destroy_pipeline();
+    return false;
+  }
+
 
   ui_app_lifecycle_callback_s event_callback = {0, };
   app_event_handler_h handlers[5] = {NULL, };
