@@ -12,5 +12,7 @@ Tizen Native App with NNStreamer Pipeline API
 * Capture the frame from camera before its preview with preview\_cb.
 * Process the captured frame with the set pipeline and get the output frame.
 * The output frame is rendered and display object updated.
+* [WIP] Mixing the output bounding boxes with original frames.
 
 ## Result
+![Alt me](./objectdetection-demo.gif)

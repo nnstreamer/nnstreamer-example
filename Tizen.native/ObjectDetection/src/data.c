@@ -25,12 +25,13 @@ typedef struct _camdata {
   Evas_Object *cam_display_box;
   Evas_Object *display;
   Evas_Object *preview_bt;
-  Evas_Object *zoom_bt;
-  Evas_Object *brightness_bt;
-  Evas_Object *photo_bt;
   bool cam_prev;
 } camdata;
+
 static camdata cam_data;
+
+static int is_checking;
+G_LOCK_DEFINE_STATIC (callback_lock);
 
 /**
  * @brief Maps the given camera state to its string representation.
@@ -154,22 +155,34 @@ void _post_render_cb(void *data, Evas *e, Evas_Object *obj, void *event_info)
 /**
  * @brief Send the camera preview frame to the pipeline
  */
-  static void
+static void
 send_data_to_pipeline(camera_preview_data_s *frame)
 {
   ml_tensors_data_h data;
-  size_t data_size = frame->data.triple_plane.y_size + frame->data.triple_plane.u_size + frame->data.triple_plane.v_size;
+  
+  size_t data_size = frame->data.double_plane.y_size + frame->data.double_plane.uv_size;
 
   /* insert input data to appsrc */
-  ml_tensors_data_create (info, &data);
-  ml_tensors_data_set_tensor_data (data, 0, frame->data.triple_plane.y, data_size);
-  ml_pipeline_src_input_data (srchandle, data, ML_PIPELINE_BUF_POLICY_AUTO_FREE);
+  int ret = ml_tensors_data_create (info, &data);
+  if (ret != ML_ERROR_NONE) {
+    DLOG_PRINT_ERROR ("ml_tensors_data_create", ret);
+  }
+
+  ret = ml_tensors_data_set_tensor_data (data, 0, frame->data.double_plane.y, data_size);
+  if (ret != ML_ERROR_NONE) {
+    DLOG_PRINT_ERROR ("ml_tensors_data_set_tensor_data", ret);
+  }
+
+  ret = ml_pipeline_src_input_data (srchandle, data, ML_PIPELINE_BUF_POLICY_AUTO_FREE);
+  if (ret != ML_ERROR_NONE) {
+    DLOG_PRINT_ERROR ("ml_pipeline_src_input_data", ret);
+  }
 }
 
 /**
  * @brief Updates the display object based on the output of the pipeline
  */
-  void
+void
 update_gui(void * data, void * buf, unsigned int size)
 {
   int w, h;
@@ -185,8 +198,41 @@ update_gui(void * data, void * buf, unsigned int size)
   static void
 _camera_preview_cb(camera_preview_data_s *frame, void *user_data)
 {
-  send_data_to_pipeline(frame);
-  //	 ecore_main_loop_thread_safe_call_async(send_data_to_pipeline, frame);
+  G_LOCK (callback_lock);
+
+  if (is_checking) {
+    G_UNLOCK (callback_lock);
+    return;
+  }
+
+  is_checking = 1;
+  send_data_to_pipeline (frame);
+
+  G_UNLOCK (callback_lock);
+}
+
+/**
+ * @brief get output from the tensor_sink and send to the caller
+ */
+void
+get_output_from_tensor_sink (const ml_tensors_data_h data,
+    const ml_tensors_info_h info, void *user_data)
+{
+  G_LOCK (callback_lock);
+
+  size_t data_size;
+  uint8_t *output;
+  gint ret;
+  
+  ret = ml_tensors_data_get_tensor_data (data, 0, (void **) &output, &data_size);
+  if (ret != ML_ERROR_NONE) {
+    DLOG_PRINT_ERROR ("ml_tensors_data_get_tensor_data", ret);
+  }
+
+  ecore_pipe_write(data_output_pipe, output, data_size);
+
+  is_checking = 0;
+  G_UNLOCK (callback_lock);
 }
 
 /**
@@ -208,27 +254,21 @@ void create_buttons_in_main_window(void)
   evas_object_size_hint_weight_set(cam_data.cam_display_box, EVAS_HINT_EXPAND,
       EVAS_HINT_EXPAND);
   evas_object_resize(cam_data.cam_display_box, IMG_WIDTH, IMG_HEIGHT);
+  evas_object_show(cam_data.cam_display_box);
   elm_box_pack_end(cam_data.display, cam_data.cam_display_box);
 
-  Evas *evas = evas_object_evas_get(cam_data.cam_display_box);
-  cam_data.cam_display = evas_object_image_filled_add(evas);
-
-  /* Set a source file to fetch pixel data */
-
-  unsigned char * img_src = malloc(IMG_WIDTH*IMG_HEIGHT*4);
-  memset(img_src, 0, IMG_WIDTH*IMG_HEIGHT*4);
-  evas_object_image_memfile_set (cam_data.cam_display, img_src, IMG_WIDTH*IMG_HEIGHT*4, NULL, NULL);
-  free (img_src);
-
-  evas_object_size_hint_weight_set(cam_data.cam_display, EVAS_HINT_FILL, EVAS_HINT_FILL);
-  evas_object_size_hint_align_set(cam_data.cam_display, EVAS_HINT_FILL, EVAS_HINT_FILL);
+  Evas_Canvas *canvas = evas_object_evas_get(cam_data.cam_display_box);
+  cam_data.cam_display = evas_object_image_filled_add(canvas);
   evas_object_image_smooth_scale_set(cam_data.cam_display, EINA_FALSE);
   evas_object_image_colorspace_set(cam_data.cam_display, EVAS_COLORSPACE_ARGB8888);
   evas_object_image_size_set(cam_data.cam_display, IMG_WIDTH, IMG_HEIGHT);
   evas_object_image_alpha_set(cam_data.cam_display, EINA_TRUE);
-  evas_object_image_fill_set(cam_data.cam_display, 0, 0, IMG_WIDTH, IMG_HEIGHT);
-  evas_object_image_filled_set(cam_data.cam_display, EINA_TRUE);
-  elm_box_pack_end(cam_data.cam_display_box, cam_data.cam_display);
+
+  evas_object_size_hint_weight_set(cam_data.cam_display, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
+  evas_object_size_hint_align_set(cam_data.cam_display, EVAS_HINT_FILL, EVAS_HINT_FILL);
+  elm_box_pack_end(cam_data.cam_display, canvas);
+
+  // elm_box_pack_end(cam_data.cam_display_box, cam_data.cam_display);
   evas_object_show(cam_data.cam_display);
 
   /* Set the size and position of the image on the image object area */
@@ -299,8 +339,7 @@ void create_buttons_in_main_window(void)
     return;
   }
 
-  error_code = camera_set_preview_resolution(cam_data.g_camera, 640,
-      480);
+  error_code = camera_set_preview_resolution(cam_data.g_camera, CAM_WIDTH, CAM_HEIGHT);
   if (CAMERA_ERROR_NONE != error_code) {
     DLOG_PRINT_ERROR("camera_set_preview_resolution", error_code);
   }

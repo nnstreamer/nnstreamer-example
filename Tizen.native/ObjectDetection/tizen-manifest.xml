@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<manifest xmlns="http://tizen.org/ns/packages" api-version="2.4" package="org.example.objectdetection" version="1.0.0">
+<manifest xmlns="http://tizen.org/ns/packages" api-version="5.5" package="org.example.objectdetection" version="1.0.0">
     <profile name="mobile"/>
     <ui-application appid="org.example.objectdetection" exec="objectdetection" multiple="false" nodisplay="false" taskmanage="true" type="capp">
         <label>objectdetection</label>
         <icon>objectdetection.png</icon>
     </ui-application>
     <privileges>
-        <privilege>http://tizen.org/privilege/camera</privilege>
         <privilege>http://tizen.org/privilege/mediastorage</privilege>
+        <privilege>http://tizen.org/privilege/camera</privilege>
     </privileges>
 </manifest>

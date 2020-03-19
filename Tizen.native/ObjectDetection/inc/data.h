@@ -24,11 +24,12 @@ extern ml_pipeline_src_h srchandle;
 extern ml_pipeline_sink_h sinkhandle;
 extern ml_tensors_info_h info;
 
-extern uint8_t * inArray;
 extern gchar **labels;
 extern gchar * pipeline;
 
-void create_buttons_in_main_window(void);
-void update_gui(void * data, void * buf, unsigned int size);
+void create_buttons_in_main_window (void);
+void update_gui (void * data, void * buf, unsigned int size);
+void get_output_from_tensor_sink (const ml_tensors_data_h data,
+    const ml_tensors_info_h info, void *user_data);
 
 #endif
