@@ -15,4 +15,4 @@ Tizen Native App with NNStreamer Pipeline API
 * [WIP] Mixing the output bounding boxes with original frames.
 
 ## Result
-![Alt me](./objectdetection-demo.gif)
+![Alt demo](./tizen-objectdetection-demo.webp)
