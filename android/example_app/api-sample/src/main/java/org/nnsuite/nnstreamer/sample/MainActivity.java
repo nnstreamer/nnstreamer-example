@@ -20,6 +20,7 @@ import org.nnsuite.nnstreamer.TensorsInfo;
 
 import java.io.File;
 import java.nio.ByteBuffer;
+import java.nio.file.Files;
 
 /**
  * Sample code to run the application with nnstreamer-api.
@@ -139,7 +140,7 @@ public class MainActivity extends Activity {
             @Override
             public void onFinish() {
                 /* run the examples repeatedly */
-                if (exampleRun > 5) {
+                if (exampleRun > 7) {
                     Log.d(TAG, "Stop timer to run example");
 
                     if (isFailed) {
@@ -149,7 +150,7 @@ public class MainActivity extends Activity {
                     return;
                 }
 
-                int option = (exampleRun % 6);
+                int option = (exampleRun % 8);
 
                 if (option == 1) {
                     Log.d(TAG, "==== Run pipeline example with state callback ====");
@@ -166,6 +167,13 @@ public class MainActivity extends Activity {
                 } else if (option == 5) {
                     Log.d(TAG, "==== Run pipeline example with custom filter ====");
                     runPipeCustomFilter();
+                    runSingleNNFW();
+                } else if (option == 6) {
+                    Log.d(TAG, "==== Run pipeline example with NNFW model ====");
+                    runPipeNNFW();
+                } else if (option == 7) {
+                    Log.d(TAG, "==== Run single-shot example with NNFW model ====");
+                    runSingleNNFW();
                 } else {
                     Log.d(TAG, "==== Run single-shot example ====");
                     runSingle();
@@ -191,10 +199,90 @@ public class MainActivity extends Activity {
 
     /**
      * Get the File object of image classification tf-lite model.
+     * Note that, to invoke model in the storage, the permission READ_EXTERNAL_STORAGE is required.
      */
-    private File getExampleModel() {
+    private File getExampleModelTFLite() {
         String root = Environment.getExternalStorageDirectory().getAbsolutePath();
-        return new File(root + "/nnstreamer/tflite_model_img/mobilenet_v1_1.0_224_quant.tflite");
+        File model = new File(root + "/nnstreamer/tflite_model_img/mobilenet_v1_1.0_224_quant.tflite");
+
+        if (!model.exists()) {
+            Log.e(TAG, "Failed to get the model (image classification)");
+            return null;
+        }
+
+        return model;
+    }
+
+    /**
+     * Get the File object for NNFW example (tf-lite).
+     * Note that, to invoke model in the storage, the permission READ_EXTERNAL_STORAGE is required.
+     */
+    private static File getExampleModelNNFW() {
+        String root = Environment.getExternalStorageDirectory().getAbsolutePath();
+        File model = new File(root + "/nnstreamer/tflite_model_add/add.tflite");
+        File meta = new File(root + "/nnstreamer/tflite_model_add/metadata/MANIFEST");
+
+        if (!model.exists() || !meta.exists()) {
+            Log.e(TAG, "Failed to get the model (add)");
+            return null;
+        }
+
+        return model;
+    }
+
+    /**
+     * Reads raw image file (orange) and returns TensorsData instance.
+     */
+    private TensorsData readRawImageData() {
+        String root = Environment.getExternalStorageDirectory().getAbsolutePath();
+        File raw = new File(root + "/nnstreamer/tflite_model_img/orange.raw");
+
+        if (!raw.exists()) {
+            Log.e(TAG, "Failed to get the raw image");
+            return null;
+        }
+
+        TensorsInfo info = new TensorsInfo();
+        info.addTensorInfo(NNStreamer.TensorType.UINT8, new int[]{3,224,224,1});
+
+        int size = info.getTensorSize(0);
+        TensorsData data;
+
+        try {
+            byte[] content = Files.readAllBytes(raw.toPath());
+            ByteBuffer buffer = TensorsData.allocateByteBuffer(size);
+            buffer.put(content);
+
+            data = TensorsData.allocate(info);
+            data.setTensorData(0, buffer);
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to read the raw image");
+            data = null;
+        }
+
+        return data;
+    }
+
+    /**
+     * Gets the label index with max score, for tensorflow-lite image classification.
+     */
+    private int getMaxScore(ByteBuffer buffer) {
+        int index = -1;
+        int maxScore = 0;
+
+        if (buffer.capacity() == 1001) {
+            for (int i = 0; i < 1001; i++) {
+                /* convert unsigned byte */
+                int score = (buffer.get(i) & 0xFF);
+
+                if (score > maxScore) {
+                    maxScore = score;
+                    index = i;
+                }
+            }
+        }
+
+        return index;
     }
 
     /**
@@ -236,9 +324,9 @@ public class MainActivity extends Activity {
      */
     private void runSingle() {
         /* example with image classification tf-lite model */
-        File model = getExampleModel();
+        File model = getExampleModelTFLite();
 
-        if (!model.exists()) {
+        if (model == null || !model.exists()) {
             Log.w(TAG, "Cannot find the model file");
             return;
         }
@@ -258,16 +346,18 @@ public class MainActivity extends Activity {
             single.setTimeout(1000);
 
             /* single-shot invoke */
-            for (int i = 0; i < 15; i++) {
-                /* dummy input */
-                TensorsData in = TensorsData.allocate(inInfo);
+            TensorsData in = readRawImageData();
 
-                Log.d(TAG, "Try to invoke data " + (i + 1));
-
+            if (in != null) {
                 TensorsData out = single.invoke(in);
-                printTensorsData(out);
+                int labelIndex = getMaxScore(out.getTensorData(0));
 
-                Thread.sleep(50);
+                /* check label index (orange) */
+                Log.d(TAG, "The label index is " + labelIndex);
+                if (labelIndex != 951) {
+                    Log.w(TAG, "The raw image is not orange!");
+                    isFailed = true;
+                }
             }
 
             single.close();
@@ -283,9 +373,9 @@ public class MainActivity extends Activity {
      */
     private void runPipe(boolean addStateCb) {
         /* example with image classification tf-lite model */
-        File model = getExampleModel();
+        File model = getExampleModelTFLite();
 
-        if (!model.exists()) {
+        if (model == null || !model.exists()) {
             Log.w(TAG, "Cannot find the model file");
             return;
         }
@@ -320,6 +410,15 @@ public class MainActivity extends Activity {
 
                     printTensorsInfo(data.getTensorsInfo());
                     printTensorsData(data);
+
+                    int labelIndex = getMaxScore(data.getTensorData(0));
+
+                    /* check label index (orange) */
+                    Log.d(TAG, "The label index is " + labelIndex);
+                    if (labelIndex != 951) {
+                        Log.w(TAG, "The raw image is not orange!");
+                        isFailed = true;
+                    }
                 }
             });
 
@@ -329,20 +428,13 @@ public class MainActivity extends Activity {
             pipe.start();
 
             /* push input buffer */
-            TensorsInfo info = new TensorsInfo();
-            info.addTensorInfo(NNStreamer.TensorType.UINT8, new int[]{3,224,224,1});
-
-            for (int i = 0; i < 15; i++) {
-                /* dummy input */
-                TensorsData in = TensorsData.allocate(info);
-
-                Log.d(TAG, "Push input data " + (i + 1));
-
+            TensorsData in = readRawImageData();
+            if (in != null) {
                 pipe.inputData("srcx", in);
-                Thread.sleep(50);
             }
 
-            Log.d(TAG, "Current state is " + pipe.getState());
+            /* wait for classification result */
+            Thread.sleep(1000);
 
             pipe.close();
         } catch (Exception e) {
@@ -642,6 +734,138 @@ public class MainActivity extends Activity {
             customPassthrough.close();
             customConvert.close();
             customAdd.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.e(TAG, e.getMessage());
+            isFailed = true;
+        }
+    }
+
+    /**
+     * Example to run pipeline with NNFW model.
+     */
+    private void runPipeNNFW() {
+        if (!NNStreamer.isAvailable(NNStreamer.NNFWType.NNFW)) {
+            /* cannot run the example */
+            Log.w(TAG, "NNFW is not available, cannot run the example.");
+            return;
+        }
+
+        File model = getExampleModelNNFW();
+
+        if (model == null || !model.exists()) {
+            Log.w(TAG, "Cannot find the model file");
+            return;
+        }
+
+        String desc = "appsrc name=srcx ! " +
+                "other/tensor,dimension=(string)1:1:1:1,type=(string)float32,framerate=(fraction)0/1 ! " +
+                "tensor_filter framework=nnfw model=" + model.getAbsolutePath() + " ! " +
+                "tensor_sink name=sinkx";
+
+        try (Pipeline pipe = new Pipeline(desc)) {
+            TensorsInfo info = new TensorsInfo();
+            info.addTensorInfo(NNStreamer.TensorType.FLOAT32, new int[]{1,1,1,1});
+
+            /* register sink callback */
+            pipe.registerSinkCallback("sinkx", new Pipeline.NewDataCallback() {
+                int received = 0;
+
+                @Override
+                public void onNewDataReceived(TensorsData data) {
+                    float expected = received + 3.5f;
+
+                    Log.d(TAG, "Received new data callback at sinkx " + (++received));
+
+                    printTensorsInfo(data.getTensorsInfo());
+                    printTensorsData(data);
+
+                    ByteBuffer output = data.getTensorData(0);
+                    float value = output.getFloat(0);
+
+                    /* check output */
+                    if (value != expected) {
+                        Log.d(TAG, "Failed, received data is invalid.");
+                        isFailed = true;
+                    }
+                }
+            });
+
+            /* start pipeline */
+            pipe.start();
+
+            /* push input buffer */
+            for (int i = 0; i < 5; i++) {
+                /* input data */
+                TensorsData input = info.allocate();
+
+                ByteBuffer buffer = input.getTensorData(0);
+                buffer.putFloat(0, i + 1.5f);
+
+                input.setTensorData(0, buffer);
+
+                /* push data */
+                pipe.inputData("srcx", input);
+
+                Thread.sleep(50);
+            }
+
+            pipe.stop();
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.e(TAG, e.getMessage());
+            isFailed = true;
+        }
+    }
+
+    /**
+     * Example to run single-shot with NNFW model.
+     */
+    private void runSingleNNFW() {
+        if (!NNStreamer.isAvailable(NNStreamer.NNFWType.NNFW)) {
+            /* cannot run the example */
+            Log.w(TAG, "NNFW is not available, cannot run the example.");
+            return;
+        }
+
+        try {
+            File model = getExampleModelNNFW();
+
+            SingleShot single = new SingleShot(model, NNStreamer.NNFWType.NNFW);
+
+            /* set timeout (1 second) */
+            single.setTimeout(1000);
+
+            /* get input info */
+            TensorsInfo in = single.getInputInfo();
+
+            /* single-shot invoke */
+            for (int i = 0; i < 5; i++) {
+                /* input data */
+                TensorsData input = in.allocate();
+
+                ByteBuffer buffer = input.getTensorData(0);
+                buffer.putFloat(0, i + 1.5f);
+
+                input.setTensorData(0, buffer);
+
+                /* invoke */
+                TensorsData output = single.invoke(input);
+
+                printTensorsInfo(output.getTensorsInfo());
+                printTensorsData(output);
+
+                /* check output */
+                float expected = i + 3.5f;
+                if (output.getTensorData(0).getFloat(0) != expected) {
+                    Log.d(TAG, "Failed, received data is invalid.");
+                    isFailed = true;
+                }
+
+                Thread.sleep(30);
+            }
+
+            single.close();
         } catch (Exception e) {
             e.printStackTrace();
             Log.e(TAG, e.getMessage());
