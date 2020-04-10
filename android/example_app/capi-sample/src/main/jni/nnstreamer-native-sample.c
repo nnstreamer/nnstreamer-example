@@ -13,9 +13,11 @@
 
 #include <jni.h>
 #include <unistd.h>
+#include <pthread.h>
 #include <android/log.h>
 
 #include "nnstreamer.h"
+#include "nnstreamer-single.h"
 
 #define TAG_NAME "NNStreamer-Sample"
 #define LOGD(...) __android_log_print (ANDROID_LOG_DEBUG, TAG_NAME, __VA_ARGS__)
@@ -105,10 +107,10 @@ done:
 }
 
 /**
- * @brief SNAP example.
+ * @brief SNAP pipeline example.
  */
 static void
-run_snap_example (void)
+run_example_snap_pipeline (bool is_tf)
 {
   ml_pipeline_h pipe = NULL;
   ml_pipeline_sink_h sink = NULL;
@@ -119,14 +121,14 @@ run_snap_example (void)
    *
    * Set custom properties in tensor-filter.
    *
-   * GPU: "custom=ModelFWType:CAFFE,ExecutionDataType:FLOAT32,ComputingUnit:GPU,GpuCacheSource:/sdcard/nnstreamer/"
+   * GPU: "ComputingUnit:GPU,GpuCacheSource:/sdcard/nnstreamer/"
    * Denote GPU cache path. (GpuCacheSource:cache-path)
    * It takes a time with GPU option in the first run.
    *
-   * CPU: "custom=ModelFWType:CAFFE,ExecutionDataType:FLOAT32,ComputingUnit:CPU"
+   * CPU: "ComputingUnit:CPU"
    * Set CPU thread count. (default 4. e.g., CpuThreadCount:5 to set the count 5.)
    */
-  const char description[] = "videotestsrc ! videoconvert ! videoscale ! "
+  const char desc_caffe[] = "videotestsrc ! videoconvert ! videoscale ! "
             "video/x-raw,format=RGB,width=224,height=224,framerate=(fraction)30/1 ! "
             "tensor_converter ! tensor_transform mode=typecast option=float32 ! "
             "tensor_filter framework=snap "
@@ -137,10 +139,20 @@ run_snap_example (void)
                 "custom=ModelFWType:CAFFE,ExecutionDataType:FLOAT32,ComputingUnit:CPU ! "
             "tensor_sink name=sinkx";
 
+  const char desc_tf[] = "videotestsrc ! videoconvert ! videoscale ! "
+            "video/x-raw,format=RGB,width=224,height=224,framerate=(fraction)30/1 ! "
+            "tensor_converter ! tensor_transform mode=typecast option=float32 ! "
+            "tensor_filter framework=snap "
+                "model=/sdcard/nnstreamer/snap_data/model/yolo_new.pb "
+                "input=3:224:224:1 inputtype=float32 inputlayout=NHWC inputname=input "
+                "output=1001:1 outputtype=float32 outputlayout=NHWC outputname=MobilenetV1/Predictions/Reshape_1 "
+                "custom=ModelFWType:TENSORFLOW,ExecutionDataType:FLOAT32,ComputingUnit:CPU ! "
+            "tensor_sink name=sinkx";
+
   LOGI ("Start to run NNStreamer pipeline with SNAP.");
 
   /* construct a pipeline */
-  status = ml_pipeline_construct (description, NULL, NULL, &pipe);
+  status = ml_pipeline_construct ((is_tf) ? desc_tf : desc_caffe, NULL, NULL, &pipe);
   if (status != ML_ERROR_NONE) {
     LOGE ("Failed to construct the pipeline.");
     goto done;
@@ -149,7 +161,7 @@ run_snap_example (void)
   /* register sink callback */
   status = ml_pipeline_sink_register (pipe, "sinkx", sample_sink_cb, NULL, &sink);
   if (status != ML_ERROR_NONE) {
-    LOGE ("Failed to construct the pipeline.");
+    LOGE ("Failed to get the sink handle.");
     goto done;
   }
 
@@ -171,6 +183,204 @@ done:
 }
 
 /**
+ * @brief NNFW pipeline example.
+ */
+static void
+run_example_nnfw_pipeline (void)
+{
+  ml_pipeline_h pipe = NULL;
+  ml_pipeline_sink_h sink = NULL;
+  ml_pipeline_src_h src = NULL;
+  ml_tensors_info_h in_info = NULL;
+  ml_tensors_data_h in_data = NULL;
+  int status = ML_ERROR_NONE;
+  float *data = NULL;
+  size_t data_size;
+
+  const char description[] = "appsrc name=srcx ! "
+             "other/tensor,dimension=(string)1:1:1:1,type=(string)float32,framerate=(fraction)0/1 ! "
+             "tensor_filter framework=nnfw model=/sdcard/nnstreamer/tflite_model_add/add.tflite ! "
+             "tensor_sink name=sinkx";
+
+  LOGI ("Start to run NNStreamer pipeline with NNFW.");
+
+  /* construct a pipeline */
+  status = ml_pipeline_construct (description, NULL, NULL, &pipe);
+  if (status != ML_ERROR_NONE) {
+    LOGE ("Failed to construct the pipeline.");
+    goto done;
+  }
+
+  /* register sink callback */
+  status = ml_pipeline_sink_register (pipe, "sinkx", sample_sink_cb, NULL, &sink);
+  if (status != ML_ERROR_NONE) {
+    LOGE ("Failed to get the sink handle.");
+    goto done;
+  }
+
+  /* get src handle */
+  status = ml_pipeline_src_get_handle (pipe, "srcx", &src);
+  if (status != ML_ERROR_NONE) {
+    LOGE ("Failed to get the src handle.");
+    goto done;
+  }
+
+  status = ml_pipeline_src_get_tensors_info (src, &in_info);
+  if (status != ML_ERROR_NONE) {
+    LOGE ("Failed to get the input info.");
+    goto done;
+  }
+
+  /* start the pipeline */
+  status = ml_pipeline_start (pipe);
+  if (status != ML_ERROR_NONE) {
+    LOGE ("Failed to start the pipeline.");
+    goto done;
+  }
+
+  /* input data */
+  status = ml_tensors_data_create (in_info, &in_data);
+  if (status != ML_ERROR_NONE) {
+    LOGE ("Failed to create input data.");
+    goto done;
+  }
+
+  status = ml_tensors_data_get_tensor_data (in_data, 0, (void **) &data, &data_size);
+  if (status != ML_ERROR_NONE) {
+    LOGE ("Failed to get input data.");
+    goto done;
+  }
+
+  *data = 10.2f;
+  status = ml_tensors_data_set_tensor_data (in_data, 0, data, sizeof (float));
+  if (status != ML_ERROR_NONE) {
+    LOGE ("Failed to set input data.");
+    goto done;
+  }
+
+  /* auto-free, do not destroy data handle. */
+  status = ml_pipeline_src_input_data (src, in_data, ML_PIPELINE_BUF_POLICY_AUTO_FREE);
+  if (status != ML_ERROR_NONE) {
+    LOGE ("Failed to push input data.");
+    goto done;
+  }
+
+  /* sleep to run pipeline for a while */
+  sleep (1);
+
+done:
+  /* destroy the pipeline */
+  if (ml_pipeline_destroy (pipe) != ML_ERROR_NONE) {
+    LOGE ("Failed to destroy pipeline handle.");
+  }
+
+  if (ml_tensors_info_destroy (in_info) != ML_ERROR_NONE) {
+    LOGE ("Failed to destroy input info handle.");
+  }
+}
+
+/**
+ * @brief NNFW single-shot example.
+ */
+static void
+run_example_nnfw_single (void)
+{
+  ml_single_h single = NULL;
+  ml_tensors_info_h in_info = NULL;
+  ml_tensors_data_h in_data = NULL;
+  ml_tensors_data_h out_data = NULL;
+  int status = ML_ERROR_NONE;
+  float *data = NULL;
+  size_t data_size;
+
+  const char nnfw_model[] = "/sdcard/nnstreamer/tflite_model_add/add.tflite";
+
+  status = ml_single_open (&single, nnfw_model, NULL, NULL, ML_NNFW_TYPE_NNFW, ML_NNFW_HW_CPU);
+  if (status != ML_ERROR_NONE) {
+    LOGE ("Failed to push input data.");
+    goto done;
+  }
+
+  status = ml_single_get_input_info (single, &in_info);
+  if (status != ML_ERROR_NONE) {
+    LOGE ("Failed to get input info.");
+    goto done;
+  }
+
+  /* input data */
+  status = ml_tensors_data_create (in_info, &in_data);
+  if (status != ML_ERROR_NONE) {
+    LOGE ("Failed to create input data.");
+    goto done;
+  }
+
+  status = ml_tensors_data_get_tensor_data (in_data, 0, (void **) &data, &data_size);
+  if (status != ML_ERROR_NONE) {
+    LOGE ("Failed to get input data.");
+    goto done;
+  }
+
+  *data = 10.2f;
+  status = ml_tensors_data_set_tensor_data (in_data, 0, data, sizeof (float));
+  if (status != ML_ERROR_NONE) {
+    LOGE ("Failed to set input data.");
+    goto done;
+  }
+
+  /* invoke */
+  status = ml_single_invoke (single, in_data, &out_data);
+  if (status != ML_ERROR_NONE) {
+    LOGE ("Failed to invoke.");
+    goto done;
+  }
+
+  status = ml_tensors_data_get_tensor_data (out_data, 0, (void **) &data, &data_size);
+  if (status != ML_ERROR_NONE) {
+    LOGE ("Failed to get output data.");
+    goto done;
+  }
+
+  if (*data != 12.2f) {
+    LOGE ("Invalid result : %f", *data);
+  }
+
+done:
+  if (ml_single_close (single) != ML_ERROR_NONE) {
+    LOGE ("Failed to destroy single handle.");
+  }
+
+  if (ml_tensors_info_destroy (in_info) != ML_ERROR_NONE) {
+    LOGE ("Failed to destroy input info handle.");
+  }
+
+  if (ml_tensors_data_destroy (in_data) != ML_ERROR_NONE) {
+    LOGE ("Failed to destroy input data handle.");
+  }
+
+  if (ml_tensors_data_destroy (out_data) != ML_ERROR_NONE) {
+    LOGE ("Failed to destroy output data handle.");
+  }
+}
+
+/**
+ * @brief thread to run the examples.
+ */
+static pthread_t g_app_thread;
+
+/**
+ * @brief Run the examples.
+ */
+static void *
+run_examples (void *user_data)
+{
+  run_simple_pipeline ();
+  run_example_nnfw_pipeline ();
+  run_example_nnfw_single ();
+  run_example_snap_pipeline (false);
+  return NULL;
+}
+
+/**
  * @brief Native method to run sample pipeline with NNStreamer.
  */
 jboolean
@@ -181,14 +391,14 @@ Java_org_nnsuite_nnstreamer_sample_MainActivity_nativeRunSample (JNIEnv * env, j
   /**
    * Initialize NNStreamer.
    * You SHOULD initialize NNStreamer first.
+   * Call nnstreamer_native_initialize() in native, or NNStreamer.initialize() in java.
    */
   if (!nnstreamer_native_initialize (env, context)) {
     LOGE ("Failed to initialize NNStreamer.");
     return JNI_FALSE;
   }
 
-  run_simple_pipeline ();
-  run_snap_example ();
-
+  /* Do not run the examples on UI thread */
+  pthread_create (&g_app_thread, NULL, &run_examples, NULL);
   return JNI_TRUE;
 }
