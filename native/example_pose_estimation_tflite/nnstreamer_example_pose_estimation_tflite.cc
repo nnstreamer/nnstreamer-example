@@ -494,25 +494,25 @@ draw_overlay_cb (GstElement * overlay, cairo_t * cr, guint64 timestamp,
     x = kpts[keyPointIdx].x * VIDEO_WIDTH / MODEL_INPUT_WIDTH;
 
     /* draw key point */
-    cairo_set_source_rgb (cr, 0, 0.3, 0.8);
-    cairo_arc (cr, x, y, 2, 0, 2 * M_PI);
+    cairo_set_source_rgb (cr, 0.85, 0.2, 0.2);
+    cairo_arc (cr, x, y, 3, 0, 2 * M_PI);
     cairo_stroke_preserve (cr);
     cairo_fill (cr);
 
     /* draw the text of each key point */
     cairo_move_to (cr, x + 5, y + 17);
     cairo_text_path (cr, kpts[keyPointIdx].label);
-    cairo_set_source_rgb (cr, 0, 0.3, 0.8);
+    cairo_set_source_rgb (cr, 0.7, 0.3, 0.5);
     cairo_fill_preserve (cr);
-    cairo_set_source_rgb (cr, 0, 0.3, 0.8);
-    cairo_set_line_width (cr, .4);
+    cairo_set_source_rgb (cr, 0.7, 0.3, 0.5);
+    cairo_set_line_width (cr, .2);
     cairo_stroke (cr);
     cairo_fill_preserve (cr);
   }
 
   /* draw body lines */
-  cairo_set_source_rgb (cr, 0, 0.3, 0.8);
-  cairo_set_line_width (cr, 2);
+  cairo_set_source_rgb (cr, 0.85, 0.2, 0.2);
+  cairo_set_line_width (cr, 3);
 
   _draw_line (kpts, cr, 5, 6);
   _draw_line (kpts, cr, 5, 7);
