@@ -1,0 +1,11 @@
+#!/bin/bash
+pushd /usr/lib/nnstreamer/bin
+rm -rf caffe2_model
+rm -rf speech_model
+rm -rf tflite_img_segment_model
+rm -rf tflite_model
+rm -rf tflite_model_img
+rm -rf tflite_pose_estimation
+rm -rf tflite_text_classification
+rm -rf tf_model
+popd

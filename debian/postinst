@@ -1,0 +1,11 @@
+#!/bin/bash
+pushd /usr/lib/nnstreamer/bin
+/usr/lib/nnstreamer/bin/get-model.sh image-classification-tflite
+/usr/lib/nnstreamer/bin/get-model.sh image-classification-caffe2
+/usr/lib/nnstreamer/bin/get-model.sh object-detection-tf
+/usr/lib/nnstreamer/bin/get-model.sh object-detection-tflite
+/usr/lib/nnstreamer/bin/get-model.sh speech-command
+/usr/lib/nnstreamer/bin/get-model.sh image-segmentation-tflite
+/usr/lib/nnstreamer/bin/get-model.sh text-classification-tflite
+/usr/lib/nnstreamer/bin/get-model.sh pose-estimation-tflite
+popd
