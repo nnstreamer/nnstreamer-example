@@ -14,6 +14,7 @@ Homepage: https://github.com/nnsuite/nnstreamer-example
 Package: nnstreamer-example
 Architecture: any
 Multi-Arch: same
-Depends: ${shlibs:Depends}, ${misc:Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}, nnstreamer,
+ nnstreamer-tensorflow-lite, nnstreamer-tensorflow
 Description: Examples of nnstreamer
  This package contains the examples of nnstreamer.
