@@ -6,7 +6,7 @@ We assume that you want to deploy a NNStreamer-based application on your own And
 Also, we assume that you already have experienced Android application developments with Android Studio.
 
  * Host PC:
-   * OS: Ubuntu 16.04 x86_64 LTS
+   * OS: Ubuntu 18.04 x86_64 LTS
    * Android Studio: Ubuntu version (However, the Window version will be compatible.)
  * Target Device:
    * CPU Architecture: ARM 64bit (aarch64)
@@ -28,26 +28,26 @@ We built a example using GStreamer tutorials and camera2 source for Android.
 
 To build a NNStreamer-based application, you should download Android Studio and setup environment variables.
 
-Please see the details [here](https://github.com/nnsuite/nnstreamer/blob/master/api/android/README.md).
+Please see the details [here](https://github.com/nnstreamer/nnstreamer/blob/master/api/android/README.md).
 
 #### Download NNStreamer and example source code
 
 ```bash
 $ cd $ANDROID_DEV_ROOT/workspace
-$ git clone https://github.com/nnsuite/nnstreamer.git
-$ git clone https://github.com/nnsuite/nnstreamer-example.git
+$ git clone https://github.com/nnstreamer/nnstreamer.git
+$ git clone https://github.com/nnstreamer/nnstreamer-example.git
 ```
 
 Extract external libraries into common directory.
 
 [extfiles.tar.xz](common/jni/extfiles.tar.xz) includes external library such as 'ahc'.
 
-[tensorflow-lite-1.13.tar.xz](https://github.com/nnsuite/nnstreamer-android-resource/blob/master/android_api/ext-files/tensorflow-lite-1.13.tar.xz) includes the libraries and header files of tensorflow-lite.
+[tensorflow-lite-1.13.tar.xz](https://github.com/nnstreamer/nnstreamer-android-resource/blob/master/android_api/ext-files/tensorflow-lite-1.13.tar.xz) includes the libraries and header files of tensorflow-lite.
 
 ```
 $ cd $ANDROID_DEV_ROOT/workspace/nnstreamer-example/android/example_app/common/jni
 $ tar xJf ./extfiles.tar.xz
-$ svn --force export https://github.com/nnsuite/nnstreamer-android-resource/trunk/android_api/ext-files/tensorflow-lite-1.13.tar.xz
+$ curl -O https://raw.githubusercontent.com/nnsuite/nnstreamer-android-resource/master/android_api/ext-files/tensorflow-lite-1.13.tar.xz
 $ tar xJf ./tensorflow-lite-1.13.tar.xz # Check tensorflow-lite version and extract prebuilt library
 $ ls ahc tensorflow-lite
 ```
@@ -85,7 +85,7 @@ Before running .apk file on your Android device, You must copy a SSD model and l
 
 Make directory and copy SSD model and label files into the internal storage of your own Android target device.
 
-You can download these files from [nnsuite testcases repository](https://github.com/nnsuite/testcases/tree/master/DeepLearningModels/tensorflow-lite/ssd_mobilenet_v2_coco).
+You can download these files from [nnstreamer testcases repository](https://github.com/nnstreamer/testcases/tree/master/DeepLearningModels/tensorflow-lite/ssd_mobilenet_v2_coco).
 
 ```
 # You must put the below SSD network model files in the internal storage of your Android target device.

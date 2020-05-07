@@ -7,7 +7,7 @@ In order to deploy NNstreamer on Android devices, you have to execute four steps
  * Build NNstreamer-based test applications
 
 We assume that you want to deploy a NNstreamer-based application on you own Android/ARM64bit target device.
- * Host PC: Ubuntu 16.04 x86_64 LTS
+ * Host PC: Ubuntu 18.04 x86_64 LTS
  * CPU Architecture: ARM 64bit (aarch64)
  * Android platform: 7.0 (Nougat)
  * Android NDK: r12b
@@ -15,7 +15,7 @@ We assume that you want to deploy a NNstreamer-based application on you own Andr
 
 ## Build Android full source
 We describe how to build Android full source in case that developers have to bring up NNstreamer
-on Android 7.0 (Nougat) on Ubuntu 16.04 x86_64 destkop PC.
+on Android 7.0 (Nougat) on Ubuntu 18.04 x86_64 destkop PC.
 
 For more details, please refer to the below websites.
  * https://source.android.com/setup/build/building
