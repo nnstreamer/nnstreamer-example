@@ -18,3 +18,35 @@ We provide example nnstreamer applications:
 - Android applications
    - NDK based C/C++ CLI applicaton
    - JNI based GUI application
+
+
+# Quick start guide for NNStreamer example
+
+## Use PPA
+* Download nnstreamer :
+```
+$ sudo add-apt-repository ppa:nnstreamer/ppa
+$ sudo apt-get update
+$ sudo apt-get install nnstreamer
+```
+
+* Download nnstreamer example :
+```
+$ sudo add-apt-repository ppa:nnstreamer-example/ppa
+$ sudo apt-get update
+$ sudo apt-get install nnstreamer-example
+$ cd /usr/lib/nnstreamer/bin # binary install directory
+```
+
+As of 2018/10/13, we support 16.04 and 18.04
+
+If you want to build nnstreamer example yourself, please refer to the link : [[Build example](https://github.com/nnstreamer/nnstreamer/wiki/usage-examples-screenshots#build-examples-ubuntu-1604)]
+
+## Usage Examples
+### Text classification
+```
+$ cd /usr/lib/nnstreamer/bin
+$ ./nnstreamer_example_text_classification_tflite
+```
+
+Refer to this link for more examples : [[NNStreamer example](https://github.com/nnstreamer/nnstreamer/wiki/usage-examples-screenshots#usage-examples)]
