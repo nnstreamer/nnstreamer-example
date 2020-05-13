@@ -4,7 +4,7 @@ Version:	1.0.0
 Release:	0
 Group:		Applications/Multimedia
 Packager:	HyoungJoo Ahn <hello.ahn@samsung.com>
-License:	Priprietary
+License:	LGPL-2.1
 Source0:	%{name}-%{version}.tar.gz
 Source1001:	%{name}.manifest
 
