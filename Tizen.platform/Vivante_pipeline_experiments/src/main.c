@@ -25,11 +25,11 @@
 #define CH  3
 #define LABEL_SIZE  5
 
-gchar * vnn_inception_nb;
-gchar * vnn_inception_so;
-gchar * vnn_yolo_nb;
-gchar * vnn_yolo_so;
-gchar * tflite_inception_model;
+gchar * vnn_inception_nb = NULL;
+gchar * vnn_inception_so = NULL;
+gchar * vnn_yolo_nb = NULL;
+gchar * vnn_yolo_so = NULL;
+gchar * tflite_inception_model = NULL;
 
 ml_pipeline_h handle;
 ml_pipeline_sink_h vnn_inception_sink_handle;
@@ -134,6 +134,12 @@ int main (int argc, char *argv[]){
   gboolean enable_vnn_inception = false;
   gboolean enable_vnn_yolo = false;
   gboolean enable_tflite_inception = false;
+  if (argc != 5) {
+    printf("please the input values for 'vnn_inception', 'vnn_yolo', 'tflite_inception', 'running_time' exactly.");
+    printf("(e.g. $ ./vivante-pipeline-experiment 1 1 1 100)");
+    return 0;
+  }
+  guint running_time = atoi(argv[4]);
 
   app_start_time = g_get_real_time ();
 
@@ -151,7 +157,7 @@ int main (int argc, char *argv[]){
     enable_tflite_inception = true;
   }
 
-  GString *pipeline = g_string_new ("v4l2src ! tee name=t");
+  GString *pipeline = g_string_new ("v4l2src ! videoconvert ! video/x-raw,format=RGB,width=640,height=480 ! tee name=t");
 
   if (enable_vnn_inception){
     vnn_inception_nb = g_strdup_printf ("/usr/share/dann/inception-v3.nb");
@@ -198,6 +204,7 @@ int main (int argc, char *argv[]){
   }
 
   printf ("[%d] pipeline: %s\n\n", __LINE__, pipeline->str);
+  printf ("[%d] running time: %u\n\n", __LINE__, running_time);
   status = ml_pipeline_construct (pipeline->str, NULL, NULL, &handle);
   if (status != ML_ERROR_NONE){
     printf ("[%d] ERROR!!!: %s\n", __LINE__, getErrorName (status));
@@ -245,16 +252,22 @@ int main (int argc, char *argv[]){
   }
   pipeline_start_time = g_get_real_time ();
 
-  /* run pipeline for 10 secs */
-  g_usleep (10 * 1000000);
+  /* 10 secs is default */
+  g_usleep (running_time * 1000000);
 
 error:
   ml_pipeline_stop (handle);
   pipeline_stop_time = g_get_real_time ();
 
-  ml_pipeline_sink_unregister (vnn_inception_sink_handle);
-  ml_pipeline_sink_unregister (vnn_yolo_sink_handle);
-  ml_pipeline_sink_unregister (tflite_inception_sink_handle);
+  if (enable_vnn_inception)
+    ml_pipeline_sink_unregister (vnn_inception_sink_handle);
+
+  if (enable_vnn_yolo)
+    ml_pipeline_sink_unregister (vnn_yolo_sink_handle);
+
+  if (enable_tflite_inception)
+    ml_pipeline_sink_unregister (tflite_inception_sink_handle);
+
   ml_pipeline_destroy (handle);
 
   g_free (vnn_inception_nb);
