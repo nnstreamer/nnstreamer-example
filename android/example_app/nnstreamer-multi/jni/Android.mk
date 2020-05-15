@@ -43,7 +43,7 @@ GSTREAMER_NDK_BUILD_PATH  := $(GSTREAMER_ROOT)/share/gst-android/ndk-build/
 include $(GSTREAMER_NDK_BUILD_PATH)/plugins.mk
 # add necessary gstreamer plugins
 GSTREAMER_PLUGINS         := $(GSTREAMER_PLUGINS_CORE) $(GSTREAMER_PLUGINS_SYS) cairo videocrop
-GSTREAMER_EXTRA_DEPS      := gstreamer-video-1.0 gstreamer-audio-1.0 gobject-2.0
+GSTREAMER_EXTRA_DEPS      := gstreamer-video-1.0 gstreamer-audio-1.0 gobject-2.0 gmodule-2.0
 # cairo graphics library is used to display detected objects in this example.
 # (cairooverlay, https://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-good/html/gst-plugins-good-plugins-cairooverlay.html)
 # gst-photography is interface for digital imaging, used in ahc2src.
