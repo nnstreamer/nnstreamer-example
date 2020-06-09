@@ -187,7 +187,10 @@ void app_check_and_request_permissions()
       }
     }
 
-    if (allowed_count != privileges_count) {
+    if (allowed_count == privileges_count) {
+      init_pipeline();
+      view_create(NULL);
+    } else {
       dlog_print(DLOG_DEBUG, LOG_TAG, "PRIVILEGE CHECK IS REQUESTED");
       ret = ppm_request_permissions(askable_privileges,
           askable_privileges_count, app_request_multiple_response_cb, NULL);
