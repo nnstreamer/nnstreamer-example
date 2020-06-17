@@ -23,6 +23,7 @@ examples_install_dir = nnst_exam_bindir
 
 # Dependencies
 glib_dep = dependency('glib-2.0')
+gmodule_dep = dependency('gmodule-2.0')
 gst_dep = dependency('gstreamer-1.0')
 gst_base_dep = dependency('gstreamer-base-1.0')
 gst_video_dep = dependency('gstreamer-video-1.0')
