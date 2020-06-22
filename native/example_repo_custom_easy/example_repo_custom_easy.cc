@@ -5,13 +5,13 @@
  * @author	HyoungJoo Ahn <hello.ahn@samsung.com>
  * @bug		No known bugs.
  * 
- *  +-------------------------- slot 0 <--------------------------+
- *  |                                                             |
- *  +-->repo_src:0 --┐                ┌--filter0 -->repo_sink:0 --+
- *          appsrc --┼-->mux -->tee --┼
- *  +-->repo_src:1 --┘                └--filter1 -->repo_sink:1 --+
- *  |                                                             |
- *  +-------------------------- slot 1 <--------------------------+
+ *  +------------------------------ slot 0 <------------------------------+
+ *  |                                                                     |
+ *  +-->repo_src:0 --┐                ┌--filter0(on/off) -->repo_sink:0 --+
+ *          appsrc --┼-->mux -->tee --┼--tensor_sink
+ *  +-->repo_src:1 --┘                └--filter1(off/on) -->repo_sink:1 --+
+ *  |                                                                     |
+ *  +------------------------------ slot 1 <------------------------------+
  */
 
 #include <stdio.h>
@@ -129,6 +129,7 @@ push_app_src (app_data_s * app)
 
   data_arr = g_new0 (guint8, sizeof (guint8));
   g_assert (data_arr);
+  data_arr[0] = 1;
 
   buf = gst_buffer_new_wrapped (data_arr, sizeof (guint8));
   g_assert (buf);
@@ -148,7 +149,6 @@ new_data_cb (GstElement * element, GstBuffer * buffer, gpointer user_data)
   GstMapInfo info;
   guint i;
   guint num_mems;
-
   num_mems = gst_buffer_n_memory (buffer);
   for (i = 0; i < num_mems; i++) {
     mem = gst_buffer_peek_memory (buffer, i);
@@ -163,28 +163,29 @@ new_data_cb (GstElement * element, GstBuffer * buffer, gpointer user_data)
 int f1_out=100;
 int f2_out=10;
 
+int evenodd1=0,evenodd2= 0;
 static int function_1 (void *data, const GstTensorFilterProperties *prop,
     const GstTensorMemory *in, GstTensorMemory *out)
 {
-  g_usleep (100);
-  _print_log ("[%s:%d] prop->input_meta.num_tensors: %d", __FUNCTION__, __LINE__, prop->input_meta.num_tensors);
-  _print_log ("[%s:%d] input[0]: %d", __FUNCTION__, __LINE__, ((guint8*)in[0].data)[0]);
-  _print_log ("[%s:%d] input[1]: %d", __FUNCTION__, __LINE__, ((guint8*)in[1].data)[0]);
-  _print_log ("[%s:%d] input[2]: %d", __FUNCTION__, __LINE__, ((guint8*)in[2].data)[0]);
-  ((guint8*)out[0].data)[0] = f1_out++;
-  return 0; // return 1 하면 안보냄
+  evenodd1++;
+  if (evenodd1 % 2 == 1){
+    ((guint8*)out[0].data)[0] = f1_out++;
+    g_usleep(1000000);
+    return 0;
+  }
+  return 1;
 }
 
 static int function_2 (void *data, const GstTensorFilterProperties *prop,
     const GstTensorMemory *in, GstTensorMemory *out)
 {
-  g_usleep (300);
-  _print_log ("[%s:%d] prop->input_meta.num_tensors: %d", __FUNCTION__, __LINE__, prop->input_meta.num_tensors);
-  _print_log ("[%s:%d] input[0]: %d", __FUNCTION__, __LINE__, ((guint8*)in[0].data)[0]);
-  _print_log ("[%s:%d] input[1]: %d", __FUNCTION__, __LINE__, ((guint8*)in[1].data)[0]);
-  _print_log ("[%s:%d] input[2]: %d", __FUNCTION__, __LINE__, ((guint8*)in[2].data)[0]);
-  ((guint8*)out[0].data)[0] = f2_out++;
-  return 0;
+  evenodd2++;
+  if (evenodd2 % 2 == 0){
+    ((guint8*)out[0].data)[0] = f2_out++;
+    g_usleep(1000000);
+    return 0;
+  }
+  return 1;
 }
 
 /**
@@ -195,7 +196,6 @@ main (int argc, char **argv)
 {
   app_data_s *app;
   gchar *pipeline;
-  // GstElement *element;
 
   /* init gstreamer */
   gst_init (&argc, &argv);
@@ -207,45 +207,34 @@ main (int argc, char **argv)
   /* init pipeline */
   pipeline =
       g_strdup_printf (
-        "tensor_mux name=mux sync_mode=slowest silent=false ! tee name=t "
-          "t. ! queue ! tensor_filter framework=custom-easy silent=false model=model1 ! tensor_reposink slot-index=0 "
-          "t. ! queue ! tensor_filter framework=custom-easy silent=false model=model2 ! tensor_reposink slot-index=1 "
+        "tensor_mux name=mux sync_mode=refresh silent=false ! tee name=t "
+          "t. ! queue ! tensor_filter framework=custom-easy silent=false model=model1 ! tensor_reposink name=slot0 slot-index=0 async=false "
+          "t. ! queue ! tensor_filter framework=custom-easy silent=false model=model2 ! tensor_reposink name=slot1 slot-index=1 async=false "
           "t. ! queue ! tensor_sink silent=false name=sink async=false "
 
-          "tensor_reposrc slot-index=0 caps=\"other/tensor,dimension=(string)1:1:1:1,type=(string)uint8,framerate=(fraction)0/1\" ! mux.sink_0 "
-          "tensor_reposrc slot-index=1 caps=\"other/tensor,dimension=(string)1:1:1:1,type=(string)uint8,framerate=(fraction)0/1\" ! mux.sink_1 "
-          "appsrc name=appsrc caps=application/octet-stream,framerate=(fraction)0/1 ! tensor_converter silent=false input-dim=1:1:1:1 input-type=uint8 ! mux.sink_2 "
+          "tensor_reposrc slot-index=0 caps=\"other/tensor,dimension=(string)1:1:1:1,type=(string)uint8,framerate=(fraction)0/1\" ! queue ! mux.sink_0 "
+          "appsrc name=appsrc caps=application/octet-stream,framerate=(fraction)0/1 ! tensor_converter silent=false input-dim=1:1:1:1 input-type=uint8 ! mux.sink_1 "
+          "tensor_reposrc slot-index=1 caps=\"other/tensor,dimension=(string)1:1:1:1,type=(string)uint8,framerate=(fraction)0/1\" ! queue ! mux.sink_2 "
       );
 
  /* setting tensor_filter custom-easy */
-  const GstTensorsInfo info_in_1 = {
+  const GstTensorsInfo info_in = {
     .num_tensors = 3U,
     .info = {
       { .name = NULL, .type = _NNS_UINT8, .dimension = { 1, 1, 1, 1}},
       { .name = NULL, .type = _NNS_UINT8, .dimension = { 1, 1, 1, 1}},
       { .name = NULL, .type = _NNS_UINT8, .dimension = { 1, 1, 1, 1}}},
     };
-  const GstTensorsInfo info_out_1 = {
-    .num_tensors = 1U,
-    .info = {{ .name = NULL, .type = _NNS_UINT8, .dimension = { 1, 1, 1, 1}}},
-  };
-  const GstTensorsInfo info_in_2 = {
-    .num_tensors = 3U,
-    .info = {
-    { .name = NULL, .type = _NNS_UINT8, .dimension = { 1, 1, 1, 1}},
-    { .name = NULL, .type = _NNS_UINT8, .dimension = { 1, 1, 1, 1}},
-    { .name = NULL, .type = _NNS_UINT8, .dimension = { 1, 1, 1, 1}}},
-  };
-  const GstTensorsInfo info_out_2 = {
+  const GstTensorsInfo info_out = {
     .num_tensors = 1U,
     .info = {{ .name = NULL, .type = _NNS_UINT8, .dimension = { 1, 1, 1, 1}}},
   };
 
   NNS_custom_easy_register ("model1", function_1,
-      NULL, &info_in_1, &info_out_1);
+      NULL, &info_in, &info_out);
   
   NNS_custom_easy_register ("model2", function_2,
-      NULL, &info_in_2, &info_out_2);
+      NULL, &info_in, &info_out);
 
   app->pipeline = gst_parse_launch (pipeline, NULL);
   g_free (pipeline);
@@ -275,12 +264,21 @@ main (int argc, char **argv)
   /* ready to get input sentence */
   app->running = TRUE;
 
-  for(int i = 0; i < 10; i++){
-    push_app_src (app);
-    g_usleep(100000);
+  /* insert the starting input */
+  push_app_src (app);
+
+  /* run the pipeline for 5 seconds */
+  g_usleep(5 * 1000000);
+
+  if (gst_app_src_end_of_stream (GST_APP_SRC (app->src)) != GST_FLOW_OK) {
+    g_critical ("failed to set eos");
   }
 
+  /* wait until EOS done */
+  g_usleep(200000);
+
   /* stop the pipeline */
+  gst_element_set_state (app->pipeline, GST_STATE_READY);
   gst_element_set_state (app->pipeline, GST_STATE_NULL);
 
   /* close app */
