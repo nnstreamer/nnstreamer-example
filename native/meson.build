@@ -6,7 +6,8 @@ if have_tensorflow
 endif
 
 if have_tensorflow_lite
-  subdir('example_repo_custom_easy')
+# TODO: Let's append the "example_repo_custom_easy" after sending SR to review.tizen.org
+# subdir('example_repo_custom_easy')
   subdir('example_image_classification_tflite')
   subdir('example_object_detection_tensorflow_lite')
   subdir('example_object_detection_tensorflow_lite_appsrc')
