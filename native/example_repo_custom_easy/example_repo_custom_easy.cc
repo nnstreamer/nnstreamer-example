@@ -134,7 +134,7 @@ push_app_src (app_data_s * app)
   buf = gst_buffer_new_wrapped (data_arr, sizeof (guint8));
   g_assert (buf);
 
-  printf("buffer_n_memory: %d\n", gst_buffer_n_memory (buf));
+  g_message ("[%s] push %d tensor(s)", __FUNCTION__, gst_buffer_n_memory (buf));
   g_assert (gst_app_src_push_buffer (GST_APP_SRC (app->src),
           buf) == GST_FLOW_OK);
 }
@@ -150,11 +150,12 @@ new_data_cb (GstElement * element, GstBuffer * buffer, gpointer user_data)
   guint i;
   guint num_mems;
   num_mems = gst_buffer_n_memory (buffer);
+  g_message ("[%s] detect %d output tensor(s)", __FUNCTION__, num_mems);
   for (i = 0; i < num_mems; i++) {
     mem = gst_buffer_peek_memory (buffer, i);
 
     if (gst_memory_map (mem, &info, GST_MAP_READ)) {
-      _print_log ("[%s:%d] %d: %d", __FUNCTION__, __LINE__, i, info.data[0]);
+      g_message ("[%s] out_%d: %d", __FUNCTION__, i, info.data[0]);
       gst_memory_unmap (mem, &info);
     }
   }
@@ -207,13 +208,13 @@ main (int argc, char **argv)
   /* init pipeline */
   pipeline =
       g_strdup_printf (
-        "tensor_mux name=mux sync_mode=refresh silent=false ! tee name=t "
-          "t. ! queue ! tensor_filter framework=custom-easy silent=false model=model1 ! tensor_reposink name=slot0 slot-index=0 async=false "
-          "t. ! queue ! tensor_filter framework=custom-easy silent=false model=model2 ! tensor_reposink name=slot1 slot-index=1 async=false "
-          "t. ! queue ! tensor_sink silent=false name=sink async=false "
+        "tensor_mux name=mux sync_mode=refresh ! tee name=t "
+          "t. ! queue ! tensor_filter framework=custom-easy model=model1 ! tensor_reposink name=slot0 slot-index=0 "
+          "t. ! queue ! tensor_filter framework=custom-easy model=model2 ! tensor_reposink name=slot1 slot-index=1 "
+          "t. ! queue ! tensor_sink name=sink async=false "
 
           "tensor_reposrc slot-index=0 caps=\"other/tensor,dimension=(string)1:1:1:1,type=(string)uint8,framerate=(fraction)0/1\" ! queue ! mux.sink_0 "
-          "appsrc name=appsrc caps=application/octet-stream,framerate=(fraction)0/1 ! tensor_converter silent=false input-dim=1:1:1:1 input-type=uint8 ! mux.sink_1 "
+          "appsrc name=appsrc caps=application/octet-stream,framerate=(fraction)0/1 ! tensor_converter input-dim=1:1:1:1 input-type=uint8 ! mux.sink_1 "
           "tensor_reposrc slot-index=1 caps=\"other/tensor,dimension=(string)1:1:1:1,type=(string)uint8,framerate=(fraction)0/1\" ! queue ! mux.sink_2 "
       );
 
