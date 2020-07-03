@@ -30,6 +30,20 @@
 extern jboolean nnstreamer_native_initialize (JNIEnv * env, jobject context);
 
 /**
+ * @brief Internal function to check the framework is available.
+ */
+static int
+check_nnfw (ml_nnfw_type_e type)
+{
+  int status;
+  bool available = false;
+
+  status = ml_check_nnfw_availability (type, ML_NNFW_HW_ANY, &available);
+
+  return (status == ML_ERROR_NONE && available);
+}
+
+/**
  * @brief Callback to get the tensor data from sink element.
  */
 static void
@@ -149,6 +163,11 @@ run_example_snap_pipeline (bool is_tf)
                 "custom=ModelFWType:TENSORFLOW,ExecutionDataType:FLOAT32,ComputingUnit:CPU ! "
             "tensor_sink name=sinkx";
 
+  if (!check_nnfw (ML_NNFW_TYPE_SNAP)) {
+    LOGI ("SNAP is not available, skip this example.");
+    return;
+  }
+
   LOGI ("Start to run NNStreamer pipeline with SNAP.");
 
   /* construct a pipeline */
@@ -201,6 +220,11 @@ run_example_nnfw_pipeline (void)
              "other/tensor,dimension=(string)1:1:1:1,type=(string)float32,framerate=(fraction)0/1 ! "
              "tensor_filter framework=nnfw model=/sdcard/nnstreamer/tflite_model_add/add.tflite ! "
              "tensor_sink name=sinkx";
+
+  if (!check_nnfw (ML_NNFW_TYPE_NNFW)) {
+    LOGI ("NNFW is not available, skip this example.");
+    return;
+  }
 
   LOGI ("Start to run NNStreamer pipeline with NNFW.");
 
@@ -294,6 +318,13 @@ run_example_nnfw_single (void)
   size_t data_size;
 
   const char nnfw_model[] = "/sdcard/nnstreamer/tflite_model_add/add.tflite";
+
+  if (!check_nnfw (ML_NNFW_TYPE_NNFW)) {
+    LOGI ("NNFW is not available, skip this example.");
+    return;
+  }
+
+  LOGI ("Start to run NNStreamer single-shot with NNFW.");
 
   status = ml_single_open (&single, nnfw_model, NULL, NULL, ML_NNFW_TYPE_NNFW, ML_NNFW_HW_CPU);
   if (status != ML_ERROR_NONE) {
