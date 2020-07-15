@@ -23,3 +23,7 @@ endif
 if have_caffe2
   subdir('example_image_classification_caffe2')
 endif
+
+if have_nnfw
+  subdir('example_image_classification_nnfw')
+endif
