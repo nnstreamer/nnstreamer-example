@@ -63,6 +63,17 @@ if caffe2_dep.found() and protobuf_dep.found()
   have_caffe2 = true
 endif
 
+# Dependency for nnfw example
+nnfw_dep = dependency('nnfw', required: false)
+if not nnfw_dep.found()
+  nnfw_dep = cc.find_library('nnfw-dev', required: false)
+endif
+
+have_nnfw = false
+if nnfw_dep.found()
+  have_nnfw = true
+endif
+
 # Build and install nnstreamer native examples
 subdir('native')
 
