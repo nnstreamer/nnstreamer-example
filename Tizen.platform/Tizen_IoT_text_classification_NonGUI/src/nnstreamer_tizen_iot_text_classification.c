@@ -178,6 +178,9 @@ load_data (app_data_s * app)
     g_assert (app->words);
 
     for (i = 0; i < dics_len; i++) {
+      if (dics[i] == NULL || dics[i][0] == '\0')
+        continue;
+
       /* get word and index */
       gchar **word = g_strsplit (dics[i], " ", 2);
 
@@ -399,7 +402,7 @@ int main(int argc, char *argv[]){
   gst_bus_remove_signal_watch (app->bus);
   gst_object_unref (app->bus);
   gst_object_unref (app->pipeline);
-  g_free (host)
+  g_free (host);
   g_free (app->model_file);
   g_strfreev (app->labels);
   if (app->words != NULL)
