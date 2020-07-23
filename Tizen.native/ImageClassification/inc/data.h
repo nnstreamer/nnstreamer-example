@@ -12,16 +12,25 @@
 
 #include "view.h"
 #include <glib.h>
+#include <dlog.h>
+
+#ifdef  LOG_TAG
+#undef  LOG_TAG
+#endif
+#define LOG_TAG "ImageClassification"
 
 #define CAM_WIDTH     640
 #define CAM_HEIGHT    480
 #define MODEL_WIDTH   224
 #define MODEL_HEIGHT  224
 #define CH            3
+#define TFLITE_FRAMEWORK 0
+#define NNFW_FRAMEWORK 1
 
 extern ml_pipeline_h handle;
 extern ml_pipeline_src_h srchandle;
-extern ml_pipeline_sink_h sinkhandle;
+extern ml_pipeline_sink_h sinkhandle_1;
+extern ml_pipeline_sink_h sinkhandle_2;
 extern ml_tensors_info_h info;
 
 extern uint8_t * inArray;

@@ -27,13 +27,15 @@ typedef struct _camdata
   Evas_Object *display;
   Evas_Object *zoom_bt;
   Evas_Object *brightness_bt;
-  Evas_Object *get_label_bt;
+  Evas_Object *get_tflite_label_bt;
+  Evas_Object *get_nnfw_label_bt;
 } camdata;
 
 static camdata cam_data;
 
 static int is_checking;
-static int result_label;
+static int result_label[2];
+static int reset_preview;
 
 static transformation_h t_handle;
 G_LOCK_DEFINE_STATIC (callback_lock);
@@ -68,7 +70,7 @@ transform_completed_cb (media_packet_h * dst, int error_code, void *user_data)
   uint8_t *input_buf;
 
   media_packet_get_buffer_data_ptr (*dst, (void **) &input_buf);
-
+  reset_preview = 0;
   find_label (input_buf);
 
   media_packet_destroy (*dst);
@@ -134,8 +136,8 @@ _camera_state_to_string (camera_state_e state)
 }
 
 /**
- * @brief Print the result of image classification.
- * @details Called when the "Run Image Classification" button is clicked.
+ * @brief Print the image classification result of the tflite.
+ * @details Called when the "Run Image Classification with tflite" button is clicked.
  * @remarks This function matches the Evas_Smart_Cb() signature defined in the
  *          Evas_Legacy.h header file.
  *
@@ -149,10 +151,32 @@ _camera_state_to_string (camera_state_e state)
  *                    event. This argument is not used in this case.
  */
 static void
-__camera_cb_image_classification (void *data, Evas_Object * obj,
+__camera_cb_image_classification_tflite (void *data, Evas_Object * obj,
     void *event_info)
 {
-  PRINT_MSG ("%s is detected", labels[result_label]);
+  PRINT_MSG ("%s is detected, run by tflite", labels[result_label[TFLITE_FRAMEWORK]]);
+}
+
+/**
+ * @brief Print the image classification result of the nnfw.
+ * @details Called when the "Run Image Classification with nnfw" button is clicked.
+ * @remarks This function matches the Evas_Smart_Cb() signature defined in the
+ *          Evas_Legacy.h header file.
+ *
+ * @param data        The user data passed via void pointer. This argument is
+ *                    not used in this case.
+ * @param obj         A handle to the object on which the event occurred. In
+ *                    this case it's a pointer to the button object. This
+ *                    argument is not used in this case.
+ * @param event_info  A pointer to a data which is totally dependent on the
+ *                    smart object's implementation and semantic for the given
+ *                    event. This argument is not used in this case.
+ */
+static void
+__camera_cb_image_classification_nnfw (void *data, Evas_Object * obj,
+    void *event_info)
+{
+  PRINT_MSG ("%s is detected, run by nnfw", labels[result_label[NNFW_FRAMEWORK]]);
 }
 
 /**
@@ -266,6 +290,20 @@ __camera_cb_zoom (void *data, Evas_Object * obj, void *event_info)
 }
 
 /**
+ * @brief destroy transform handle and call camera preview
+ */
+void
+reset_camera_preview ()
+{
+  G_LOCK (callback_lock);
+  is_checking = 0;
+  image_util_transform_destroy (t_handle);
+
+  camera_set_media_packet_preview_cb (cam_data.g_camera, preview_frame_cb, NULL);
+  G_UNLOCK (callback_lock);
+}
+
+/**
  * @brief get label with the output of tensor_sink.
  */
 void
@@ -275,6 +313,8 @@ get_label_from_tensor_sink (const ml_tensors_data_h data,
   size_t data_size;
   uint8_t *output;
   int label_num = -1, max = -1;
+  int * which_fw = (int *) user_data;
+  dlog_print (DLOG_DEBUG, LOG_TAG, "User data : %d", *which_fw);
 
   ml_tensors_data_get_tensor_data (data, 0, (void **) &output, &data_size);
 
@@ -284,14 +324,12 @@ get_label_from_tensor_sink (const ml_tensors_data_h data,
       label_num = i;
     }
   }
+  result_label[*which_fw] = label_num;
 
-  G_LOCK (callback_lock);
-  is_checking = 0;
-  result_label = label_num;
-  image_util_transform_destroy (t_handle);
-
-  camera_set_media_packet_preview_cb (cam_data.g_camera, preview_frame_cb, NULL);
-  G_UNLOCK (callback_lock);
+  if (reset_preview == 0)
+    reset_preview++;
+  else
+    reset_camera_preview ();
 }
 
 /**
@@ -355,14 +393,17 @@ create_buttons_in_main_window (void)
   cam_data.zoom_bt = _new_button (cam_data.display, "Zoom", __camera_cb_zoom);
   cam_data.brightness_bt = _new_button (cam_data.display, "Brightness",
       __camera_cb_bright);
-  cam_data.get_label_bt = _new_button (cam_data.display,
-      "Run Image Classification", __camera_cb_image_classification);
+  cam_data.get_tflite_label_bt = _new_button (cam_data.display,
+      "Run Image Classification with tflite", __camera_cb_image_classification_tflite);
+  cam_data.get_nnfw_label_bt = _new_button (cam_data.display,
+      "Run Image Classification with nnfw", __camera_cb_image_classification_nnfw);
 
   int error_code = CAMERA_ERROR_NONE;
 
   elm_object_disabled_set (cam_data.zoom_bt, EINA_TRUE);
   elm_object_disabled_set (cam_data.brightness_bt, EINA_TRUE);
-  elm_object_disabled_set (cam_data.get_label_bt, EINA_TRUE);
+  elm_object_disabled_set (cam_data.get_tflite_label_bt, EINA_TRUE);
+  elm_object_disabled_set (cam_data.get_nnfw_label_bt, EINA_TRUE);
 
   /* Create the camera handle for the main camera of the device. */
   error_code = camera_create (CAMERA_DEVICE_CAMERA0, &(cam_data.g_camera));
@@ -419,5 +460,6 @@ create_buttons_in_main_window (void)
   /* Enable other camera buttons. */
   elm_object_disabled_set (cam_data.zoom_bt, EINA_FALSE);
   elm_object_disabled_set (cam_data.brightness_bt, EINA_FALSE);
-  elm_object_disabled_set (cam_data.get_label_bt, EINA_FALSE);
+  elm_object_disabled_set (cam_data.get_tflite_label_bt, EINA_FALSE);
+  elm_object_disabled_set (cam_data.get_nnfw_label_bt, EINA_FALSE);
 }

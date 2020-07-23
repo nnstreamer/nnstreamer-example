@@ -20,12 +20,14 @@
 
 ml_pipeline_h handle;
 ml_pipeline_src_h srchandle;
-ml_pipeline_sink_h sinkhandle;
+ml_pipeline_sink_h sinkhandle_1;
+ml_pipeline_sink_h sinkhandle_2;
 ml_tensors_info_h info;
 
 uint8_t * inArray;
 gchar **labels;
 gchar * pipeline;
+int which_fw[2];
 
 /**
  * @brief Hook to take necessary actions before main event loop starts.
@@ -83,7 +85,8 @@ static void app_resume(void *user_data) {
  */
 static void app_terminate(void *user_data) {
   /* Release all resources. */
-  ml_pipeline_sink_unregister(sinkhandle);
+  ml_pipeline_sink_unregister(sinkhandle_1);
+  ml_pipeline_sink_unregister(sinkhandle_2);
   ml_pipeline_src_release_handle(srchandle);
   ml_pipeline_destroy(handle);
   ml_tensors_info_destroy(info);
@@ -120,6 +123,10 @@ void init_pipeline() {
   char *res_path = app_get_resource_path();
   gchar * model_path = g_strdup_printf("%s/mobilenet_v1_1.0_224_quant.tflite",
       res_path);
+
+  which_fw[0]=TFLITE_FRAMEWORK;
+  which_fw[1]=NNFW_FRAMEWORK;
+
   ml_tensor_dimension dim = { CH, CAM_WIDTH, CAM_HEIGHT, 1 };
 
   pipeline =
@@ -127,18 +134,20 @@ void init_pipeline() {
           "appsrc name=srcx ! "
               "video/x-raw,format=RGB,width=%d,height=%d,framerate=0/1 ! "
               "videoconvert ! videoscale ! video/x-raw,format=RGB,width=%d,height=%d ! "
-              "videoflip method=clockwise ! "
-              "tensor_converter ! tensor_filter framework=tensorflow-lite model=\"%s\" ! "
-              "tensor_sink name=sinkx", CAM_WIDTH, CAM_HEIGHT,
-          MODEL_WIDTH, MODEL_HEIGHT, model_path);
+              "videoflip method=clockwise ! tensor_converter ! tee name=t "
+              "t. ! queue ! tensor_filter framework=tensorflow-lite model=\"%s\" ! tensor_sink name=tflite_sink "
+              "t. ! queue ! tensor_filter framework=nnfw model=\"%s\" ! tensor_sink name=nnfw_sink",
+              CAM_WIDTH, CAM_HEIGHT, MODEL_WIDTH, MODEL_HEIGHT, model_path, model_path);
 
   inArray = (uint8_t *) g_malloc(sizeof(uint8_t) * CAM_WIDTH * CAM_HEIGHT * CH);
 
   ml_pipeline_construct(pipeline, NULL, NULL, &handle);
 
   ml_pipeline_src_get_handle(handle, "srcx", &srchandle);
-  ml_pipeline_sink_register(handle, "sinkx", get_label_from_tensor_sink, NULL,
-      &sinkhandle);
+  ml_pipeline_sink_register(handle, "tflite_sink", get_label_from_tensor_sink, &which_fw[0],
+      &sinkhandle_1);
+  ml_pipeline_sink_register(handle, "nnfw_sink", get_label_from_tensor_sink, &which_fw[1],
+      &sinkhandle_2);
 
   /**
    *  The media type `video/x-raw` cannot get valid info handle, you should set info handle in person like below.
