@@ -146,11 +146,13 @@ load_data (app_data_s * app)
   gboolean failed = FALSE;
   gchar *label = g_build_filename (path, "labels.txt", NULL);
   gchar *vocab = g_build_filename (path, "vocab.txt", NULL);
+  gchar *meta = g_build_filename (path, "metadata", "MANIFEST", NULL);
   gchar *contents;
 
   /* check the model files */
   if (!g_file_test (label, G_FILE_TEST_EXISTS) ||
-      !g_file_test (vocab, G_FILE_TEST_EXISTS)) {
+      !g_file_test (vocab, G_FILE_TEST_EXISTS) ||
+      !g_file_test (meta, G_FILE_TEST_EXISTS)) {
     g_critical ("Failed to get model files.");
     failed = TRUE;
     goto error;
@@ -209,6 +211,7 @@ load_data (app_data_s * app)
 error:
   g_free (label);
   g_free (vocab);
+  g_free (meta);
 
   return !failed;
 }
@@ -303,7 +306,7 @@ int main(int argc, char *argv[]){
 
   if (argc < 4) {
     g_print ("Please the input values for 'tcp server/client', 'host ip address' and 'port' exactly. \n");
-    g_print ("e.g) $ ./nnstreamer_tien_iot_text_classification server 192.168.1.1 5001 \n");
+    g_print ("e.g) $ ./nnstreamer_tien_iot_text_classification server tensorflow-lite 192.168.1.1 5001 (optional)nnfw\n");
     return 0;
   }
 
@@ -318,9 +321,11 @@ int main(int argc, char *argv[]){
     app->tcp_sc = 2;
   }
   else {
+    g_print ("Please Enter exactly one of the `server` and `client`. \n");
     g_free (app);
     return 0;
   }
+
   host = g_strdup_printf ("%s", argv[2]);
   port = atoi (argv[3]);
   
@@ -340,11 +345,25 @@ int main(int argc, char *argv[]){
       g_assert (load_model_files (app));
 
       /* init pipeline */
-      pipeline =
-        g_strdup_printf
-        ("tcpclientsrc host=%s port=%d ! other/protobuf-tensor,framerate=0/1 ! tensor_converter silent=false ! "
-         "tensor_filter name=tfilter framework=tensorflow-lite model=%s ! "
-         "tensor_sink name=tensor_sink", host, port, app->model_file);
+      if (g_strcmp0 ("nnfw", argv[4]) == 0) {
+        pipeline =
+          g_strdup_printf
+          ("tcpclientsrc host=%s port=%d ! other/protobuf-tensor,framerate=0/1 ! tensor_converter silent=false ! "
+          "tensor_filter name=tfilter framework=nnfw model=%s ! "
+          "tensor_sink name=tensor_sink", host, port, app->model_file);
+      }
+      else {
+        if (argc == 5 && g_strcmp0 ("tensorflow-lite", argv[4]) != 0) {
+          g_print ("You want to designate the framework. But you entered the wrong framework name. \n");
+          g_print ("We support only `tensorflow-lite` and `nnfw` in this example. \n");
+          g_print ("The pipeline will operate as default option, tensorflow-lite.\n");
+        }
+        pipeline =
+          g_strdup_printf
+          ("tcpclientsrc host=%s port=%d ! other/protobuf-tensor,framerate=0/1 ! tensor_converter silent=false ! "
+          "tensor_filter name=tfilter framework=tensorflow-lite model=%s ! "
+          "tensor_sink name=tensor_sink", host, port, app->model_file);
+      }      
       break;
     default:
       break;
