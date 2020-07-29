@@ -57,6 +57,15 @@ $ cd $NNSTREAMER_ROOT/android_lib
 $ cp nnstreamer-[DATE].aar $ANDROID_DEV_ROOT/workspace/nnstreamer-example/android/example_app/api-sample/libs
 ```
 
+#### Build `capi-sample` application
+
+To build `capi-sample` application of Android example, you have to extract `nnstreamer-native-[DATE].zip` file into the `src` directory of capi-sample application as below.
+```bash
+$ cd $NNSTREAMER_ROOT/android_lib
+$ cp nnstreamer-native-[DATE].zip $ANDROID_DEV_ROOT/workspace/nnstreamer-example/android/example_app/capi-sample/src
+$ cd $ANDROID_DEV_ROOT/workspace/nnstreamer-example/android/example_app/capi-sample/src
+$ unzip nnstreamer-native-[DATE].zip
+```
 
 #### Build the source code with Android Studio
 
@@ -103,16 +112,6 @@ If your device does not access the Internet, you can download these files from [
 {INTERNAL_STORAGE}/nnstreamer/tflite_model/coco_labels_list.txt
 {INTERNAL_STORAGE}/nnstreamer/tflite_model/ssd_mobilenet_v2_coco.tflite
 ...
-```
-
-#### Build `capi-sample` application
-
-To build `capi-sample` application of Android example, you have to extract `nnstreamer-native-[DATE].zip` file into the `src` directory of capi-sample application as below.
-```bash
-$ cd $NNSTREAMER_ROOT/android_lib
-$ cp nnstreamer-native-[DATE].zip $ANDROID_DEV_ROOT/workspace/nnstreamer-example/android/example_app/capi-sample/src
-$ cd $ANDROID_DEV_ROOT/workspace/nnstreamer-example/android/example_app/capi-sample/src
-$ unzip nnstreamer-native-[DATE].zip
 ```
 
 ## Terminology
