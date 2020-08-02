@@ -1,4 +1,4 @@
-# !/usr/bin/env python
+#!/usr/bin/env python
 
 """
 @file		nnstreamer_example_image_classification_tflite.py
