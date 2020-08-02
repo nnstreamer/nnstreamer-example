@@ -77,7 +77,6 @@ typedef struct
   GstElement *pipeline; /**< gst pipeline for data stream */
   GstBus *bus; /**< gst bus for data pipeline */
 
-  gboolean running; /**< true when app is running */
   guint received; /**< received buffer count */
   tflite_info_s tflite_info; /**< tflite model info */
 } AppData;
@@ -99,7 +98,6 @@ _tflite_free_info (tflite_info_s * tflite_info)
     g_free (tflite_info->model_path);
     tflite_info->model_path = NULL;
   }
-
 }
 
 /**
@@ -278,7 +276,6 @@ main (int argc, char **argv)
   _print_log ("start app..");
 
   /* init app variable */
-  g_app.running = FALSE;
   g_app.received = 0;
 
   _check_cond_err (_tflite_init_info (&g_app.tflite_info, tflite_model_path));
@@ -319,16 +316,11 @@ main (int argc, char **argv)
   /* start pipeline */
   gst_element_set_state (g_app.pipeline, GST_STATE_PLAYING);
 
-  g_app.running = TRUE;
-
   /* set window title */
   _set_window_title ("img_test", "NNStreamer Example");
 
   /* run main loop */
   g_main_loop_run (g_app.loop);
-
-  /* quit when received eos or error message */
-  g_app.running = FALSE;
 
   /* cam source element */
   element = gst_bin_get_by_name (GST_BIN (g_app.pipeline), "cam_src");
