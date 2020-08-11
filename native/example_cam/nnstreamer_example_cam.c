@@ -15,7 +15,7 @@
 
 #include <fcntl.h>
 #include <unistd.h>
-
+#include <stdio.h>
 #include <gst/gst.h>
 
 /**
@@ -180,6 +180,7 @@ main (int argc, char **argv)
   gulong handle_id;
   GstElement *element;
 
+  printf("First trial!\n");
   _print_log ("start app..");
 
   /* init gstreamer */
