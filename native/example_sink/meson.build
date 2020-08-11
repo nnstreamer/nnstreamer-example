@@ -14,5 +14,6 @@ nnstreamer_sink_example_play = executable('nnstreamer_sink_example_play',
 
 # Install python example
 install_data('nnstreamer_sink_example.py',
+  'nnstreamer_sink_example_play.py',
   install_dir: examples_install_dir
 )
