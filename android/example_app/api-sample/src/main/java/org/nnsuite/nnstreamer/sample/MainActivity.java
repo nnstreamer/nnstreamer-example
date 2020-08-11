@@ -604,8 +604,8 @@ public class MainActivity extends Activity {
             TensorsInfo outInfo = inInfo.clone();
 
             /* register custom-filter (passthrough) */
-            CustomFilter customPassthrough = CustomFilter.registerCustomFilter("custom-passthrough",
-                    inInfo, outInfo, new CustomFilter.CustomFilterCallback() {
+            CustomFilter customPassthrough = CustomFilter.create("custom-passthrough",
+                    inInfo, outInfo, new CustomFilter.Callback() {
                 @Override
                 public TensorsData invoke(TensorsData in) {
                     Log.d(TAG, "Received invoke callback in custom-passthrough");
@@ -615,8 +615,8 @@ public class MainActivity extends Activity {
 
             /* register custom-filter (convert data type to float) */
             outInfo.setTensorType(0, NNStreamer.TensorType.FLOAT32);
-            CustomFilter customConvert = CustomFilter.registerCustomFilter("custom-convert",
-                    inInfo, outInfo, new CustomFilter.CustomFilterCallback() {
+            CustomFilter customConvert = CustomFilter.create("custom-convert",
+                    inInfo, outInfo, new CustomFilter.Callback() {
                 @Override
                 public TensorsData invoke(TensorsData in) {
                     Log.d(TAG, "Received invoke callback in custom-convert");
@@ -641,8 +641,8 @@ public class MainActivity extends Activity {
 
             /* register custom-filter (add constant) */
             inInfo.setTensorType(0, NNStreamer.TensorType.FLOAT32);
-            CustomFilter customAdd = CustomFilter.registerCustomFilter("custom-add",
-                    inInfo, outInfo, new CustomFilter.CustomFilterCallback() {
+            CustomFilter customAdd = CustomFilter.create("custom-add",
+                    inInfo, outInfo, new CustomFilter.Callback() {
                 @Override
                 public TensorsData invoke(TensorsData in) {
                     Log.d(TAG, "Received invoke callback in custom-add");
