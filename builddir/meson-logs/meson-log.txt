@@ -1,0 +1,478 @@
+Build started at 2020-08-16T19:51:24.807589
+Main binary: /usr/bin/python3
+Build Options: -Dbuildtype=debug
+Python system: Linux
+The Meson build system
+Version: 0.55.0
+Source dir: /home/jawthrow/project/JawThrow/nnstreamer-example
+Build dir: /home/jawthrow/project/JawThrow/nnstreamer-example/builddir
+Build type: native build
+None of 'PKG_CONFIG_PATH' are defined in the environment, not changing global flags.
+None of 'PKG_CONFIG_PATH' are defined in the environment, not changing global flags.
+Project name: nnstreamer-example
+Project version: 0.1.0
+None of 'CC' are defined in the environment, not changing global flags.
+None of 'CFLAGS' are defined in the environment, not changing global flags.
+None of 'LDFLAGS' are defined in the environment, not changing global flags.
+None of 'CPPFLAGS' are defined in the environment, not changing global flags.
+None of 'CC_LD' are defined in the environment, not changing global flags.
+Sanity testing C compiler: cc
+Is cross compiler: False.
+None of 'CC_LD' are defined in the environment, not changing global flags.
+Sanity check compiler command line: cc /home/jawthrow/project/JawThrow/nnstreamer-example/builddir/meson-private/sanitycheckc.c -o /home/jawthrow/project/JawThrow/nnstreamer-example/builddir/meson-private/sanitycheckc.exe -pipe -D_FILE_OFFSET_BITS=64
+Sanity check compile stdout:
+
+-----
+Sanity check compile stderr:
+
+-----
+Running test binary command: /home/jawthrow/project/JawThrow/nnstreamer-example/builddir/meson-private/sanitycheckc.exe
+C compiler for the build machine: cc (gcc 7.5.0 "cc (Ubuntu 7.5.0-3ubuntu1~18.04) 7.5.0")
+C linker for the build machine: cc ld.bfd 2.30
+None of 'AR' are defined in the environment, not changing global flags.
+None of 'CXX' are defined in the environment, not changing global flags.
+None of 'CXXFLAGS' are defined in the environment, not changing global flags.
+None of 'LDFLAGS' are defined in the environment, not changing global flags.
+None of 'CPPFLAGS' are defined in the environment, not changing global flags.
+None of 'CXX_LD' are defined in the environment, not changing global flags.
+Sanity testing C++ compiler: c++
+Is cross compiler: False.
+None of 'CXX_LD' are defined in the environment, not changing global flags.
+Sanity check compiler command line: c++ /home/jawthrow/project/JawThrow/nnstreamer-example/builddir/meson-private/sanitycheckcpp.cc -o /home/jawthrow/project/JawThrow/nnstreamer-example/builddir/meson-private/sanitycheckcpp.exe -pipe -D_FILE_OFFSET_BITS=64
+Sanity check compile stdout:
+
+-----
+Sanity check compile stderr:
+
+-----
+Running test binary command: /home/jawthrow/project/JawThrow/nnstreamer-example/builddir/meson-private/sanitycheckcpp.exe
+C++ compiler for the build machine: c++ (gcc 7.5.0 "c++ (Ubuntu 7.5.0-3ubuntu1~18.04) 7.5.0")
+C++ linker for the build machine: c++ ld.bfd 2.30
+None of 'CC' are defined in the environment, not changing global flags.
+None of 'CFLAGS' are defined in the environment, not changing global flags.
+None of 'LDFLAGS' are defined in the environment, not changing global flags.
+None of 'CPPFLAGS' are defined in the environment, not changing global flags.
+None of 'CC_LD' are defined in the environment, not changing global flags.
+Sanity testing C compiler: cc
+Is cross compiler: False.
+None of 'CC_LD' are defined in the environment, not changing global flags.
+Sanity check compiler command line: cc /home/jawthrow/project/JawThrow/nnstreamer-example/builddir/meson-private/sanitycheckc.c -o /home/jawthrow/project/JawThrow/nnstreamer-example/builddir/meson-private/sanitycheckc.exe -pipe -D_FILE_OFFSET_BITS=64
+Sanity check compile stdout:
+
+-----
+Sanity check compile stderr:
+
+-----
+Running test binary command: /home/jawthrow/project/JawThrow/nnstreamer-example/builddir/meson-private/sanitycheckc.exe
+C compiler for the host machine: cc (gcc 7.5.0 "cc (Ubuntu 7.5.0-3ubuntu1~18.04) 7.5.0")
+C linker for the host machine: cc ld.bfd 2.30
+None of 'AR' are defined in the environment, not changing global flags.
+None of 'CXX' are defined in the environment, not changing global flags.
+None of 'CXXFLAGS' are defined in the environment, not changing global flags.
+None of 'LDFLAGS' are defined in the environment, not changing global flags.
+None of 'CPPFLAGS' are defined in the environment, not changing global flags.
+None of 'CXX_LD' are defined in the environment, not changing global flags.
+Sanity testing C++ compiler: c++
+Is cross compiler: False.
+None of 'CXX_LD' are defined in the environment, not changing global flags.
+Sanity check compiler command line: c++ /home/jawthrow/project/JawThrow/nnstreamer-example/builddir/meson-private/sanitycheckcpp.cc -o /home/jawthrow/project/JawThrow/nnstreamer-example/builddir/meson-private/sanitycheckcpp.exe -pipe -D_FILE_OFFSET_BITS=64
+Sanity check compile stdout:
+
+-----
+Sanity check compile stderr:
+
+-----
+Running test binary command: /home/jawthrow/project/JawThrow/nnstreamer-example/builddir/meson-private/sanitycheckcpp.exe
+C++ compiler for the host machine: c++ (gcc 7.5.0 "c++ (Ubuntu 7.5.0-3ubuntu1~18.04) 7.5.0")
+C++ linker for the host machine: c++ ld.bfd 2.30
+Build machine cpu family: x86_64
+Build machine cpu: x86_64
+Host machine cpu family: x86_64
+Host machine cpu: x86_64
+Target machine cpu family: x86_64
+Target machine cpu: x86_64
+Pkg-config binary for MachineChoice.HOST is not cached.
+None of 'PKG_CONFIG' are defined in the environment, not changing global flags.
+Pkg-config binary missing from cross or native file, or env var undefined.
+Trying a default Pkg-config fallback at pkg-config
+Found pkg-config: /usr/bin/pkg-config (0.29.1)
+Determining dependency 'glib-2.0' with pkg-config executable '/usr/bin/pkg-config'
+PKG_CONFIG_PATH: 
+Called `/usr/bin/pkg-config --modversion glib-2.0` -> 0
+2.56.4
+PKG_CONFIG_PATH: 
+Called `/usr/bin/pkg-config --cflags glib-2.0` -> 0
+-I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+PKG_CONFIG_PATH: 
+Called `/usr/bin/pkg-config glib-2.0 --libs` -> 0
+-L/usr/lib/x86_64-linux-gnu -lglib-2.0
+PKG_CONFIG_PATH: 
+Called `/usr/bin/pkg-config glib-2.0 --libs` -> 0
+-lglib-2.0
+None of 'PKG_CONFIG_PATH' are defined in the environment, not changing global flags.
+None of 'CXX_LD' are defined in the environment, not changing global flags.
+Running compile:
+Working directory:  /home/jawthrow/project/JawThrow/nnstreamer-example/builddir/meson-private/tmp5lwz1m3k
+Command line:  c++ /home/jawthrow/project/JawThrow/nnstreamer-example/builddir/meson-private/tmp5lwz1m3k/testfile.cpp -o /home/jawthrow/project/JawThrow/nnstreamer-example/builddir/meson-private/tmp5lwz1m3k/output.exe -pipe -D_FILE_OFFSET_BITS=64 -O0 -fpermissive 
+
+Code:
+ #include<stdio.h>
+        
+        int main(void) {
+            printf("%ld\n", (long)(sizeof(void *)));
+            return 0;
+        };
+Compiler stdout:
+ 
+Compiler stderr:
+ 
+Program stdout:
+
+8
+
+Program stderr:
+
+
+Running compile:
+Working directory:  /home/jawthrow/project/JawThrow/nnstreamer-example/builddir/meson-private/tmpl1rryntm
+Command line:  c++ /home/jawthrow/project/JawThrow/nnstreamer-example/builddir/meson-private/tmpl1rryntm/testfile.cpp -o /home/jawthrow/project/JawThrow/nnstreamer-example/builddir/meson-private/tmpl1rryntm/output.obj -pipe -c -D_FILE_OFFSET_BITS=64 -O0 -fpermissive --print-search-dirs 
+
+Code:
+ 
+Compiler stdout:
+ install: /usr/lib/gcc/x86_64-linux-gnu/7/
+programs: =/usr/lib/gcc/x86_64-linux-gnu/7/:/usr/lib/gcc/x86_64-linux-gnu/7/:/usr/lib/gcc/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/7/:/usr/lib/gcc/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/7/../../../../x86_64-linux-gnu/bin/x86_64-linux-gnu/7/:/usr/lib/gcc/x86_64-linux-gnu/7/../../../../x86_64-linux-gnu/bin/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/7/../../../../x86_64-linux-gnu/bin/
+libraries: =/usr/lib/gcc/x86_64-linux-gnu/7/:/usr/lib/gcc/x86_64-linux-gnu/7/../../../../x86_64-linux-gnu/lib/x86_64-linux-gnu/7/:/usr/lib/gcc/x86_64-linux-gnu/7/../../../../x86_64-linux-gnu/lib/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/7/../../../../x86_64-linux-gnu/lib/../lib/:/usr/lib/gcc/x86_64-linux-gnu/7/../../../x86_64-linux-gnu/7/:/usr/lib/gcc/x86_64-linux-gnu/7/../../../x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/7/../../../../lib/:/lib/x86_64-linux-gnu/7/:/lib/x86_64-linux-gnu/:/lib/../lib/:/usr/lib/x86_64-linux-gnu/7/:/usr/lib/x86_64-linux-gnu/:/usr/lib/../lib/:/usr/lib/gcc/x86_64-linux-gnu/7/../../../../x86_64-linux-gnu/lib/:/usr/lib/gcc/x86_64-linux-gnu/7/../../../:/lib/:/usr/lib/
+
+Compiler stderr:
+ 
+Run-time dependency glib-2.0 found: YES 2.56.4
+Pkg-config binary for MachineChoice.HOST is cached.
+Determining dependency 'gmodule-2.0' with pkg-config executable '/usr/bin/pkg-config'
+PKG_CONFIG_PATH: 
+Called `/usr/bin/pkg-config --modversion gmodule-2.0` -> 0
+2.56.4
+PKG_CONFIG_PATH: 
+Called `/usr/bin/pkg-config --cflags gmodule-2.0` -> 0
+-pthread -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+PKG_CONFIG_PATH: 
+Called `/usr/bin/pkg-config gmodule-2.0 --libs` -> 0
+-L/usr/lib/x86_64-linux-gnu -Wl,--export-dynamic -lgmodule-2.0 -pthread -lglib-2.0
+PKG_CONFIG_PATH: 
+Called `/usr/bin/pkg-config gmodule-2.0 --libs` -> 0
+-Wl,--export-dynamic -lgmodule-2.0 -pthread -lglib-2.0
+None of 'PKG_CONFIG_PATH' are defined in the environment, not changing global flags.
+Run-time dependency gmodule-2.0 found: YES 2.56.4
+Pkg-config binary for MachineChoice.HOST is cached.
+Determining dependency 'gstreamer-1.0' with pkg-config executable '/usr/bin/pkg-config'
+PKG_CONFIG_PATH: 
+Called `/usr/bin/pkg-config --modversion gstreamer-1.0` -> 0
+1.14.5
+PKG_CONFIG_PATH: 
+Called `/usr/bin/pkg-config --cflags gstreamer-1.0` -> 0
+-pthread -I/usr/include/gstreamer-1.0 -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+PKG_CONFIG_PATH: 
+Called `/usr/bin/pkg-config gstreamer-1.0 --libs` -> 0
+-L/usr/lib/x86_64-linux-gnu -lgstreamer-1.0 -lgobject-2.0 -lglib-2.0
+PKG_CONFIG_PATH: 
+Called `/usr/bin/pkg-config gstreamer-1.0 --libs` -> 0
+-lgstreamer-1.0 -lgobject-2.0 -lglib-2.0
+None of 'PKG_CONFIG_PATH' are defined in the environment, not changing global flags.
+Run-time dependency gstreamer-1.0 found: YES 1.14.5
+Pkg-config binary for MachineChoice.HOST is cached.
+Determining dependency 'gstreamer-base-1.0' with pkg-config executable '/usr/bin/pkg-config'
+PKG_CONFIG_PATH: 
+Called `/usr/bin/pkg-config --modversion gstreamer-base-1.0` -> 0
+1.14.5
+PKG_CONFIG_PATH: 
+Called `/usr/bin/pkg-config --cflags gstreamer-base-1.0` -> 0
+-pthread -I/usr/include/gstreamer-1.0 -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+PKG_CONFIG_PATH: 
+Called `/usr/bin/pkg-config gstreamer-base-1.0 --libs` -> 0
+-L/usr/lib/x86_64-linux-gnu -lgstbase-1.0 -lgstreamer-1.0 -lgobject-2.0 -lglib-2.0
+PKG_CONFIG_PATH: 
+Called `/usr/bin/pkg-config gstreamer-base-1.0 --libs` -> 0
+-lgstbase-1.0 -lgstreamer-1.0 -lgobject-2.0 -lglib-2.0
+None of 'PKG_CONFIG_PATH' are defined in the environment, not changing global flags.
+Run-time dependency gstreamer-base-1.0 found: YES 1.14.5
+Pkg-config binary for MachineChoice.HOST is cached.
+Determining dependency 'gstreamer-video-1.0' with pkg-config executable '/usr/bin/pkg-config'
+PKG_CONFIG_PATH: 
+Called `/usr/bin/pkg-config --modversion gstreamer-video-1.0` -> 0
+1.14.5
+PKG_CONFIG_PATH: 
+Called `/usr/bin/pkg-config --cflags gstreamer-video-1.0` -> 0
+-pthread -I/usr/include/gstreamer-1.0 -I/usr/include/orc-0.4 -I/usr/include/gstreamer-1.0 -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+PKG_CONFIG_PATH: 
+Called `/usr/bin/pkg-config gstreamer-video-1.0 --libs` -> 0
+-L/usr/lib/x86_64-linux-gnu -lgstvideo-1.0 -lgstbase-1.0 -lgstreamer-1.0 -lgobject-2.0 -lglib-2.0
+PKG_CONFIG_PATH: 
+Called `/usr/bin/pkg-config gstreamer-video-1.0 --libs` -> 0
+-lgstvideo-1.0 -lgstbase-1.0 -lgstreamer-1.0 -lgobject-2.0 -lglib-2.0
+None of 'PKG_CONFIG_PATH' are defined in the environment, not changing global flags.
+Run-time dependency gstreamer-video-1.0 found: YES 1.14.5
+Pkg-config binary for MachineChoice.HOST is cached.
+Determining dependency 'gstreamer-audio-1.0' with pkg-config executable '/usr/bin/pkg-config'
+PKG_CONFIG_PATH: 
+Called `/usr/bin/pkg-config --modversion gstreamer-audio-1.0` -> 0
+1.14.5
+PKG_CONFIG_PATH: 
+Called `/usr/bin/pkg-config --cflags gstreamer-audio-1.0` -> 0
+-pthread -I/usr/include/gstreamer-1.0 -I/usr/include/orc-0.4 -I/usr/include/gstreamer-1.0 -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+PKG_CONFIG_PATH: 
+Called `/usr/bin/pkg-config gstreamer-audio-1.0 --libs` -> 0
+-L/usr/lib/x86_64-linux-gnu -lgstaudio-1.0 -lgstbase-1.0 -lgstreamer-1.0 -lgobject-2.0 -lglib-2.0
+PKG_CONFIG_PATH: 
+Called `/usr/bin/pkg-config gstreamer-audio-1.0 --libs` -> 0
+-lgstaudio-1.0 -lgstbase-1.0 -lgstreamer-1.0 -lgobject-2.0 -lglib-2.0
+None of 'PKG_CONFIG_PATH' are defined in the environment, not changing global flags.
+Run-time dependency gstreamer-audio-1.0 found: YES 1.14.5
+Pkg-config binary for MachineChoice.HOST is cached.
+Determining dependency 'gstreamer-app-1.0' with pkg-config executable '/usr/bin/pkg-config'
+PKG_CONFIG_PATH: 
+Called `/usr/bin/pkg-config --modversion gstreamer-app-1.0` -> 0
+1.14.5
+PKG_CONFIG_PATH: 
+Called `/usr/bin/pkg-config --cflags gstreamer-app-1.0` -> 0
+-pthread -I/usr/include/gstreamer-1.0 -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include
+PKG_CONFIG_PATH: 
+Called `/usr/bin/pkg-config gstreamer-app-1.0 --libs` -> 0
+-L/usr/lib/x86_64-linux-gnu -lgstapp-1.0 -lgstbase-1.0 -lgstreamer-1.0 -lgobject-2.0 -lglib-2.0
+PKG_CONFIG_PATH: 
+Called `/usr/bin/pkg-config gstreamer-app-1.0 --libs` -> 0
+-lgstapp-1.0 -lgstbase-1.0 -lgstreamer-1.0 -lgobject-2.0 -lglib-2.0
+None of 'PKG_CONFIG_PATH' are defined in the environment, not changing global flags.
+Run-time dependency gstreamer-app-1.0 found: YES 1.14.5
+Pkg-config binary for MachineChoice.HOST is cached.
+Determining dependency 'cairo' with pkg-config executable '/usr/bin/pkg-config'
+PKG_CONFIG_PATH: 
+Called `/usr/bin/pkg-config --modversion cairo` -> 0
+1.15.10
+PKG_CONFIG_PATH: 
+Called `/usr/bin/pkg-config --cflags cairo` -> 0
+-I/usr/include/cairo -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/pixman-1 -I/usr/include/freetype2 -I/usr/include/libpng16 -I/usr/include/freetype2 -I/usr/include/libpng16
+PKG_CONFIG_PATH: 
+Called `/usr/bin/pkg-config cairo --libs` -> 0
+-L/usr/lib/x86_64-linux-gnu -lcairo
+PKG_CONFIG_PATH: 
+Called `/usr/bin/pkg-config cairo --libs` -> 0
+-lcairo
+None of 'PKG_CONFIG_PATH' are defined in the environment, not changing global flags.
+Run-time dependency cairo found: YES 1.15.10
+None of 'CC_LD' are defined in the environment, not changing global flags.
+Running compile:
+Working directory:  /home/jawthrow/project/JawThrow/nnstreamer-example/builddir/meson-private/tmp34_7uvle
+Command line:  cc /home/jawthrow/project/JawThrow/nnstreamer-example/builddir/meson-private/tmp34_7uvle/testfile.c -o /home/jawthrow/project/JawThrow/nnstreamer-example/builddir/meson-private/tmp34_7uvle/output.exe -pipe -D_FILE_OFFSET_BITS=64 -O0 -Wl,--start-group -lm -Wl,--end-group -Wl,--allow-shlib-undefined 
+
+Code:
+ int main(void) { return 0; }
+
+Compiler stdout:
+ 
+Compiler stderr:
+ 
+Library m found: YES
+None of 'CC_LD' are defined in the environment, not changing global flags.
+Running compile:
+Working directory:  /home/jawthrow/project/JawThrow/nnstreamer-example/builddir/meson-private/tmpmhnkj5na
+Command line:  cc /home/jawthrow/project/JawThrow/nnstreamer-example/builddir/meson-private/tmpmhnkj5na/testfile.c -o /home/jawthrow/project/JawThrow/nnstreamer-example/builddir/meson-private/tmpmhnkj5na/output.exe -pipe -D_FILE_OFFSET_BITS=64 -O0 -Wl,--start-group -ldl -Wl,--end-group -Wl,--allow-shlib-undefined 
+
+Code:
+ int main(void) { return 0; }
+
+Compiler stdout:
+ 
+Compiler stderr:
+ 
+Library dl found: YES
+Run-time dependency threads found: YES
+Pkg-config binary for MachineChoice.HOST is cached.
+Determining dependency 'nnstreamer' with pkg-config executable '/usr/bin/pkg-config'
+PKG_CONFIG_PATH: 
+Called `/usr/bin/pkg-config --modversion nnstreamer` -> 0
+1.5.3
+PKG_CONFIG_PATH: 
+Called `/usr/bin/pkg-config --cflags nnstreamer` -> 0
+-I/usr/local/include/nnstreamer
+PKG_CONFIG_PATH: 
+Called `/usr/bin/pkg-config nnstreamer --libs` -> 0
+-L/usr/local/lib/x86_64-linux-gnu -lnnstreamer
+PKG_CONFIG_PATH: 
+Called `/usr/bin/pkg-config nnstreamer --libs` -> 0
+-L/usr/local/lib/x86_64-linux-gnu -lnnstreamer
+None of 'PKG_CONFIG_PATH' are defined in the environment, not changing global flags.
+Run-time dependency nnstreamer found: YES 1.5.3
+Pkg-config binary for MachineChoice.HOST is cached.
+Determining dependency 'tensorflow' with pkg-config executable '/usr/bin/pkg-config'
+PKG_CONFIG_PATH: 
+Called `/usr/bin/pkg-config --modversion tensorflow` -> 0
+1.13.1
+PKG_CONFIG_PATH: 
+Called `/usr/bin/pkg-config --cflags tensorflow` -> 0
+
+PKG_CONFIG_PATH: 
+Called `/usr/bin/pkg-config tensorflow --libs` -> 0
+-L/usr//lib -ltensorflow
+PKG_CONFIG_PATH: 
+Called `/usr/bin/pkg-config tensorflow --libs` -> 0
+-L/usr//lib -ltensorflow
+None of 'PKG_CONFIG_PATH' are defined in the environment, not changing global flags.
+Run-time dependency tensorflow found: YES 1.13.1
+Pkg-config binary for MachineChoice.HOST is cached.
+Determining dependency 'protobuf' with pkg-config executable '/usr/bin/pkg-config'
+PKG_CONFIG_PATH: 
+Called `/usr/bin/pkg-config --modversion protobuf` -> 0
+3.6.1
+PKG_CONFIG_PATH: 
+Called `/usr/bin/pkg-config --cflags protobuf` -> 0
+-pthread -I/usr/local/include
+PKG_CONFIG_PATH: 
+Called `/usr/bin/pkg-config protobuf --libs` -> 0
+-L/usr/local/lib -lprotobuf -pthread
+PKG_CONFIG_PATH: 
+Called `/usr/bin/pkg-config protobuf --libs` -> 0
+-L/usr/local/lib -lprotobuf -pthread
+None of 'PKG_CONFIG_PATH' are defined in the environment, not changing global flags.
+Run-time dependency protobuf found: YES 3.6.1
+Pkg-config binary for MachineChoice.HOST is cached.
+Determining dependency 'tensorflow-lite' with pkg-config executable '/usr/bin/pkg-config'
+PKG_CONFIG_PATH: 
+Called `/usr/bin/pkg-config --modversion tensorflow-lite` -> 0
+1.13.1
+PKG_CONFIG_PATH: 
+Called `/usr/bin/pkg-config --cflags tensorflow-lite` -> 0
+
+PKG_CONFIG_PATH: 
+Called `/usr/bin/pkg-config tensorflow-lite --libs` -> 0
+-L/usr//lib -ltensorflow-lite
+PKG_CONFIG_PATH: 
+Called `/usr/bin/pkg-config tensorflow-lite --libs` -> 0
+-L/usr//lib -ltensorflow-lite
+None of 'PKG_CONFIG_PATH' are defined in the environment, not changing global flags.
+Run-time dependency tensorflow-lite found: YES 1.13.1
+Pkg-config binary for MachineChoice.HOST is cached.
+Determining dependency 'caffe2' with pkg-config executable '/usr/bin/pkg-config'
+PKG_CONFIG_PATH: 
+Called `/usr/bin/pkg-config --modversion caffe2` -> 0
+1.1.0
+PKG_CONFIG_PATH: 
+Called `/usr/bin/pkg-config --cflags caffe2` -> 0
+-I/usr/include/torch
+PKG_CONFIG_PATH: 
+Called `/usr/bin/pkg-config caffe2 --libs` -> 0
+-L/usr/lib -L/usr/share -lc10 -lcaffe2 -ltorch
+PKG_CONFIG_PATH: 
+Called `/usr/bin/pkg-config caffe2 --libs` -> 0
+-L/usr/share -lc10 -lcaffe2 -ltorch
+None of 'PKG_CONFIG_PATH' are defined in the environment, not changing global flags.
+Run-time dependency caffe2 found: YES 1.1.0
+Pkg-config binary for MachineChoice.HOST is cached.
+Determining dependency 'nnfw' with pkg-config executable '/usr/bin/pkg-config'
+PKG_CONFIG_PATH: 
+Called `/usr/bin/pkg-config --modversion nnfw` -> 1
+
+CMake binary for MachineChoice.HOST is not cached
+None of 'CMAKE' are defined in the environment, not changing global flags.
+CMake binary missing from cross or native file, or env var undefined.
+Trying a default CMake fallback at cmake
+Found CMake: /usr/bin/cmake (3.10.2)
+None of 'CMAKE_PREFIX_PATH' are defined in the environment, not changing global flags.
+Extracting basic cmake information
+Try CMake generator: auto
+None of 'FC' are defined in the environment, not changing global flags.
+None of 'FFLAGS' are defined in the environment, not changing global flags.
+None of 'LDFLAGS' are defined in the environment, not changing global flags.
+None of 'FC_LD' are defined in the environment, not changing global flags.
+None of 'F_LD' are defined in the environment, not changing global flags.
+Called `/usr/bin/cmake --trace --trace-expand --no-warn-unused-cli .` in /home/jawthrow/project/JawThrow/nnstreamer-example/builddir/meson-private/cmake_nnfw -> 0
+  -- Module search paths:    ['/', '/opt', '/usr', '/usr/local']
+  -- CMake root:             /usr/share/cmake-3.10
+  -- CMake architectures:    ['x86_64-linux-gnu']
+  -- CMake lib search paths: ['lib', 'lib32', 'lib64', 'libx32', 'share', 'lib/x86_64-linux-gnu']
+Preliminary CMake check failed. Aborting.
+Run-time dependency nnfw found: NO (tried pkgconfig and cmake)
+None of 'CC_LD' are defined in the environment, not changing global flags.
+Running compile:
+Working directory:  /home/jawthrow/project/JawThrow/nnstreamer-example/builddir/meson-private/tmpe4mpk2mv
+Command line:  cc /home/jawthrow/project/JawThrow/nnstreamer-example/builddir/meson-private/tmpe4mpk2mv/testfile.c -o /home/jawthrow/project/JawThrow/nnstreamer-example/builddir/meson-private/tmpe4mpk2mv/output.exe -pipe -D_FILE_OFFSET_BITS=64 -O0 -Wl,--start-group -lnnfw-dev -Wl,--end-group -Wl,--allow-shlib-undefined 
+
+Code:
+ int main(void) { return 0; }
+
+Compiler stdout:
+ 
+Compiler stderr:
+ /usr/bin/ld: cannot find -lnnfw-dev
+collect2: error: ld returned 1 exit status
+
+None of 'CC_LD' are defined in the environment, not changing global flags.
+Running compile:
+Working directory:  /home/jawthrow/project/JawThrow/nnstreamer-example/builddir/meson-private/tmpxcznbzha
+Command line:  cc /home/jawthrow/project/JawThrow/nnstreamer-example/builddir/meson-private/tmpxcznbzha/testfile.c -o /home/jawthrow/project/JawThrow/nnstreamer-example/builddir/meson-private/tmpxcznbzha/output.exe -pipe -D_FILE_OFFSET_BITS=64 -O0 
+
+Code:
+ #include<stdio.h>
+        
+        int main(void) {
+            printf("%ld\n", (long)(sizeof(void *)));
+            return 0;
+        };
+Compiler stdout:
+ 
+Compiler stderr:
+ 
+Program stdout:
+
+8
+
+Program stderr:
+
+
+Running compile:
+Working directory:  /home/jawthrow/project/JawThrow/nnstreamer-example/builddir/meson-private/tmp7zmpel18
+Command line:  cc /home/jawthrow/project/JawThrow/nnstreamer-example/builddir/meson-private/tmp7zmpel18/testfile.c -o /home/jawthrow/project/JawThrow/nnstreamer-example/builddir/meson-private/tmp7zmpel18/output.obj -pipe -c -D_FILE_OFFSET_BITS=64 -O0 --print-search-dirs 
+
+Code:
+ 
+Compiler stdout:
+ install: /usr/lib/gcc/x86_64-linux-gnu/7/
+programs: =/usr/lib/gcc/x86_64-linux-gnu/7/:/usr/lib/gcc/x86_64-linux-gnu/7/:/usr/lib/gcc/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/7/:/usr/lib/gcc/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/7/../../../../x86_64-linux-gnu/bin/x86_64-linux-gnu/7/:/usr/lib/gcc/x86_64-linux-gnu/7/../../../../x86_64-linux-gnu/bin/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/7/../../../../x86_64-linux-gnu/bin/
+libraries: =/usr/lib/gcc/x86_64-linux-gnu/7/:/usr/lib/gcc/x86_64-linux-gnu/7/../../../../x86_64-linux-gnu/lib/x86_64-linux-gnu/7/:/usr/lib/gcc/x86_64-linux-gnu/7/../../../../x86_64-linux-gnu/lib/x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/7/../../../../x86_64-linux-gnu/lib/../lib/:/usr/lib/gcc/x86_64-linux-gnu/7/../../../x86_64-linux-gnu/7/:/usr/lib/gcc/x86_64-linux-gnu/7/../../../x86_64-linux-gnu/:/usr/lib/gcc/x86_64-linux-gnu/7/../../../../lib/:/lib/x86_64-linux-gnu/7/:/lib/x86_64-linux-gnu/:/lib/../lib/:/usr/lib/x86_64-linux-gnu/7/:/usr/lib/x86_64-linux-gnu/:/usr/lib/../lib/:/usr/lib/gcc/x86_64-linux-gnu/7/../../../../x86_64-linux-gnu/lib/:/usr/lib/gcc/x86_64-linux-gnu/7/../../../:/lib/:/usr/lib/
+
+Compiler stderr:
+ 
+Library nnfw-dev found: NO
+Running compile:
+Working directory:  /home/jawthrow/project/JawThrow/nnstreamer-example/builddir/meson-private/tmpbbx5xcj_
+Command line:  cc /home/jawthrow/project/JawThrow/nnstreamer-example/builddir/meson-private/tmpbbx5xcj_/testfile.c -pipe -E -P -D_FILE_OFFSET_BITS=64 -P -O0 -std=gnu89 
+
+Code:
+ 
+        #ifdef __has_include
+         #if !__has_include("nnstreamer/tensor_filter_custom.h")
+          #error "Header 'nnstreamer/tensor_filter_custom.h' could not be found"
+         #endif
+        #else
+         #include <nnstreamer/tensor_filter_custom.h>
+        #endif
+Compiler stdout:
+ 
+Compiler stderr:
+ 
+Has header "nnstreamer/tensor_filter_custom.h" : YES 
+Build targets in project: 15
+
+Found ninja-1.8.2 at /usr/bin/ninja
+Running compile:
+Working directory:  /tmp/tmp18mz173r
+Command line:  c++ /tmp/tmp18mz173r/testfile.cpp -o /tmp/tmp18mz173r/output.obj -pipe -D_FILE_OFFSET_BITS=64 -c -std=c++11 
+
+Code:
+ int i = static_cast<int>(0);
+Compiler stdout:
+ 
+Compiler stderr:
+ 
+Compiler accepts -std=c++11: YES
+None of 'STRIP' are defined in the environment, not changing global flags.
+None of 'STRIP' are defined in the environment, not changing global flags.
