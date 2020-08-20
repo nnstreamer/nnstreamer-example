@@ -7,4 +7,7 @@ if have_tensorflow_lite
   subdir('example_image_segmentation_tensorflow_lite')
 endif
 
+if have_openvino
+  subdir('example_face_detection_openvino')
+endif
 subdir('example_models')

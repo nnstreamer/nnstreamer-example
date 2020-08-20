@@ -74,6 +74,14 @@ if nnfw_dep.found()
   have_nnfw = true
 endif
 
+# Dependency for openvino example
+openvino_dep = dependency('openvino', required: false)
+
+have_openvino = false
+if openvino_dep.found()
+  have_openvino = true
+endif
+
 # Build and install nnstreamer native examples
 subdir('native')
 
