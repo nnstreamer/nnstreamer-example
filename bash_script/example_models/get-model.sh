@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-
 print_usage()
 {
   echo -e "usage: $0 [model_name]"
@@ -12,21 +11,21 @@ print_usage()
   echo -e "\t\timage-segmentation-tflite"
   echo -e "\t\ttext-classification-tflite"
   echo -e "\t\tpose-estimation-tflite"
+  echo -e "\t\tperson-detection-openvino"
+  echo -e "\t\tface-detection-openvino"
   exit 1
 }
 
-if echo $0 | grep -q -w "get-model-image-classification-tflite.sh"; then 
+if echo $0 | grep -q -w "get-model-image-classification-tflite.sh"; then
   model="image-classification-tflite"
 
 else
   if [ -n "$1" ]; then
     model=$1
-  
   else
     print_usage
   fi
 fi
-
 
 if [[ ${model} == "image-classification-tflite" ]]; then
   mkdir -p tflite_model_img
@@ -88,6 +87,20 @@ elif [[ ${model} == "pose-estimation-tflite" ]]; then
   cd tflite_pose_estimation
   wget https://storage.googleapis.com/download.tensorflow.org/models/tflite/posenet_mobilenet_v1_100_257x257_multi_kpt_stripped.tflite
   echo -e "nose\nleftEye\nrightEye\nleftEar\nrightEar\nleftShoulder\nrightShoulder\nleftElbow\nrightElbow\nleftWrist\nrightWrist\nleftHip\nrightHip\nleftKnee\nrightKnee\nleftAnkle\nrightAnkle" > key_point_labels.txt
+
+elif [[ ${model} == "person-detection-openvino" ]]; then
+  mkdir -p openvino_models
+  cd openvino_models
+  download_url="https://github.com/nnsuite/testcases/raw/master/DeepLearningModels/openvino/person_detection"
+  wget ${download_url}/person-detection-retail-0013.xml
+  wget ${download_url}/person-detection-retail-0013.bin
+
+elif [[ ${model} == "face-detection-openvino" ]]; then
+  mkdir -p openvino_models
+  cd openvino_models
+  download_url="https://github.com/nnsuite/testcases/raw/master/DeepLearningModels/openvino/face_detection"
+  wget ${download_url}/face-detection-retail-0005.xml
+  wget ${download_url}/face-detection-retail-0005.bin
 
 else
   echo -e "${model}:not a valid model_name\n"
