@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 gst-launch-1.0 -v \
-    videomixer name=mix sink_0::alpha=0.7 sink_1::alpha=0.6 ! videoconvert ! autovideosink \
+    videomixer name=mix sink_0::alpha=1.0 sink_1::alpha=0.6 ! aspectratiocrop aspect-ratio=16/9 ! videoconvert ! autovideosink sync=false \
     v4l2src ! decodebin ! videoconvert ! videoscale ! \
     video/x-raw,format=RGB,width=257,height=257 ! tee name=t \
     t. ! queue ! mix. \
