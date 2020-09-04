@@ -13,6 +13,7 @@ Requires:	nnstreamer
 BuildRequires:	nnstreamer-devel
 BuildRequires:	meson
 BuildRequires:	glib2-devel
+BuildRequires:	gstreamer-devel
 
 %description
 Fill this in!

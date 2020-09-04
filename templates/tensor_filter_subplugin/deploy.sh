@@ -60,10 +60,10 @@ pushd packaging
 mv tensor-filter-TEMPLATE.manifest tensor-filter-${name}.manifest
 mv tensor-filter-TEMPLATE.spec.in tensor-filter-${name}.spec
 
-sed -i "s|TEMPLATE|${name}|" tensor-filter-${name}.spec
+sed -i "s|TEMPLATE|${name}|g" tensor-filter-${name}.spec
 popd
-sed -i "s|TEMPLATE|${name}|" meson.build
-sed -i "s|TEMPLATE|${name}|" src/tensor_filter_subplugin.c
+sed -i "s|TEMPLATE|${name}|g" meson.build
+sed -i "s|TEMPLATE|${name}|g" src/tensor_filter_subplugin.c
 
 git add meson.build src/*.c packaging/*
 git commit -m "Initial Tensor-Filter Subplugin Code of ${name}" -m "This is the template code of nnstreamer tensor_filter subplugin"

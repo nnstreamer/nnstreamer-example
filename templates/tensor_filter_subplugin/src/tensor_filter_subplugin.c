@@ -35,17 +35,37 @@ static void TEMPLATE_close (const GstTensorFilterProperties * prop,
     void **private_data);
 
 /**
+ * @brief Check condition to reopen model.
+ */
+static int
+TEMPLATE_reopen (const GstTensorFilterProperties * prop, void **private_data)
+{
+  /**
+   * @todo Update condition to reopen model.
+   *
+   * When called the callback 'open' with user data,
+   * check the model file or other condition whether the model or framework should be reloaded.
+   * Below is example: when model file is changed, return 1 to reopen model.
+   */
+  TEMPLATE_pdata *pdata = *private_data;
+
+  if (prop->num_models > 0 && strcmp (prop->model_files[0], pdata->model_path) != 0) {
+    return 1;
+  }
+
+  return 0;
+}
+
+/**
  * @brief The standard tensor_filter callback
  */
 static int
 TEMPLATE_open (const GstTensorFilterProperties * prop, void **private_data)
 {
-  int err = 0;
   TEMPLATE_pdata *pdata;
 
   if (*private_data != NULL) {
-    pdata = *private_data;
-    if (strcmp (prop->model_file, pdata->model_path)) {
+    if (TEMPLATE_reopen (prop, private_data) != 0) {
       TEMPLATE_close (prop, private_data);  /* "reopen" */
     } else {
       return 1;
@@ -60,9 +80,10 @@ TEMPLATE_open (const GstTensorFilterProperties * prop, void **private_data)
 
   /** @todo Initialize your own framework or hardware here */
 
-  pdata->model_path = g_strdup (prop->model_file);
+  if (prop->num_models > 0)
+    pdata->model_path = g_strdup (prop->model_files[0]);
 
-  return err;
+  return 0;
 }
 
 /**
