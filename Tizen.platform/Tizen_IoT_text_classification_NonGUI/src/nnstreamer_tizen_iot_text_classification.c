@@ -306,7 +306,7 @@ int main(int argc, char *argv[]){
 
   if (argc < 4) {
     g_print ("Please the input values for 'tcp server/client', 'host ip address' and 'port' exactly. \n");
-    g_print ("e.g) $ ./nnstreamer_tien_iot_text_classification server tensorflow-lite 192.168.1.1 5001 (optional)nnfw\n");
+    g_print ("e.g) $ ./nnstreamer_tizen_iot_text_classification server tensorflow-lite 192.168.1.1 5001 (optional)nnfw\n");
     return 0;
   }
 
