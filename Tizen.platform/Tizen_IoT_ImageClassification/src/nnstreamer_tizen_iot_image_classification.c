@@ -394,7 +394,7 @@ int main(int argc, char *argv[]){
 
   if (argc < 5) {
     g_print ("Please the input values for 'tcp server/client', 'target', 'host ip address' and 'port' exactly. \n");
-    g_print ("e.g) $ ./nnstreamer_tien_iot_image_classification server \"coffee mug\" 192.168.1.1 5001 \n");
+    g_print ("e.g) $ ./nnstreamer_tizen_iot_image_classification server \"coffee mug\" 192.168.1.1 5001 \n");
     return 0;
   }
 
