@@ -140,7 +140,7 @@ public class MainActivity extends Activity {
             @Override
             public void onFinish() {
                 /* run the examples repeatedly */
-                if (exampleRun > 7) {
+                if (exampleRun > 9) {
                     Log.d(TAG, "Stop timer to run example");
 
                     if (isFailed) {
@@ -150,7 +150,7 @@ public class MainActivity extends Activity {
                     return;
                 }
 
-                int option = (exampleRun % 8);
+                int option = (exampleRun % 10);
 
                 if (option == 1) {
                     Log.d(TAG, "==== Run pipeline example with state callback ====");
@@ -174,6 +174,12 @@ public class MainActivity extends Activity {
                 } else if (option == 7) {
                     Log.d(TAG, "==== Run single-shot example with NNFW model ====");
                     runSingleNNFW();
+                } else if (option == 8) {
+                    Log.d(TAG, "==== Run pipeline example with SNPE model ====");
+                    runPipeSNPE();
+                } else if (option == 9) {
+                    Log.d(TAG, "==== Run single-shot example with SNPE model ====");
+                    runSingleSNPE();
                 } else {
                     Log.d(TAG, "==== Run single-shot example ====");
                     runSingle();
@@ -224,6 +230,22 @@ public class MainActivity extends Activity {
 
         if (!model.exists() || !meta.exists()) {
             Log.e(TAG, "Failed to get the model (add)");
+            return null;
+        }
+
+        return model;
+    }
+
+    /**
+     * Get the File object for SNPE example.
+     * Note that, to invoke model in the storage, the permission READ_EXTERNAL_STORAGE is required.
+     */
+    private static File getExampleModelSNPE() {
+        String root = Environment.getExternalStorageDirectory().getAbsolutePath();
+        File model = new File(root + "/nnstreamer/snpe_data/inception_v3_quantized.dlc");
+
+        if (!model.exists()) {
+            Log.e(TAG, "Failed to get the model for snpe");
             return null;
         }
 
@@ -845,6 +867,123 @@ public class MainActivity extends Activity {
                 /* check output */
                 float expected = i + 3.5f;
                 if (output.getTensorData(0).getFloat(0) != expected) {
+                    Log.d(TAG, "Failed, received data is invalid.");
+                    isFailed = true;
+                }
+
+                Thread.sleep(30);
+            }
+
+            single.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.e(TAG, e.getMessage());
+            isFailed = true;
+        }
+    }
+
+    /**
+     * Example to run pipeline with SNPE model.
+     */
+    private void runPipeSNPE() {
+        if (!NNStreamer.isAvailable(NNStreamer.NNFWType.SNPE)) {
+            /* cannot run the example */
+            Log.w(TAG, "SNPE is not available, cannot run the example.");
+            return;
+        }
+
+        File model = getExampleModelSNPE();
+
+        if (model == null || !model.exists()) {
+            Log.w(TAG, "Cannot find the model file");
+            return;
+        }
+
+        String desc = "appsrc name=srcx ! " +
+                "other/tensor,dimension=(string)3:299:299:1,type=(string)float32,framerate=(fraction)0/1 ! " +
+                "tensor_filter framework=snpe model=" + model.getAbsolutePath() + " custom=Runtime:DSP ! " +
+                "tensor_sink name=sinkx";
+
+        try (
+            Pipeline pipe = new Pipeline(desc);
+            TensorsInfo info = new TensorsInfo()
+        ) {
+            info.addTensorInfo(NNStreamer.TensorType.FLOAT32, new int[]{3,299,299,1});
+
+            /* register sink callback */
+            pipe.registerSinkCallback("sinkx", new Pipeline.NewDataCallback() {
+                int received = 0;
+
+                @Override
+                public void onNewDataReceived(TensorsData data) {
+                    Log.d(TAG, "Received new data callback at sinkx " + (++received));
+
+                    printTensorsInfo(data.getTensorsInfo());
+                    printTensorsData(data);
+
+                    ByteBuffer output = data.getTensorData(0);
+
+                    /* check output */
+                    if (output.capacity() != 4004) {
+                        Log.d(TAG, "Failed, received data is invalid.");
+                        isFailed = true;
+                    }
+                }
+            });
+
+            /* start pipeline */
+            pipe.start();
+
+            /* push input buffer */
+            for (int i = 0; i < 5; i++) {
+                /* push data */
+                pipe.inputData("srcx", TensorsData.allocate(info));
+
+                Thread.sleep(50);
+            }
+
+            pipe.stop();
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.e(TAG, e.getMessage());
+            isFailed = true;
+        }
+    }
+
+    /**
+     * Example to run single-shot with NNFW model.
+     */
+    private void runSingleSNPE() {
+        if (!NNStreamer.isAvailable(NNStreamer.NNFWType.SNPE)) {
+            /* cannot run the example */
+            Log.w(TAG, "SNPE is not available, cannot run the example.");
+            return;
+        }
+
+        try {
+            File model = getExampleModelSNPE();
+
+            SingleShot single = new SingleShot(model, NNStreamer.NNFWType.SNPE);
+
+            /* set timeout (1 second) */
+            single.setTimeout(1000);
+
+            /* get input info */
+            TensorsInfo in = single.getInputInfo();
+
+            /* single-shot invoke */
+            for (int i = 0; i < 5; i++) {
+                /* input data */
+                TensorsData input = in.allocate();
+
+                /* invoke */
+                TensorsData output = single.invoke(input);
+
+                printTensorsInfo(output.getTensorsInfo());
+                printTensorsData(output);
+
+                /* check output */
+                if (output.getTensorData(0).capacity() != 4004) {
                     Log.d(TAG, "Failed, received data is invalid.");
                     isFailed = true;
                 }
