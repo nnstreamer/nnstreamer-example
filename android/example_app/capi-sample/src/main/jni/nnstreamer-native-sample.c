@@ -12,6 +12,7 @@
  */
 
 #include <jni.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <pthread.h>
 #include <android/log.h>
@@ -328,7 +329,7 @@ run_example_nnfw_single (void)
 
   status = ml_single_open (&single, nnfw_model, NULL, NULL, ML_NNFW_TYPE_NNFW, ML_NNFW_HW_CPU);
   if (status != ML_ERROR_NONE) {
-    LOGE ("Failed to push input data.");
+    LOGE ("Failed to create handle for single.");
     goto done;
   }
 
@@ -394,6 +395,202 @@ done:
 }
 
 /**
+ * @brief SNPE pipeline example.
+ */
+static void
+run_example_snpe_pipeline (void)
+{
+  ml_pipeline_h pipe = NULL;
+  ml_pipeline_sink_h sink = NULL;
+  ml_pipeline_src_h src = NULL;
+  ml_tensors_info_h in_info = NULL;
+  ml_tensors_data_h in_data = NULL;
+  int status = ML_ERROR_NONE;
+  float *dummy_input = NULL;
+  size_t input_data_size;
+
+  const char description[] = "appsrc name=srcx ! "
+      "other/tensor,dimension=(string)3:299:299:1,type=(string)float32,framerate=(fraction)0/1 ! "
+      "tensor_filter framework=snpe model=/sdcard/nnstreamer/snpe_data/inception_v3_quantized.dlc custom=Runtime:DSP ! "
+      "tensor_sink name=sinkx";
+
+  if (!check_nnfw (ML_NNFW_TYPE_SNPE)) {
+    LOGI ("SNPE is not available, skip this example.");
+    return;
+  }
+
+  LOGI ("Start to run NNStreamer pipeline with SNPE.");
+
+  /* construct a pipeline */
+  status = ml_pipeline_construct (description, NULL, NULL, &pipe);
+  if (status != ML_ERROR_NONE) {
+    LOGE ("Failed to construct the pipeline.");
+    goto done;
+  }
+
+  /* register sink callback */
+  status = ml_pipeline_sink_register (pipe, "sinkx", sample_sink_cb, NULL, &sink);
+  if (status != ML_ERROR_NONE) {
+    LOGE ("Failed to get the sink handle.");
+    goto done;
+  }
+
+  /* get src handle */
+  status = ml_pipeline_src_get_handle (pipe, "srcx", &src);
+  if (status != ML_ERROR_NONE) {
+    LOGE ("Failed to get the src handle.");
+    goto done;
+  }
+
+  status = ml_pipeline_src_get_tensors_info (src, &in_info);
+  if (status != ML_ERROR_NONE) {
+    LOGE ("Failed to get the input info.");
+    goto done;
+  }
+
+  /* start the pipeline */
+  status = ml_pipeline_start (pipe);
+  if (status != ML_ERROR_NONE) {
+    LOGE ("Failed to start the pipeline.");
+    goto done;
+  }
+
+  /* input data */
+  status = ml_tensors_data_create (in_info, &in_data);
+  if (status != ML_ERROR_NONE) {
+    LOGE ("Failed to create input data.");
+    goto done;
+  }
+
+  status = ml_tensors_data_get_tensor_data (in_data, 0, (void **) &dummy_input, &input_data_size);
+  if (status != ML_ERROR_NONE) {
+    LOGE ("Failed to get input data.");
+    goto done;
+  }
+
+  dummy_input = (float *) malloc (3 * 299 * 299 * sizeof (float));
+  status = ml_tensors_data_set_tensor_data (in_data, 0, dummy_input, input_data_size);
+  if (status != ML_ERROR_NONE) {
+    LOGE ("Failed to set input data.");
+    goto done;
+  }
+
+  /* auto-free, do not destroy data handle. */
+  status = ml_pipeline_src_input_data (src, in_data, ML_PIPELINE_BUF_POLICY_AUTO_FREE);
+  if (status != ML_ERROR_NONE) {
+    LOGE ("Failed to push input data.");
+    goto done;
+  }
+
+  /* sleep to run pipeline for a while */
+  sleep (1);
+
+done:
+  /* destroy the pipeline */
+  if (ml_pipeline_destroy (pipe) != ML_ERROR_NONE) {
+    LOGE ("Failed to destroy pipeline handle.");
+  }
+
+  if (ml_tensors_info_destroy (in_info) != ML_ERROR_NONE) {
+    LOGE ("Failed to destroy input info handle.");
+  }
+
+  free (dummy_input);
+}
+
+/**
+ * @brief SNPE single-shot example.
+ */
+static void
+run_example_snpe_single (void)
+{
+  ml_single_h single = NULL;
+  ml_tensors_info_h in_info = NULL;
+  ml_tensors_data_h in_data = NULL;
+  ml_tensors_data_h out_data = NULL;
+  int status = ML_ERROR_NONE;
+  float *dummy_input = NULL;
+  float *dummy_output;
+  size_t input_data_size, output_data_size;
+
+  const char snpe_model[] = "/sdcard/nnstreamer/snpe_data/inception_v3_quantized.dlc";
+
+  if (!check_nnfw (ML_NNFW_TYPE_SNPE)) {
+    LOGI ("NNFW is not available, skip this example.");
+    return;
+  }
+
+  LOGI ("Start to run NNStreamer single-shot with SNPE.");
+
+  status = ml_single_open (&single, snpe_model, NULL, NULL, ML_NNFW_TYPE_SNPE, ML_NNFW_HW_ANY);
+  if (status != ML_ERROR_NONE) {
+    LOGE ("Failed to create handle for single.");
+    goto done;
+  }
+
+  status = ml_single_get_input_info (single, &in_info);
+  if (status != ML_ERROR_NONE) {
+    LOGE ("Failed to get input info.");
+    goto done;
+  }
+
+  /* input data */
+  status = ml_tensors_data_create (in_info, &in_data);
+  if (status != ML_ERROR_NONE) {
+    LOGE ("Failed to create input data.");
+    goto done;
+  }
+
+  status = ml_tensors_data_get_tensor_data (in_data, 0, (void **) &dummy_input, &input_data_size);
+  if (status != ML_ERROR_NONE) {
+    LOGE ("Failed to get input data.");
+    goto done;
+  }
+
+  dummy_input = (float *) malloc (3 * 299 * 299 * sizeof (float));
+  status = ml_tensors_data_set_tensor_data (in_data, 0, dummy_input, input_data_size);
+  if (status != ML_ERROR_NONE) {
+    LOGE ("Failed to set input data.");
+    goto done;
+  }
+
+  /* invoke */
+  status = ml_single_invoke (single, in_data, &out_data);
+  if (status != ML_ERROR_NONE) {
+    LOGE ("Failed to invoke.");
+    goto done;
+  }
+
+  dummy_output = (float *) malloc (1001 * sizeof (float));
+  output_data_size = 1001 * sizeof (float);
+  status = ml_tensors_data_get_tensor_data (out_data, 0, (void **) &dummy_output, &output_data_size);
+  if (status != ML_ERROR_NONE) {
+    LOGE ("Failed to get output data.");
+    goto done;
+  }
+
+done:
+  if (ml_single_close (single) != ML_ERROR_NONE) {
+    LOGE ("Failed to destroy single handle.");
+  }
+
+  if (ml_tensors_info_destroy (in_info) != ML_ERROR_NONE) {
+    LOGE ("Failed to destroy input info handle.");
+  }
+
+  if (ml_tensors_data_destroy (in_data) != ML_ERROR_NONE) {
+    LOGE ("Failed to destroy input data handle.");
+  }
+
+  if (ml_tensors_data_destroy (out_data) != ML_ERROR_NONE) {
+    LOGE ("Failed to destroy output data handle.");
+  }
+
+  free (dummy_input);
+  free (dummy_output);
+}
+
+/**
  * @brief thread to run the examples.
  */
 static pthread_t g_app_thread;
@@ -408,6 +605,8 @@ run_examples (void *user_data)
   run_example_nnfw_pipeline ();
   run_example_nnfw_single ();
   run_example_snap_pipeline (false);
+  run_example_snpe_pipeline ();
+  run_example_snpe_single ();
   return NULL;
 }
 
