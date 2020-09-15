@@ -167,7 +167,6 @@ public class MainActivity extends Activity {
                 } else if (option == 5) {
                     Log.d(TAG, "==== Run pipeline example with custom filter ====");
                     runPipeCustomFilter();
-                    runSingleNNFW();
                 } else if (option == 6) {
                     Log.d(TAG, "==== Run pipeline example with NNFW model ====");
                     runPipeNNFW();
