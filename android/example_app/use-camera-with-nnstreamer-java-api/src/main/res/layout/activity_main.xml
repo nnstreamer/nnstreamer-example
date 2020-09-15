@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".MainActivity">
+
+
+    <SurfaceView
+        android:id="@+id/cameraView"
+        android:layout_width="418dp"
+        android:layout_height="212dp"
+        app:layout_constraintBottom_toTopOf="@+id/textView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.746" />
+
+    <ImageView
+        android:id="@+id/scaled_result"
+        android:layout_width="match_parent"
+        android:layout_height="255dp"
+        android:scaleType="centerInside" />
+
+    <ImageView
+        android:id="@+id/flipped_result"
+        android:layout_width="match_parent"
+        android:layout_height="264dp"
+        android:scaleType="centerInside" />
+
+
+
+</LinearLayout>
