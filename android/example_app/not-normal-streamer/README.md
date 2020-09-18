@@ -6,8 +6,9 @@
 2. 팀원 초대
 3. README.md 생성
 ```
-### 온라인 멘토링 정리
 
+### [2020.09.16.수] 온라인 멘토링 정리
+```sh
 #### 개발 방향 조언
 시간이 부족하므로 퀄리티도 좋지만 그보다 일단 완성도 있는 앱을 개발하는 방향
 
@@ -23,7 +24,6 @@ https://gstreamer.freedesktop.org/documentation/tutorials/basic/index.html?gi-la
 * 추가조사내용
 엘리먼트는 input과 output을 가진 파이프라인의 컴포넌트라고 볼 수 있다.
 pad는 네트워크 포트 같은 개념이다. 엘리먼트에서 나오는 데이터를 처리한다.
-
 
 * NN스트리머
 https://github.com/nnstreamer/nnstreamer-android-resource 참고할 것.
@@ -49,20 +49,22 @@ init하는 pr 하고 리드미 작성. 팀원들이 approve 하면 merge해주�
 
 Slack에 질문을 올릴 것.
 
-
 #### Q&A
-
 - 엘리먼트 사이 패드들은 라이브러리 형태로 주어짐.
 플러그인에서 demux mux converter 이런 것들 확인해볼 것.
 레퍼런스에 필요한 정보 다 제공함.
-
 - 1일 1커밋 권장!
 
 #### 개선사항
-
 gstreamer tutorial을 시작하여 파이프라인에 대해 이해하도록 계획 변경
 
 #### 느낀점
-
 많은 질문에도 불구하고 친절히, 상세히 피드백과 조언을 해주셔서 정말 보람있는 멘토링이 되었던 것 같습니다.
 반드시 기대에 부응하겠습니다! 멘토링에 시간 내주셔서 정말 감사드립니다!!
+```
+
+
+### [2020.09.18.금] SSAFY Issue 등록
+```sh
+https://github.com/nnstreamer/nnstreamer/issues/2753
+```
