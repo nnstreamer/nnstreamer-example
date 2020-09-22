@@ -2,7 +2,7 @@
 
 ## Ubuntu version
 - ubuntu-18.04.5-desktop-amd64.iso
-- Virtual box
+- Virtual box (또는 Vmware로 설치)
 
 ## Setting
 
@@ -20,7 +20,7 @@
 - reference : <https://m.blog.naver.com/PostView.nhn?blogId=gingsero&logNo=220611873540&proxyReferer=https:%2F%2Fwww.google.com%2F>
 
 #### Install git
-`apt-get install git`
+`sudo apt-get install git`
 
 ## Course (not answer)
 0. Full reference
@@ -50,3 +50,39 @@
 ## Review
 - Virtual Machine과 네이티브 우분투 서둘러 결정하여 개발할 것.
 - 튜토리얼 역시 쉽지 않았기에 더 노력을 투자해야 할 것 같다.
+
+## Setting Tip
+```sh
+오류 01 : Android SDK Error
+해결 : build.gradle에 오른쪽 마우스 버튼 -> New -> File 클릭 -> 파일 이름 : settings.gradle
+settings.gradle
+include ':app'
+
+오류 02 : apply plugin Error
+해결 : build.gradle 내용 수정
+build.gradle
+buildscript {
+    repositories {
+        jcenter() // or mavenCentral()
+        mavenCentral()
+        maven{url "https://maven.google.com"}
+        google()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.1.4'
+    }
+}
+apply plugin: 'com.android.application'
+
+중략
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    // testImplementation 'junit:junit:4.12'
+    // implementation 'com.android.support:appcompat-v7:23.1.1'
+}
+
+오류 03 : NDK Error
+해결 : File -> Project Structure 메뉴 클릭 -> SDK Location -> Android NDK location 설정
+```
+
