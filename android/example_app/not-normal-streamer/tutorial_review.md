@@ -72,6 +72,13 @@ buildscript {
         classpath 'com.android.tools.build:gradle:3.1.4'
     }
 }
+allprojects {
+    repositories{
+        google()
+        jcenter()
+    }
+}
+//(JSP)저의 경우 이게 없으면 안됬습니다
 apply plugin: 'com.android.application'
 
 중략
