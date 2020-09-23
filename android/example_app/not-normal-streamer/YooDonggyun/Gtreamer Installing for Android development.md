@@ -2,27 +2,17 @@
 
 ## Ubuntu version
 - ubuntu-18.04.5-desktop-amd64.iso
-- Virtual box (또는 Vmware로 설치)
+- VMware RAM 8GB / processor 2 / capacity 80GB
 
 ## Setting
-
-#### file name to English 
-- reference : <https://hcnam.tistory.com/29>
 
 #### Install Chrome
 - reference : <https://somjang.tistory.com/27>
 
-#### Korean/English onActive
-- reference : <https://webnautes.tistory.com/1199>
-
-#### Host key set 'ctrl + shift'
-- if you want your own surrogate key, set free
-- reference : <https://m.blog.naver.com/PostView.nhn?blogId=gingsero&logNo=220611873540&proxyReferer=https:%2F%2Fwww.google.com%2F>
-
 #### Install git
 `sudo apt-get install git`
 
-## Course (not answer)
+## Course 
 0. Full reference
 - <http://blog.naver.com/PostView.nhn?blogId=chandong83&logNo=220967030568&categoryNo=0&parentCategoryNo=32&viewDate=&currentPage=1&postListTopCurrentPage=1&from=postView>
 
@@ -33,7 +23,7 @@
 
 2. Download NDK
 - search android ndk download in chrome. (official site)
-- __r18b version__
+- __latest version__
 
 3. ndk-build error
 - when you meet ndk-build error, try this.
@@ -44,14 +34,10 @@
 - AndroidManifest.xml minsdk version __9 -> 16__ change
 - delete __armeabi ABI__ 
 
-4. Binary version : 1.16.2
+4. Binary version : 1.18.x
 
 
-## Review
-- Virtual Machine과 네이티브 우분투 서둘러 결정하여 개발할 것.
-- 튜토리얼 역시 쉽지 않았기에 더 노력을 투자해야 할 것 같다.
-
-## Setting Tip
+## Setting Tip (from Team)
 ```sh
 오류 01 : Android SDK Error
 해결 : build.gradle에 오른쪽 마우스 버튼 -> New -> File 클릭 -> 파일 이름 : settings.gradle
@@ -98,3 +84,7 @@ gradle.properties 파일 생성후
 gstAndroidRoot= gst 경로 설정
 ```
 
+
+## Review
+- Virtual Machine보다 VMware가 훨씬 개발하기 편리함
+- 개발에 속도를 올려야겠다.
