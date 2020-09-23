@@ -46,7 +46,9 @@
 
 4. Binary version : 1.16.2
 
-
+5. Application.mk
+- if got an error about application platform
+- add APP_PLATFORM := android-16
 ## Review
 - Virtual Machine과 네이티브 우분투 서둘러 결정하여 개발할 것.
 - 튜토리얼 역시 쉽지 않았기에 더 노력을 투자해야 할 것 같다.
