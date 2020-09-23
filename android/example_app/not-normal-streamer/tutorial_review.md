@@ -91,5 +91,10 @@ dependencies {
 
 오류 03 : NDK Error
 해결 : File -> Project Structure 메뉴 클릭 -> SDK Location -> Android NDK location 설정
+
+
+오류 04 : gstAndroidRoot 쪽 에러
+gradle.properties 파일 생성후 
+gstAndroidRoot= gst 경로 설정
 ```
 
