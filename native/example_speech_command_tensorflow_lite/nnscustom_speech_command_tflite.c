@@ -1,8 +1,7 @@
+/* SPDX-License-Identifier: LGPL-2.1-only */
 /**
  * NNStreamer custom filter for speech command example
  * Copyright (C) 2018 Jaeyun Jung <jy1210.jung@samsung.com>
- *
- * LICENSE: LGPL-2.1
  *
  * @file	nnscustom_speech_command_tflite.c
  * @date	29 Jan 2019
