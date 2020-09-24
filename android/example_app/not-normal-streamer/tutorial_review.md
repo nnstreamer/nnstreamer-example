@@ -96,5 +96,12 @@ dependencies {
 오류 04 : gstAndroidRoot 쪽 에러
 gradle.properties 파일 생성후 
 gstAndroidRoot= gst 경로 설정
+
+오류 05 : PATH
+$ ~/.profile 
+export GSTREAMER_ROOT_ANDROID=($HOME/Android/gst_root_android)
+export JAVA_HOME=(/home/lkw/Android/android-studio/jre)
+각자 환경에 맞게 추가
+
 ```
 
