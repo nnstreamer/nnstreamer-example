@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">NNStreamer</string>
+    <string name="download_model_file">Ooops. The application could not open the model files. To run the pipeline, download or copy all the necessary files. Do you want to download model files?</string>
+    <string name="download_model_failed">Failed to download model files. Please copy the model files into the internal storage and restart application.</string>
+    <string name="download">Download</string>
+    <string name="cancel">Cancel</string>
+    <string name="close">Close</string>
+</resources>
