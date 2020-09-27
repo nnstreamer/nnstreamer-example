@@ -36,8 +36,10 @@ import gi
 import logging
 import math
 import numpy as np
+import cairo
 
 gi.require_version('Gst', '1.0')
+gi.require_foreign('cairo')
 from gi.repository import Gst, GObject
 
 DEBUG = False
@@ -49,10 +51,12 @@ class NNStreamerExample:
         self.loop = None
         self.pipeline = None
         self.running = False
+        self.video_caps = None
 
         self.BOX_SIZE = 4
         self.LABEL_SIZE = 91
         self.DETECTION_MAX = 1917
+        self.MAX_OBJECT_DETECTION = 5
 
         self.Y_SCALE = 10.0
         self.X_SCALE = 10.0
@@ -67,7 +71,6 @@ class NNStreamerExample:
         self.tflite_model = ''
         self.tflite_labels = []
         self.tflite_box_priors = []
-        self.overlay_state = []
         self.detected_objects = []
 
         if not self.tflite_init():
@@ -106,9 +109,9 @@ class NNStreamerExample:
         tensor_sink = self.pipeline.get_by_name('tensor_sink')
         tensor_sink.connect('new-data', self.new_data_cb)
         
-        # tensor_res = self.pipeline.get_by_name('tensor_res')
-        # tensor_res.connect('draw', self.draw_overlay_cb)
-        # tensor_res.connect('caps-changed', self.prepare_overlay_cb)
+        tensor_res = self.pipeline.get_by_name('tensor_res')
+        tensor_res.connect('draw', self.draw_overlay_cb)
+        tensor_res.connect('caps-changed', self.prepare_overlay_cb)
 
         # start pipeline
         self.pipeline.set_state(Gst.State.PLAYING)
@@ -164,28 +167,56 @@ class NNStreamerExample:
         logging.info('finished to load box_priors, total [%d]', len(self.tflite_box_priors))
         return True
 
-    def on_bus_message(self, bus, message):
-        """
-        :param bus: pipeline bus
-        :param message: message from pipeline
-        :return: None
-        """
-        if message.type == Gst.MessageType.EOS:
-            logging.info('received eos message')
-            self.loop.quit()
-        elif message.type == Gst.MessageType.ERROR:
-            error, debug = message.parse_error()
-            logging.warning('[error] %s : %s', error.message, debug)
-            self.loop.quit()
-        elif message.type == Gst.MessageType.WARNING:
-            error, debug = message.parse_warning()
-            logging.warning('[warning] %s : %s', error.message, debug)
-        elif message.type == Gst.MessageType.STREAM_START:
-            logging.info('received start message')
-        elif message.type == Gst.MessageType.QOS:
-            data_format, processed, dropped = message.parse_qos_stats()
-            format_str = Gst.Format.get_name(data_format)
-            logging.debug('[qos] format[%s] processed[%d] dropped[%d]', format_str, processed, dropped)
+    # @brief Callback for tensor sink signal.
+    def new_data_cb(self, sink, buffer):
+        if self.running:
+            if buffer.n_memory() != 2:
+                return False
+
+            #  tensor type is float32.
+            #  [0] dim of boxes > BOX_SIZE : 1 : DETECTION_MAX : 1 (4:1:1917:1)
+            #  [1] dim of labels > LABEL_SIZE : DETECTION_MAX : 1 (91:1917:1)
+
+            # To use boxes and detections in python properly, bytestrings that are based on float32 must be decoded into float list.
+
+            # boxes
+            mem_boxes = buffer.peek_memory(0)
+            result1, info_boxes = mem_boxes.map(Gst.MapFlags.READ)
+            if result1:
+                assert info_boxes.size == self.BOX_SIZE * self.DETECTION_MAX * 4, "Invalid info_box size"
+                decoded_boxes = list(np.fromstring(info_boxes.data, dtype=np.float32))  # decode bytestrings to float list
+            
+            # detections
+            mem_detections = buffer.peek_memory(1)
+            result2, info_detections = mem_detections.map(Gst.MapFlags.READ)
+            if result2:
+                assert info_detections.size == self.LABEL_SIZE * self.DETECTION_MAX * 4, "Invalid info_detection size"
+                decoded_detections = list(np.fromstring(info_detections.data, dtype=np.float32)) # decode bytestrings to float list
+
+            idx = 0
+            
+            boxes = []
+            for _ in range(self.DETECTION_MAX):
+                box = []    
+                for _ in range(self.BOX_SIZE):
+                    box.append(decoded_boxes[idx])
+                    idx += 1
+                boxes.append(box)
+
+            idx = 0
+
+            detections = []
+            for _ in range(self.DETECTION_MAX):
+                detection = []    
+                for _ in range(self.LABEL_SIZE):
+                    detection.append(decoded_detections[idx])
+                    idx += 1
+                detections.append(detection)
+
+            self.get_detected_objects(detections, boxes)
+
+            mem_boxes.unmap(info_boxes)
+            mem_detections.unmap(info_detections)
 
     def iou(self, A, B):
         x1 = max(A['x'], B['x'])
@@ -270,62 +301,77 @@ class NNStreamerExample:
                 }
 
                 detected.append(obj)
-            
-            # detections += LABEL_SIZE;
-            # boxes += BOX_SIZE;
         
         self.nms(detected)
 
-    # @brief Callback for tensor sink signal.
-    def new_data_cb(self, sink, buffer):
-        if self.running:
-            if buffer.n_memory() != 2:
-                return False
+    # @brief Store the information from the caps that we are interested in.
+    def prepare_overlay_cb(self, overlay, caps):
+        self.video_caps = caps
 
-            #  tensor type is float32.
-            #  [0] dim of boxes > BOX_SIZE : 1 : DETECTION_MAX : 1 (4:1:1917:1)
-            #  [1] dim of labels > LABEL_SIZE : DETECTION_MAX : 1 (91:1917:1)
+    # @brief Callback to draw the overlay.
+    def draw_overlay_cb(self, overlay, context, timestamp, duration):
+        if self.video_caps == None or not self.running:
+            return
 
-            # To use boxes and detections in python properly, bytestrings that are based on float32 must be decoded into float list.
+        # mutex_lock alternative required
+        detected = self.detected_objects
+        # mutex_unlock alternative needed
+        
+        drawed = 0
+        context.select_font_face('Sans', cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_BOLD)
+        context.set_font_size(20.0)
 
-            # boxes
-            mem_boxes = buffer.peek_memory(0)
-            result1, info_boxes = mem_boxes.map(Gst.MapFlags.READ)
-            if result1:
-                assert info_boxes.size == self.BOX_SIZE * self.DETECTION_MAX * 4, "Invalid info_box size"
-                decoded_boxes = list(np.fromstring(info_boxes.data, dtype=np.float32))  # decode bytestrings to float list
-            
-            # detections
-            mem_detections = buffer.peek_memory(1)
-            result2, info_detections = mem_detections.map(Gst.MapFlags.READ)
-            if result2:
-                assert info_detections.size == self.LABEL_SIZE * self.DETECTION_MAX * 4, "Invalid info_detection size"
-                decoded_detections = list(np.fromstring(info_detections.data, dtype=np.float32)) # decode bytestrings to float list
+        for obj in detected:
+            label = self.tflite_labels[obj['class_id']][:-1]
+            x = obj['x'] * self.VIDEO_WIDTH // self.MODEL_WIDTH
+            y = obj['y'] * self.VIDEO_HEIGHT // self.MODEL_HEIGHT
+            width = obj['width'] * self.VIDEO_WIDTH // self.MODEL_WIDTH
+            height = obj['height'] * self.VIDEO_HEIGHT // self.MODEL_HEIGHT
 
-            idx = 0
-            
-            boxes = []
-            for _ in range(self.DETECTION_MAX):
-                box = []    
-                for _ in range(self.BOX_SIZE):
-                    box.append(decoded_boxes[idx])
-                    idx += 1
-                boxes.append(box)
+            # draw rectangle
+            context.rectangle(x, y, width, height)
+            context.set_source_rgb(1, 0, 0)
+            context.set_line_width(1.5)
+            context.stroke()
+            context.fill_preserve()
 
-            idx = 0
+            # draw title
+            context.move_to(x + 5, y + 25)
+            context.text_path(label)
+            context.set_source_rgb(1, 0, 0)
+            context.fill_preserve()
+            context.set_source_rgb(1, 1, 1)
+            context.set_line_width(0.3)
+            context.stroke()
+            context.fill_preserve()
 
-            detections = []
-            for _ in range(self.DETECTION_MAX):
-                detection = []    
-                for _ in range(self.LABEL_SIZE):
-                    detection.append(decoded_detections[idx])
-                    idx += 1
-                detections.append(detection)
+            drawed += 1
+            if drawed >= self.MAX_OBJECT_DETECTION:
+                break
 
-            self.get_detected_objects(detections, boxes)
+    def on_bus_message(self, bus, message):
+        """
+        :param bus: pipeline bus
+        :param message: message from pipeline
+        :return: None
+        """
+        if message.type == Gst.MessageType.EOS:
+            logging.info('received eos message')
+            self.loop.quit()
+        elif message.type == Gst.MessageType.ERROR:
+            error, debug = message.parse_error()
+            logging.warning('[error] %s : %s', error.message, debug)
+            self.loop.quit()
+        elif message.type == Gst.MessageType.WARNING:
+            error, debug = message.parse_warning()
+            logging.warning('[warning] %s : %s', error.message, debug)
+        elif message.type == Gst.MessageType.STREAM_START:
+            logging.info('received start message')
+        elif message.type == Gst.MessageType.QOS:
+            data_format, processed, dropped = message.parse_qos_stats()
+            format_str = Gst.Format.get_name(data_format)
+            logging.debug('[qos] format[%s] processed[%d] dropped[%d]', format_str, processed, dropped)
 
-            mem_boxes.unmap(info_boxes)
-            mem_detections.unmap(info_detections)
 
     def set_window_title(self, name, title):
         """
@@ -341,14 +387,6 @@ class NNStreamerExample:
                 tags = Gst.TagList.new_empty()
                 tags.add_value(Gst.TagMergeMode.APPEND, 'title', title)
                 pad.send_event(Gst.Event.new_tag(tags))
-    
-    # # @brief Store the information from the caps that we are interested in.
-    # def prepare_overlay_cb(self, overlay, caps, user_data):
-    #     print(overlay, caps, user_data)
-
-    # @brief Callback to draw the overlay.
-    # def draw_overlay_cb(self, overlay, cr, timestamp, duration, user_data):
-    #     print(overlay, cr, timestamp, duration, user_data)
 
 if __name__ == '__main__':
     example = NNStreamerExample(sys.argv[1:])

@@ -4,3 +4,8 @@ nnstreamer_example_object_detection_tflite = executable('nnstreamer_example_obje
   install: true,
   install_dir: examples_install_dir
 )
+
+# Install python example
+install_data('nnstreamer_example_object_detection_tflite.py',
+  install_dir: examples_install_dir
+)
