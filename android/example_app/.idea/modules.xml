@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/api-sample/api-sample.iml" filepath="$PROJECT_DIR$/.idea/modules/api-sample/api-sample.iml" group="example_app/api-sample" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/capi-sample/capi-sample.iml" filepath="$PROJECT_DIR$/.idea/modules/capi-sample/capi-sample.iml" group="example_app/capi-sample" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/example_app.iml" filepath="$PROJECT_DIR$/.idea/modules/example_app.iml" group="example_app" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/nnstreamer-media-ssd/nnstreamer-media-ssd.iml" filepath="$PROJECT_DIR$/.idea/modules/nnstreamer-media-ssd/nnstreamer-media-ssd.iml" group="example_app/nnstreamer-media-ssd" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/nnstreamer-multi/nnstreamer-multi.iml" filepath="$PROJECT_DIR$/.idea/modules/nnstreamer-multi/nnstreamer-multi.iml" group="example_app/nnstreamer-multi" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/nnstreamer-ssd/nnstreamer-ssd.iml" filepath="$PROJECT_DIR$/.idea/modules/nnstreamer-ssd/nnstreamer-ssd.iml" group="example_app/nnstreamer-ssd" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/use-camera-with-nnstreamer-java-api/use-camera-with-nnstreamer-java-api.iml" filepath="$PROJECT_DIR$/.idea/modules/use-camera-with-nnstreamer-java-api/use-camera-with-nnstreamer-java-api.iml" group="example_app/use-camera-with-nnstreamer-java-api" />
+    </modules>
+  </component>
+</project>

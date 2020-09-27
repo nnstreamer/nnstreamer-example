@@ -1,0 +1,134 @@
+{
+  "abi": "ARM64_V8A",
+  "abiPlatformVersion": 24,
+  "buildSettings": {
+    "environmentVariables": []
+  },
+  "cxxBuildFolder": "/home/ssafy/nnstreamer-example/android/example_app/nnstreamer-multi/.cxx/ndkBuild/debug/arm64-v8a",
+  "info": {
+    "abi": "ARM64_V8A",
+    "bitness": 64,
+    "deprecated": false,
+    "default": true
+  },
+  "originalCxxBuildFolder": "/home/ssafy/nnstreamer-example/android/example_app/nnstreamer-multi/.cxx/ndkBuild/debug/arm64-v8a",
+  "variant": {
+    "buildSystemArgumentList": [
+      "NDK_APPLICATION_MK\u003djni/Application.mk",
+      "GSTREAMER_JAVA_SRC_DIR\u003dsrc",
+      "GSTREAMER_ROOT_ANDROID\u003d/home/ssafy/Android/gstreamer-1.0",
+      "GSTREAMER_ASSETS_DIR\u003dsrc/assets"
+    ],
+    "buildTargetSet": [
+      "nnstreamer-jni"
+    ],
+    "cFlagsList": [],
+    "cmakeSettingsConfiguration": "android-gradle-plugin-predetermined-name",
+    "cppFlagsList": [],
+    "isDebuggableEnabled": true,
+    "module": {
+      "buildSystem": "NDK_BUILD",
+      "cmakeToolchainFile": "/home/ssafy/Android/tools/sdk/ndk/21.3.6528147/build/cmake/android.toolchain.cmake",
+      "cxxFolder": "/home/ssafy/nnstreamer-example/android/example_app/nnstreamer-multi/.cxx",
+      "gradleModulePathName": ":nnstreamer-multi",
+      "intermediatesFolder": "/home/ssafy/nnstreamer-example/android/example_app/nnstreamer-multi/build/intermediates",
+      "makeFile": "/home/ssafy/nnstreamer-example/android/example_app/nnstreamer-multi/jni/Android.mk",
+      "moduleBuildFile": "/home/ssafy/nnstreamer-example/android/example_app/nnstreamer-multi/build.gradle",
+      "moduleRootFolder": "/home/ssafy/nnstreamer-example/android/example_app/nnstreamer-multi",
+      "ndkDefaultAbiList": [
+        "ARMEABI_V7A",
+        "ARM64_V8A",
+        "X86",
+        "X86_64"
+      ],
+      "ndkFolder": "/home/ssafy/Android/tools/sdk/ndk/21.3.6528147",
+      "ndkMetaAbiList": [
+        {
+          "abi": "ARMEABI_V7A",
+          "bitness": 32,
+          "deprecated": false,
+          "default": true
+        },
+        {
+          "abi": "ARM64_V8A",
+          "bitness": 64,
+          "deprecated": false,
+          "default": true
+        },
+        {
+          "abi": "X86",
+          "bitness": 32,
+          "deprecated": false,
+          "default": true
+        },
+        {
+          "abi": "X86_64",
+          "bitness": 64,
+          "deprecated": false,
+          "default": true
+        }
+      ],
+      "ndkMetaPlatforms": {
+        "min": 16,
+        "max": 30,
+        "aliases": {
+          "20": 19,
+          "25": 24,
+          "J": 16,
+          "J-MR1": 17,
+          "J-MR2": 18,
+          "K": 19,
+          "L": 21,
+          "L-MR1": 22,
+          "M": 23,
+          "N": 24,
+          "N-MR1": 24,
+          "O": 26,
+          "O-MR1": 27,
+          "P": 28,
+          "Q": 29,
+          "R": 30
+        }
+      },
+      "ndkSupportedAbiList": [
+        "ARMEABI_V7A",
+        "ARM64_V8A",
+        "X86",
+        "X86_64"
+      ],
+      "ndkDefaultStl": "SYSTEM",
+      "ndkVersion": "21.3.6528147",
+      "project": {
+        "compilerSettingsCacheFolder": "/home/ssafy/nnstreamer-example/android/example_app/.cxx",
+        "cxxFolder": "/home/ssafy/nnstreamer-example/android/example_app/.cxx",
+        "isBuildOnlyTargetAbiEnabled": true,
+        "isCmakeBuildCohabitationEnabled": false,
+        "isNativeCompilerSettingsCacheEnabled": false,
+        "rootBuildGradleFolder": "/home/ssafy/nnstreamer-example/android/example_app",
+        "sdkFolder": "/home/ssafy/Android/tools/sdk",
+        "isPrefabEnabled": false
+      },
+      "splitsAbiFilterSet": [],
+      "stlSharedObjectMap": {
+        "LIBCXX_SHARED": {
+          "ARMEABI_V7A": "/home/ssafy/Android/tools/sdk/ndk/21.3.6528147/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/arm-linux-androideabi/libc++_shared.so",
+          "ARM64_V8A": "/home/ssafy/Android/tools/sdk/ndk/21.3.6528147/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/aarch64-linux-android/libc++_shared.so",
+          "X86": "/home/ssafy/Android/tools/sdk/ndk/21.3.6528147/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/i686-linux-android/libc++_shared.so",
+          "X86_64": "/home/ssafy/Android/tools/sdk/ndk/21.3.6528147/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/x86_64-linux-android/libc++_shared.so"
+        },
+        "LIBCXX_STATIC": {},
+        "NONE": {},
+        "SYSTEM": {}
+      }
+    },
+    "objFolder": "/home/ssafy/nnstreamer-example/android/example_app/nnstreamer-multi/build/intermediates/ndkBuild/debug/obj/local",
+    "variantName": "debug",
+    "validAbiList": [
+      "ARMEABI_V7A",
+      "ARM64_V8A"
+    ],
+    "prefabDirectory": "/home/ssafy/nnstreamer-example/android/example_app/nnstreamer-multi/.cxx/ndkBuild/debug/prefab",
+    "prefabPackageDirectoryList": []
+  },
+  "prefabFolder": "/home/ssafy/nnstreamer-example/android/example_app/nnstreamer-multi/.cxx/ndkBuild/debug/prefab/arm64-v8a"
+}
