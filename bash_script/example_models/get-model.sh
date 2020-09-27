@@ -7,6 +7,7 @@ print_usage()
   echo -e "\t\timage-classification-caffe2"
   echo -e "\t\tobject-detection-tf"
   echo -e "\t\tobject-detection-tflite"
+  echo -e "\t\tface-detection-tflite"
   echo -e "\t\tspeech-command"
   echo -e "\t\timage-segmentation-tflite"
   echo -e "\t\ttext-classification-tflite"
@@ -60,6 +61,14 @@ elif [[ ${model} == "object-detection-tflite" ]]; then
   download_url="https://github.com/nnsuite/testcases/raw/master/DeepLearningModels/tensorflow-lite/ssd_mobilenet_v2_coco"
   wget ${download_url}/ssd_mobilenet_v2_coco.tflite
   wget ${download_url}/coco_labels_list.txt
+  wget ${download_url}/box_priors.txt
+
+elif [[ ${model} == "face-detection-tflite" ]]; then
+  mkdir -p tflite_model
+  cd tflite_model
+  download_url="http://nnsuite.mooo.com/warehouse/nnmodels/"
+  wget ${download_url}/detect_face.tflite
+  wget ${download_url}/labels_face.txt
   wget ${download_url}/box_priors.txt
 
 elif [[ ${model} == "speech-command" ]]; then
