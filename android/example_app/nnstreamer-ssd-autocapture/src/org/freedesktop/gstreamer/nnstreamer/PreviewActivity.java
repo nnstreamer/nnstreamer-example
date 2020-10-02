@@ -1,7 +1,6 @@
 package org.freedesktop.gstreamer.nnstreamer;
 
 import android.app.Activity;
-<<<<<<< HEAD
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -36,18 +35,11 @@ public class PreviewActivity extends Activity implements View.OnClickListener {
     private Button buttonRetry;
 
     private Bitmap photo;
-=======
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-
-public class PreviewActivity extends Activity {
->>>>>>> 99f11820237bd39e7e29c984c0e0c9e905c1b5c9
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_preview);
-<<<<<<< HEAD
 
         initActivity();
     }
@@ -59,7 +51,9 @@ public class PreviewActivity extends Activity {
 
         /* set captured photo to ImageView */
         Intent intent = getIntent();
+
         byte[] arr = intent.getByteArrayExtra("photo");
+
         photo = BitmapFactory.decodeByteArray(arr,0, arr.length);
 
         imageView_preview = (ImageView) this.findViewById(R.id.preview_imageview);
@@ -126,7 +120,5 @@ public class PreviewActivity extends Activity {
         }catch(IOException exception){
             Log.e("IOException", exception.getMessage());
         }
-=======
->>>>>>> 99f11820237bd39e7e29c984c0e0c9e905c1b5c9
     }
 }

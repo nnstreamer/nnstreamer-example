@@ -1,14 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<<<<<<< HEAD
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-=======
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
->>>>>>> 99f11820237bd39e7e29c984c0e0c9e905c1b5c9
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-<<<<<<< HEAD
     android:background="#fff"
     android:orientation="vertical"
     tools:context="org.freedesktop.gstreamer.nnstreamer.PreviewActivity">
@@ -69,8 +64,3 @@
 
 
 </LinearLayout>
-=======
-    tools:context="org.freedesktop.gstreamer.nnstreamer.PreviewActivity">
-
-</android.support.constraint.ConstraintLayout>
->>>>>>> 99f11820237bd39e7e29c984c0e0c9e905c1b5c9
