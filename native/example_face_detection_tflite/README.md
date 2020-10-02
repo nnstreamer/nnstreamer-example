@@ -3,9 +3,9 @@
 
 This example passes camera video stream to a neural network using **tensor_filter**. The neural network detects faces of people in input stream. 
 
-A black box filter is applied to the detected people's face. If there are multiple faces in the video, black boxes cover the detected faces that are not the largest.
+If there are multiple faces in the video, detected faces which are not the largest one are pixelated.
 
-The results are drawn by **cairooverlay** GStreamer plugin.
+The application takes advantage of **cairooverlay** GStreamer plugin.
 
 #### How to Run
 

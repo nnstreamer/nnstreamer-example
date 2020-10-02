@@ -4,8 +4,10 @@
 @file		nnstreamer_example_face_detection_tflite.py
 @date		4 Oct 2020
 @brief		Tensor stream example with TF-Lite model for face detection.
-@see		https://github.com/nnsuite/nnstreamer
-@author		SSAFY Team 1 <jangjongha.sw@gmail.com>
+@see		https://github.com/nnstreamer/nnstreamer
+@author		Jongha Jang <jangjongha.sw@gmail.com>
+@author     yongjoonseo <koreakkrea12@naver.com>
+@author     yeseul4072 <yeseul4072@gmail.com>
 @bug		No known bugs.
 
 NNStreamer example for face detection using tensorflow-lite and face masking.
@@ -73,6 +75,8 @@ class NNStreamerExample:
         self.tflite_box_priors = []
         self.detected_objects = []
 
+        self.pattern = None
+
         if not self.tflite_init():
             raise Exception
 
@@ -99,6 +103,9 @@ class NNStreamerExample:
             'tensor_filter framework=tensorflow-lite model=' + self.tflite_model + ' ! '
             'tensor_sink name=res_face'
         )
+
+        # set mask pattern (for mosaic pattern)
+        self.set_mask_pattern()
 
         # bus and message callback
         bus = self.pipeline.get_bus()
@@ -337,21 +344,23 @@ class NNStreamerExample:
             width = obj['width'] * self.VIDEO_WIDTH // self.MODEL_WIDTH
             height = obj['height'] * self.VIDEO_HEIGHT // self.MODEL_HEIGHT
 
-            # draw rectangle
-            if len(face_sizes) <= 1 or idx == target_image_idx:
+            # implement pixelated pattern
+            if not (len(face_sizes) <= 1 or idx == target_image_idx):
                 context.rectangle(x, y, width, height)
-                context.set_source_rgb(0, 0, 1)
-                context.set_line_width(1.5)
-                context.stroke()
-                context.fill()
-            else:
-                context.rectangle(x, y, width, height)
-                context.set_source_rgb(0, 0, 0)
+                context.set_source(self.pattern)
                 context.fill()
 
             drawed += 1
             if drawed >= self.MAX_OBJECT_DETECTION:
                 break
+                
+    def set_mask_pattern(self):
+        """
+        Prepare mask pattern for cairooverlay.
+        """
+        source = cairo.ImageSurface.create_from_png('./mosaic.png')
+        self.pattern = cairo.SurfacePattern(source)
+        self.pattern.set_extend(cairo.Extend.REPEAT)    
 
     def on_bus_message(self, bus, message):
         """Callback for message.
