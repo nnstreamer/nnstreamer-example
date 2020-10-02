@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="object_array">
+        <item>person</item>
+        <item>labtop</item>
+        <item>tv</item>
+    </string-array>
+
+</resources>
