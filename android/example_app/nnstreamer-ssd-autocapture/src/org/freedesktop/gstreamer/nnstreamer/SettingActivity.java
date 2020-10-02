@@ -1,5 +1,6 @@
 package org.freedesktop.gstreamer.nnstreamer;
 
+<<<<<<< HEAD
 
 import android.app.Activity;
 import android.content.Intent;
@@ -27,11 +28,19 @@ public class SettingActivity extends Activity implements View.OnClickListener, A
     private TextView textViewConditionList;
 
     private EditText editTextNumber;
+=======
+import android.app.Activity;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+
+public class SettingActivity extends Activity {
+>>>>>>> 99f11820237bd39e7e29c984c0e0c9e905c1b5c9
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_setting);
+<<<<<<< HEAD
 
         initActivity();
     }
@@ -104,5 +113,7 @@ public class SettingActivity extends Activity implements View.OnClickListener, A
     @Override
     public void onNothingSelected(AdapterView<?> adapterView) {
 
+=======
+>>>>>>> 99f11820237bd39e7e29c984c0e0c9e905c1b5c9
     }
 }
