@@ -6,7 +6,7 @@
 @brief		Tensor stream example with multi TF-Lite model for face detection and pose estimation.
 @see		https://github.com/nnstreamer/nnstreamer-example
 @author		Jang Jong Ha <jangjongha.sw@gmail.com>
-@bug	    Face masking only works properly when detects one person.
+@bug	    No known bugs.
 
 This code is a example of implementing multimodel-ssd using object detection model and face detection model.
 
@@ -15,11 +15,12 @@ v4l2src -- tee -- videoconvert -- cairooverlay -- ximagesink
             |
             --- videoscale -- videorate -- tee -- tensor_converter -- tensor_transform -- tensor_filter -- tensor_sink
                                             |
-                                            -- videoconvert -- tee -- videobox -- videoscale -- tensor_converter -- tensor_transform -- tensor_filter -- tensor_sink
+                                            -- videoconvert -- tee -- videobox -- videoflip -- videoscale -- tensor_converter -- tensor_transform -- tensor_filter -- tensor_sink
                                                                 |
-                                                                -- videobox -- videoscale -- tensor_converter -- tensor_transform -- tensor_filter -- tensor_sink
+                                                                -- videobox -- videoflip -- videoscale -- tensor_converter -- tensor_transform -- tensor_filter -- tensor_sink
                                                                 |
                                                                 -- (Whatever you want)
+
 
 Get model by
 $ cd $NNST_ROOT/bin
@@ -113,7 +114,8 @@ class NNStreamerExample:
         self.loop = GObject.MainLoop()
 
         # init pipeline
-        # Due to memory leaks and optimization issues, this code currently only supports 2 people per person.
+        # This code works with up to three faces. But due to optimization issues, we highly recommend to run this code with two faces.
+
         self.pipeline = Gst.parse_launch(
             'v4l2src name=cam_src ! videoconvert ! videoscale ! videorate ! '
             'video/x-raw,width=' + str(self.VIDEO_WIDTH) + ',height=' + str(self.VIDEO_HEIGHT) + ',format=RGB,framerate=25/2 ! tee name=t_raw '
@@ -125,15 +127,15 @@ class NNStreamerExample:
             'tensor_converter ! tensor_transform mode=arithmetic option=typecast:float32,add:-127.5,div:127.5 ! '
             'tensor_filter framework=tensorflow-lite model=' + self.tflite_face_model + ' ! tensor_sink name=tensor_sink '
             'model_handler. ! queue leaky=2 max-size-buffers=2 ! videoconvert ! tee name=pose_split '
-            'pose_split. ! queue leaky=2 max-size-buffers=2 ! videobox name=object0 ! videoscale ! '
+            'pose_split. ! queue leaky=2 max-size-buffers=2 ! videobox name=object0 ! videoflip method=horizontal-flip ! videoscale ! '
             'video/x-raw,width=' + str(self.POSE_MODEL_WIDTH) + ',height=' + str(self.POSE_MODEL_HEIGHT) + ',format=RGB ! tensor_converter ! '
             'tensor_transform mode=arithmetic option=typecast:float32,add:-127.5,div:127.5 ! '
             'tensor_filter framework=tensorflow-lite model=' + self.tflite_pose_model + ' ! tensor_sink name=posesink_0 '
-            'pose_split. ! queue leaky=2 max-size-buffers=2 ! videobox name=object1 ! videoscale ! '
+            'pose_split. ! queue leaky=2 max-size-buffers=2 ! videobox name=object1 ! videoflip method=horizontal-flip ! videoscale ! '
             'video/x-raw,width=' + str(self.POSE_MODEL_WIDTH) + ',height=' + str(self.POSE_MODEL_HEIGHT) + ',format=RGB ! tensor_converter ! '
             'tensor_transform mode=arithmetic option=typecast:float32,add:-127.5,div:127.5 ! '
             'tensor_filter framework=tensorflow-lite model=' + self.tflite_pose_model + ' ! tensor_sink name=posesink_1 '
-            # 'another_split. ! queue leaky=2 max-size-buffers=2 ! videobox name=object2 ! videoscale ! '
+            # 'pose_split. ! queue leaky=2 max-size-buffers=2 ! videobox name=object2 ! videoflip method=horizontal-flip ! videoscale ! '
             # 'video/x-raw,width=' + str(self.POSE_MODEL_WIDTH) + ',height=' + str(self.POSE_MODEL_HEIGHT) + ',format=RGB ! tensor_converter ! '
             # 'tensor_transform mode=arithmetic option=typecast:float32,add:-127.5,div:127.5 ! '
             # 'tensor_filter framework=tensorflow-lite model=' + self.tflite_pose_model + ' ! tensor_sink name=posesink_2 '
@@ -161,6 +163,8 @@ class NNStreamerExample:
         tensor_res = self.pipeline.get_by_name('tensor_res')
         tensor_res.connect('draw', self.draw_overlay_cb)
         tensor_res.connect('caps-changed', self.prepare_overlay_cb)
+
+        self.set_window_title("img_tensor", "Multi Model Face Detection and Pose Estimation")
 
         # start pipeline
         self.pipeline.set_state(Gst.State.PLAYING)
@@ -412,7 +416,7 @@ class NNStreamerExample:
                 assert info_offset.size == 34 * 9 * 9 * 1 * 4
                 decoded_offset = list(np.frombuffer(info_offset.data, dtype=np.float32)) # decode bytestrings to float list
             
-            # The indexes we really need are 1 and 2. 
+            # The indexes we really needs are 1 and 2. 
             # To handling Eyetracking information more faster, rather than watch all information in result, 
             # We'll only traversal indexes range of 0 ~ 2
 
@@ -480,7 +484,6 @@ class NNStreamerExample:
             # Pose indexes
             lx, ly = self.kps[idx][1]['x'], self.kps[idx][1]['y']
             rx, ry = self.kps[idx][2]['x'], self.kps[idx][2]['y']
-            # print(lx, ly, rx, ry)
             
             # Coordinate Conversion
             conv_lx, conv_ly = (lx * (self.FACE_MODEL_WIDTH // self.POSE_MODEL_WIDTH)) + fx, (ly * (self.FACE_MODEL_HEIGHT // self.POSE_MODEL_HEIGHT)) + fy
