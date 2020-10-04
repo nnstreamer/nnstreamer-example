@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#191818">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_weight="1">
+        <TextView
+            android:textColor="#39CCCC"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:layout_marginTop="30dp"
+            android:layout_marginBottom="5dp"
+            android:textSize="20sp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="SETTINGS">
+        </TextView>
+        <TextView
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="5dp"
+            android:id="@+id/setting_textView_ConditionList"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:background="#40353042"
+            android:text="">
+        </TextView>
+        <LinearLayout
+            android:layout_marginTop="20dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <Button
+                android:background="@drawable/btn_color"
+                android:textColor="#191818"
+                android:layout_marginRight="5dp"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:text="COMPLETE"
+                android:id="@+id/setting_button_settingComplete"/>
+            <Button
+                android:background="@drawable/btn_color"
+                android:textColor="#191818"
+                android:layout_marginLeft="5dp"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:text="DELETE ALL"
+                android:id="@+id/setting_button_deleteList"/>
+        </LinearLayout>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1.5">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <TextView
+                android:textColor="#39CCCC"
+                android:layout_marginTop="20dp"
+                android:layout_centerHorizontal="true"
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:text="INPUT INFORMATION">
+            </TextView>
+            <Spinner
+                android:layout_width="300dp"
+                android:layout_height="50dp"
+                android:id="@+id/setting_spinner"
+                android:layout_centerHorizontal="true"
+                android:entries="@array/object_array"
+                android:layout_marginTop="50dp" />
+            <EditText
+                android:layout_width="300dp"
+                android:layout_height="50dp"
+                android:id="@+id/setting_editText_Number"
+                android:layout_centerHorizontal="true"
+                android:inputType="numberDecimal"
+                android:hint="Number"
+                android:layout_below="@+id/setting_spinner" />
+            <Button
+                android:background="@drawable/btn_color"
+                android:textColor="#191818"
+                android:layout_marginRight="5dp"
+                android:layout_width="150dp"
+                android:layout_height="40dp"
+                android:text="ADD"
+                android:id="@+id/setting_button_add"
+                android:textAllCaps="false"
+                android:layout_marginTop="20dp"
+                android:layout_below="@+id/setting_editText_Number"
+                android:layout_toLeftOf="@+id/setting_button_reset" />
+            <Button
+                android:background="@drawable/btn_color"
+                android:textColor="#191818"
+                android:layout_marginLeft="5dp"
+                android:layout_width="150dp"
+                android:layout_height="40dp"
+                android:text="RESET"
+                android:id="@+id/setting_button_reset"
+                android:textAllCaps="false"
+                android:layout_alignTop="@+id/setting_button_add"
+                android:layout_alignRight="@+id/setting_editText_Number" />
+        </RelativeLayout>
+    </LinearLayout>
+</LinearLayout>
+
+
+
