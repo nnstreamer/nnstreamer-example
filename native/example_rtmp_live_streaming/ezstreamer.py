@@ -4,6 +4,7 @@
 @brief		Working in Progress
 @see		https://github.com/nnstreamer/nnstreamer
 @author		Jongha Jang <jangjongha.sw@gmail.com>
+@author		Soonbeen Kim <ksb940925@gmail.com>
 @bug		This is early build. More optimization and debugging required.
 
 This code is GUI example of using nnstreamer, three neural models, and rtmp streaming.
@@ -210,6 +211,9 @@ class EZStreamerCore:
         self.pipeline = Gst.parse_launch(
             pipeline_string
         )
+
+        # set mask pattern (for mosaic pattern)
+        self.set_mask_pattern()
 
         # bus and message callback
         bus = self.pipeline.get_bus()
@@ -537,7 +541,12 @@ class EZStreamerCore:
     def drawer(self, overlay, context, timestamp, duration, detected, tflite_labels):       
         drawed = 0
 
-        for obj in detected:
+        face_sizes = [0 for _ in range(len(detected))]
+
+        if len(face_sizes) != 0:
+            target_image_idx = face_sizes.index(max(face_sizes))
+
+        for idx, obj in enumerate(detected):
             label = tflite_labels[obj['class_id']][:-1]
 
             x = obj['x'] * self.VIDEO_WIDTH // self.FACE_MODEL_WIDTH
@@ -545,22 +554,11 @@ class EZStreamerCore:
             width = obj['width'] * self.VIDEO_WIDTH // self.FACE_MODEL_WIDTH
             height = obj['height'] * self.VIDEO_HEIGHT // self.FACE_MODEL_HEIGHT
             
-            # draw rectangle
-            context.rectangle(x, y, width, height)
-            context.set_source_rgb(1, 0, 0)
-            context.set_line_width(1.5)
-            context.stroke()
-            context.fill_preserve()
-
-            # draw title
-            context.move_to(x + 5, y + 25)
-            context.text_path(label)
-            context.set_source_rgb(1, 0, 0)
-            context.fill_preserve()
-            context.set_source_rgb(1, 1, 1)
-            context.set_line_width(0.3)
-            context.stroke()
-            context.fill_preserve()
+            # implement pixelated pattern
+            if not (len(detected) <= 1 or idx == target_image_idx):
+                context.rectangle(x, y, width, height)
+                context.set_source(self.pattern)
+                context.fill()
 
             drawed += 1
             if drawed >= self.MAX_OBJECT_DETECTION:
@@ -632,6 +630,14 @@ class EZStreamerCore:
 
         if self.OPTION_OD:
             self.drawer(overlay, context, timestamp, duration, detected_objects, self.tflite_object_labels)
+
+    def set_mask_pattern(self):
+        """
+        Prepare mask pattern for cairooverlay.
+        """
+        source = cairo.ImageSurface.create_from_png('./mosaic.png')
+        self.pattern = cairo.SurfacePattern(source)
+        self.pattern.set_extend(cairo.Extend.REPEAT)
 
     def on_bus_message(self, bus, message):
         """
@@ -785,3 +791,4 @@ if __name__ == "__main__":
     myWindow = EZStreamerWindow()
     myWindow.show()
     app.exec_()
+
