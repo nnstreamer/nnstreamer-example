@@ -1,11 +1,11 @@
 """
 @file		ezstreamer.py
 @date		19 Oct 2020
-@brief		Working in Progress
+@brief		Optimization and Adjustment in Progress
 @see		https://github.com/nnstreamer/nnstreamer
 @author		Jongha Jang <jangjongha.sw@gmail.com>
 @author		Soonbeen Kim <ksb940925@gmail.com>
-@bug		This is early build. More optimization and debugging required.
+@bug		More optimization and debugging required.
 
 This code is GUI example of using nnstreamer, three neural models, and rtmp streaming.
 
@@ -17,14 +17,12 @@ $ ./get-model.sh pose-estimation-tflite
 
 Run example :
 Before running this example, GST_PLUGIN_PATH should be updated for nnstreamer plugin.
+Python 3 is required to run this application.
+
 $ export GST_PLUGIN_PATH=$GST_PLUGIN_PATH:<nnstreamer plugin path>
 $ python3 ezstreamer.py
 
 See https://lazka.github.io/pgi-docs/#Gst-1.0 for Gst API details.
-
-Required model and resources are stored at below link
-https://storage.googleapis.com/download.tensorflow.org/models/tflite/posenet_mobilenet_v1_100_257x257_multi_kpt_stripped.tflite
-and make text file of key point labels for this model (total 17 key points include nose, left ear, right ankle, etc.)
 """
 
 import sys
@@ -60,6 +58,7 @@ class EZStreamerCore:
         self.FACE_LABEL_SIZE = 2
         self.OBJECT_LABEL_SIZE = 91
         self.DETECTION_MAX = 1917
+        self.MAX_FACE_DETECTION = 3
         self.MAX_OBJECT_DETECTION = 5
 
         self.Y_SCALE = 10.0
@@ -103,11 +102,11 @@ class EZStreamerCore:
         # Base_Pipelines for Each component
         self.BASE_PIPELINE = ('v4l2src name=cam_src ! videoconvert ! videoscale ! '
             'video/x-raw,width=' + str(self.VIDEO_WIDTH) + ',height=' + str(self.VIDEO_HEIGHT) + ',format=RGB ! tee name=t_raw ')
-        self.BASE_MODEL_PIPE = ('t_raw. ! queue leaky=2 max-size-buffers=2 ! videoscale ! videorate ! '
-            'video/x-raw,width=' + str(self.VIDEO_WIDTH) + ',height=' + str(self.VIDEO_HEIGHT) + ',framerate=10/1 ! tee name=model_handler ')
+        self.BASE_MODEL_PIPE = ('t_raw. ! queue ! videoscale ! videorate ! '
+            'video/x-raw,width=' + str(self.VIDEO_WIDTH) + ',height=' + str(self.VIDEO_HEIGHT) + ',framerate=15/1 ! tee name=model_handler ')
         self.BASE_OUTPUT_PIPE = ('t_raw. ! queue leaky=2 max-size-buffers=2 ! videoconvert ! cairooverlay name=tensor_res ! tee name=output_handler ')
 
-        # Output component
+        # Output component. This pipeline should not be dynamically
         self.LOCAL_OUTPUT_PIPE = ('output_handler. ! queue leaky=2 max-size-buffers=2 ! videoconvert ! ximagesink name=output_local ')
         self.RTMP_OUTPUT_PIPE = ('output_handler. ! queue ! videoconvert ! x264enc bitrate=2000 byte-stream=false key-int-max=60 bframes=0 aud=true tune=zerolatency ! '
             'video/x-h264,profile=main ! flvmux streamable=true name=rtmp_mux '
@@ -117,30 +116,30 @@ class EZStreamerCore:
         # SSD Based detection component
         self.SSD_PIPE = ('model_handler. ! queue ! videoscale ! video/x-raw,width=' + str(self.FACE_MODEL_WIDTH) + ',height=' + str(self.FACE_MODEL_HEIGHT) + ' ! tensor_converter ! '
                         'tensor_transform mode=arithmetic option=typecast:float32,add:-127.5,div:127.5 ! tee name=t_ssd ')
-        self.OBJECT_DETECT_PIPE = ('t_ssd. ! queue leaky=2 max-size-buffers=3 ! tensor_filter framework=tensorflow-lite model=' + self.tflite_object_model + ' ! tensor_sink name=res_object ')
-        self.FACE_DETECT_PIPE = ('t_ssd. ! queue leaky=2 max-size-buffers=3 ! tensor_filter framework=tensorflow-lite model=' + self.tflite_face_model + ' ! tensor_sink name=res_face ')        
+        self.OBJECT_DETECT_PIPE = ('t_ssd. ! queue leaky=2 max-size-buffers=2 ! tensor_filter framework=tensorflow-lite model=' + self.tflite_object_model + ' ! tensor_sink name=res_object ')
+        self.FACE_DETECT_PIPE = ('t_ssd. ! queue leaky=2 max-size-buffers=2 ! tensor_filter framework=tensorflow-lite model=' + self.tflite_face_model + ' ! tensor_sink name=res_face ')        
 
         # Pose Detection component for Eye Tracking
         self.EYETRACK_PIPE = ('model_handler. ! queue leaky=2 max-size-buffers=2 ! videoconvert ! tee name=pose_split '
-            'pose_split. ! queue leaky=2 max-size-buffers=2 ! videobox name=object0 ! videoflip method=horizontal-flip ! videoscale ! '
+            'pose_split. ! queue leaky=2 max-size-buffers=2 ! videobox name=face0 ! videoflip method=horizontal-flip ! videoscale ! '
             'video/x-raw,width=' + str(self.POSE_MODEL_WIDTH) + ',height=' + str(self.POSE_MODEL_HEIGHT) + ',format=RGB ! tensor_converter ! '
             'tensor_transform mode=arithmetic option=typecast:float32,add:-127.5,div:127.5 ! '
             'tensor_filter framework=tensorflow-lite model=' + self.tflite_pose_model + ' ! tensor_sink name=posesink_0 '
-            'pose_split. ! queue leaky=2 max-size-buffers=2 ! videobox name=object1 ! videoflip method=horizontal-flip ! videoscale ! '
+            'pose_split. ! queue leaky=2 max-size-buffers=2 ! videobox name=face1 ! videoflip method=horizontal-flip ! videoscale ! '
             'video/x-raw,width=' + str(self.POSE_MODEL_WIDTH) + ',height=' + str(self.POSE_MODEL_HEIGHT) + ',format=RGB ! tensor_converter ! '
             'tensor_transform mode=arithmetic option=typecast:float32,add:-127.5,div:127.5 ! '
             'tensor_filter framework=tensorflow-lite model=' + self.tflite_pose_model + ' ! tensor_sink name=posesink_1 '
-            'pose_split. ! queue leaky=2 max-size-buffers=2 ! videobox name=object2 ! videoflip method=horizontal-flip ! videoscale ! '
+            'pose_split. ! queue leaky=2 max-size-buffers=2 ! videobox name=face2 ! videoflip method=horizontal-flip ! videoscale ! '
             'video/x-raw,width=' + str(self.POSE_MODEL_WIDTH) + ',height=' + str(self.POSE_MODEL_HEIGHT) + ',format=RGB ! tensor_converter ! '
             'tensor_transform mode=arithmetic option=typecast:float32,add:-127.5,div:127.5 ! '
             'tensor_filter framework=tensorflow-lite model=' + self.tflite_pose_model + ' ! tensor_sink name=posesink_2 ')
 
-        self.OPTION_FM = False
-        self.OPTION_EM = False
-        self.OPTION_OD = False
-        self.OPTION_DM = False
-        self.OPTION_XV = False
-        self.OPTION_RTMP = False
+        self.OPTION_FM = False  # FACE MASKING
+        self.OPTION_EM = False  # EYE MASKING
+        self.OPTION_OD = False  # OBJECT DETECTING
+        self.OPTION_DM = False  # DETECT ME
+        self.OPTION_XV = False  # XVIMAGESINK
+        self.OPTION_RTMP = False    # RTMP
 
         GObject.threads_init()
         Gst.init(argv)
@@ -161,6 +160,9 @@ class EZStreamerCore:
         if mode == "RTMP":
             self.OPTION_RTMP = value
 
+        if mode == "DM":
+            self.OPTION_DM = value
+
     def set_rtmp_auth_key(self, value):
         self.AUTH_KEY = value
         self.RTMP_OUTPUT_PIPE = ('output_handler. ! queue ! videoconvert ! x264enc bitrate=2000 byte-stream=false key-int-max=60 bframes=0 aud=true tune=zerolatency ! '
@@ -177,28 +179,24 @@ class EZStreamerCore:
         print("RTMP AUTH KEY:", self.AUTH_KEY)
 
     def pipeline_initializer(self):
-        res = self.BASE_PIPELINE
-
-        if self.OPTION_OD or self.OPTION_FM or self.OPTION_EM:
-            res += self.BASE_MODEL_PIPE
-            res += self.SSD_PIPE
-            if self.OPTION_OD:
-                res += self.OBJECT_DETECT_PIPE
-
-            if self.OPTION_FM or self.OPTION_EM:
-                res += self.FACE_DETECT_PIPE
-                if self.OPTION_EM:
-                    res += self.EYETRACK_PIPE
+        res = self.BASE_PIPELINE + self.BASE_MODEL_PIPE + self.SSD_PIPE + self.OBJECT_DETECT_PIPE + self.FACE_DETECT_PIPE + self.EYETRACK_PIPE
 
         if self.OPTION_XV or self.OPTION_RTMP:
             res += self.BASE_OUTPUT_PIPE
             if self.OPTION_XV:
                 res += self.LOCAL_OUTPUT_PIPE
-
             if self.OPTION_RTMP:
                 res += self.RTMP_OUTPUT_PIPE
 
         return res
+
+    def set_mask_pattern(self):
+        """
+        Prepare mask pattern for cairooverlay.
+        """
+        source = cairo.ImageSurface.create_from_png('./mosaic.png')
+        self.pattern = cairo.SurfacePattern(source)
+        self.pattern.set_extend(cairo.Extend.REPEAT)
 
     def run_example(self):
         print("Run: EZStreamer Core")
@@ -220,23 +218,20 @@ class EZStreamerCore:
         bus.add_signal_watch()
         bus.connect('message', self.on_bus_message)
 
-        if self.OPTION_FM or self.OPTION_EM:
-            res_face = self.pipeline.get_by_name('res_face')
-            res_face.connect('new-data', self.new_callback_face)
+        res_face = self.pipeline.get_by_name('res_face')
+        res_face.connect('new-data', self.new_callback_face)
 
-        if self.OPTION_OD:
-            tensor_sink = self.pipeline.get_by_name('res_object')
-            tensor_sink.connect('new-data', self.new_callback_object)
+        tensor_sink = self.pipeline.get_by_name('res_object')
+        tensor_sink.connect('new-data', self.new_callback_object)
 
-        if self.OPTION_EM:
-            posesink_0 = self.pipeline.get_by_name('posesink_0')
-            posesink_0.connect('new-data', self.new_data_pose_cb)
+        posesink_0 = self.pipeline.get_by_name('posesink_0')
+        posesink_0.connect('new-data', self.new_data_pose_cb)
 
-            posesink_1 = self.pipeline.get_by_name('posesink_1')
-            posesink_1.connect('new-data', self.new_data_pose_cb)
+        posesink_1 = self.pipeline.get_by_name('posesink_1')
+        posesink_1.connect('new-data', self.new_data_pose_cb)
 
-            posesink_2 = self.pipeline.get_by_name('posesink_2')
-            posesink_2.connect('new-data', self.new_data_pose_cb)
+        posesink_2 = self.pipeline.get_by_name('posesink_2')
+        posesink_2.connect('new-data', self.new_data_pose_cb)
 
         if self.OPTION_XV or self.OPTION_RTMP:
             tensor_res = self.pipeline.get_by_name('tensor_res')
@@ -255,6 +250,9 @@ class EZStreamerCore:
         self.pipeline.set_state(Gst.State.NULL)
         bus = self.pipeline.get_bus()
         bus.remove_signal_watch()
+
+    def is_running(self):
+        return self.running
 
     def tflite_init(self):
         """
@@ -324,19 +322,19 @@ class EZStreamerCore:
             logging.error('cannot find tflite label [%s]', box_prior_path)
             return False
 
-        print('finished to face labels, total [{}]'.format(len(self.tflite_face_labels)))
-        print('finished to load object labels, total [{}]'.format(len(self.tflite_object_labels)))
-        print('finished to pose labels, total [{}]'.format(len(self.tflite_pose_labels)))
-        print('finished to load box_priors, total [{}]'.format(len(self.tflite_box_priors)))
+        logging.info('finished to face labels, total [{}]'.format(len(self.tflite_face_labels)))
+        logging.info('finished to load object labels, total [{}]'.format(len(self.tflite_object_labels)))
+        logging.info('finished to pose labels, total [{}]'.format(len(self.tflite_pose_labels)))
+        logging.info('finished to load box_priors, total [{}]'.format(len(self.tflite_box_priors)))
         return True
 
     def new_callback_face(self, sink, buffer):
-        self.callback_handler(sink, buffer, self.FACE_LABEL_SIZE, self.detected_faces, self.tflite_face_labels)
+        self.callback_handler(sink, "face", buffer, self.FACE_LABEL_SIZE, self.detected_faces, self.tflite_face_labels)
 
     def new_callback_object(self, sink, buffer):
-        self.callback_handler(sink, buffer, self.OBJECT_LABEL_SIZE, self.detected_objects, self.tflite_object_labels)
+        self.callback_handler(sink, "object", buffer, self.OBJECT_LABEL_SIZE, self.detected_objects, self.tflite_object_labels)
 
-    def callback_handler(self, sink, buffer, label_size, detected_result, detected_label):
+    def callback_handler(self, mode, sink, buffer, label_size, detected_result, detected_label):
         if self.running:
             if buffer.n_memory() != 2:
                 return False
@@ -375,7 +373,7 @@ class EZStreamerCore:
                     idx += 1
                 detections.append(detection)
 
-            self.get_detected_objects(detections, boxes, label_size, detected_result, detected_label)
+            self.get_detected_objects(mode, detections, boxes, label_size, detected_result, detected_label)
 
             mem_boxes.unmap(info_boxes)
             mem_detections.unmap(info_detections)
@@ -393,7 +391,7 @@ class EZStreamerCore:
         o = float(inter / (areaA + areaB - inter))
         return o if o >= 0 else 0
 
-    def nms(self, detected, detected_result, detected_label):
+    def nms(self, mode, detected, detected_result, detected_label):
         threshold_iou = 0.5
         detected = sorted(detected, key=lambda a: a['prob'])
         boxes_size = len(detected)
@@ -407,7 +405,8 @@ class EZStreamerCore:
                         _del[j] = True
 
         detected_result.clear()
-
+        
+        box_idx = 0
         for i in range(boxes_size):
             if not _del[i]:
                 if detected_label[detected[i]["class_id"]][:-1] != 'person':
@@ -422,7 +421,23 @@ class EZStreamerCore:
                     print("height          : {}".format(detected[i]["height"]))
                     print("Confidence Score: {}".format(detected[i]["prob"]))
 
-    def get_detected_objects(self, detections, boxes, label_size, detected_result, detected_label):
+                if self.OPTION_EM and mode == "face":
+                    target_box = self.pipeline.get_by_name('face{}'.format(box_idx))
+                    x = detected[i]["x"] * self.VIDEO_WIDTH // self.FACE_MODEL_WIDTH
+                    y = detected[i]["y"] * self.VIDEO_HEIGHT // self.FACE_MODEL_HEIGHT
+                    width = detected[i]["width"] * self.VIDEO_WIDTH // self.FACE_MODEL_WIDTH
+                    height = detected[i]["height"] * self.VIDEO_HEIGHT // self.FACE_MODEL_HEIGHT
+
+                    target_box.set_property('left', x)
+                    target_box.set_property('top', y)
+                    target_box.set_property('right', self.VIDEO_WIDTH - x - width)
+                    target_box.set_property('bottom', self.VIDEO_HEIGHT - y - height)
+
+                    box_idx += 1
+                    if box_idx >= self.MAX_FACE_DETECTION:
+                        break
+
+    def get_detected_objects(self, mode, detections, boxes, label_size, detected_result, detected_label):
         threshold_score = 0.5
         detected = list()
 
@@ -464,7 +479,7 @@ class EZStreamerCore:
 
                 detected.append(obj)
         
-        self.nms(detected, detected_result, detected_label)
+        self.nms(mode, detected, detected_result, detected_label)
 
     def new_data_pose_cb(self, sink, buffer):
         if self.running:
@@ -537,33 +552,6 @@ class EZStreamerCore:
     def prepare_overlay_cb(self, overlay, caps):
         self.video_caps = caps
 
-    # @brief Callback to draw the overlay.
-    def drawer(self, overlay, context, timestamp, duration, detected, tflite_labels):       
-        drawed = 0
-
-        face_sizes = [0 for _ in range(len(detected))]
-
-        if len(face_sizes) != 0:
-            target_image_idx = face_sizes.index(max(face_sizes))
-
-        for idx, obj in enumerate(detected):
-            label = tflite_labels[obj['class_id']][:-1]
-
-            x = obj['x'] * self.VIDEO_WIDTH // self.FACE_MODEL_WIDTH
-            y = obj['y'] * self.VIDEO_HEIGHT // self.FACE_MODEL_HEIGHT
-            width = obj['width'] * self.VIDEO_WIDTH // self.FACE_MODEL_WIDTH
-            height = obj['height'] * self.VIDEO_HEIGHT // self.FACE_MODEL_HEIGHT
-            
-            # implement pixelated pattern
-            if not (len(detected) <= 1 or idx == target_image_idx):
-                context.rectangle(x, y, width, height)
-                context.set_source(self.pattern)
-                context.fill()
-
-            drawed += 1
-            if drawed >= self.MAX_OBJECT_DETECTION:
-                break
-
     def eye_mask_drawer(self, overlay, context, timestamp, duration, detected_faces, detected_kps):
         if self.video_caps == None or not self.running:
             return
@@ -596,19 +584,85 @@ class EZStreamerCore:
             # Draw Black line
             context.set_source_rgb(0, 0, 0)
             context.set_line_width(80)
-            context.move_to(conv_lx - 150, conv_ly + 5)
-            context.line_to(conv_rx + 100, conv_ry + 5)
+            context.move_to(conv_lx - 150, conv_ly)
+            context.line_to(conv_rx + 100, conv_ry)
             context.stroke()
             
             # draw rectangle
-            context.rectangle(fx, fy, width, height)
-            context.set_source_rgb(1, 0, 0)
-            context.set_line_width(1.5)
-            context.stroke()
-            context.fill_preserve()
+            if self.OPTION_DM:
+                context.rectangle(fx, fy, width, height)
+                context.set_source_rgb(1, 0, 0)
+                context.set_line_width(1.5)
+                context.stroke()
+                context.fill_preserve()
     
             drawed += 1
             if drawed >= self.MAX_OBJECT_DETECTION:
+                break
+
+    # @brief Callback to draw the overlay.
+    def ssd_drawer(self, overlay, context, timestamp, duration, detected, tflite_labels, mode):       
+        drawed = 0
+        calculated = 0
+        face_sizes = [0 for _ in range(len(detected))]
+
+        if mode == "face":
+            MAX_DETECTION = self.MAX_FACE_DETECTION
+        else:
+            MAX_DETECTION = self.MAX_OBJECT_DETECTION
+
+        if mode == "face":
+            for idx, obj in enumerate(detected):
+                width = obj['width'] * self.VIDEO_WIDTH // self.FACE_MODEL_WIDTH
+                height = obj['height'] * self.VIDEO_HEIGHT // self.FACE_MODEL_HEIGHT
+                face_sizes[idx] = width * height
+
+                calculated += 1
+                if calculated >= MAX_DETECTION:
+                    break
+
+        if len(face_sizes) != 0:
+            target_image_idx = face_sizes.index(max(face_sizes))
+
+        for idx, obj in enumerate(detected):
+            label = tflite_labels[obj['class_id']][:-1]
+
+            x = obj['x'] * self.VIDEO_WIDTH // self.FACE_MODEL_WIDTH
+            y = obj['y'] * self.VIDEO_HEIGHT // self.FACE_MODEL_HEIGHT
+            width = obj['width'] * self.VIDEO_WIDTH // self.FACE_MODEL_WIDTH
+            height = obj['height'] * self.VIDEO_HEIGHT // self.FACE_MODEL_HEIGHT
+            
+            if mode == "face":
+                if not self.OPTION_DM:
+                    if not (len(detected) <= 1 or idx == target_image_idx):
+                        context.rectangle(x, y, width, height)
+                        context.set_source(self.pattern)
+                        context.fill()
+                else:
+                    context.rectangle(x, y, width, height)
+                    context.set_source(self.pattern)
+                    context.fill()   
+
+            else:
+                # draw rectangle
+                context.rectangle(x, y, width, height)
+                context.set_source_rgb(1, 0, 0)
+                context.set_line_width(1.5)
+                context.stroke()
+                context.fill_preserve()
+
+                # draw title
+                context.move_to(x + 5, y + 25)
+                context.text_path(label)
+                context.set_source_rgb(1, 0, 0)
+                context.fill_preserve()
+                context.set_source_rgb(1, 1, 1)
+                context.set_line_width(0.3)
+                context.stroke()
+                context.fill_preserve()
+
+            drawed += 1
+            if drawed >= MAX_DETECTION:
                 break
 
     # @brief Callback to draw the overlay.
@@ -623,21 +677,14 @@ class EZStreamerCore:
         context.select_font_face('Sans', cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_BOLD)
         context.set_font_size(20.0)
         if self.OPTION_FM:
-            self.drawer(overlay, context, timestamp, duration, detected_faces, self.tflite_face_labels)
+            self.ssd_drawer(overlay, context, timestamp, duration, detected_faces, self.tflite_face_labels, "face")
+
+        if self.OPTION_OD:
+            self.ssd_drawer(overlay, context, timestamp, duration, detected_objects, self.tflite_object_labels, "object")
 
         if self.OPTION_EM:
             self.eye_mask_drawer(overlay, context, timestamp, duration, detected_faces, detected_kps)
 
-        if self.OPTION_OD:
-            self.drawer(overlay, context, timestamp, duration, detected_objects, self.tflite_object_labels)
-
-    def set_mask_pattern(self):
-        """
-        Prepare mask pattern for cairooverlay.
-        """
-        source = cairo.ImageSurface.create_from_png('./mosaic.png')
-        self.pattern = cairo.SurfacePattern(source)
-        self.pattern.set_extend(cairo.Extend.REPEAT)
 
     def on_bus_message(self, bus, message):
         """
@@ -646,20 +693,25 @@ class EZStreamerCore:
         :return: None
         """
         if message.type == Gst.MessageType.EOS:
-            print("Window Closed")
             logging.info('received eos message')
             self.loop.quit()
+
         elif message.type == Gst.MessageType.ERROR:
             error, debug = message.parse_error()
             if error.message == 'Output window was closed':
                 self.stop_stream()
+                return
             logging.warning('[error] %s : %s', error.message, debug)
             self.loop.quit()
+
         elif message.type == Gst.MessageType.WARNING:
             error, debug = message.parse_warning()
-            logging.warning('[warning] %s : %s', error.message, debug)
+            if error.message != "A lot of buffers are being dropped." and error.message != "Can't record audio fast enough":
+                logging.warning('[warning] %s : %s', error.message, debug)
+
         elif message.type == Gst.MessageType.STREAM_START:
             logging.info('received start message')
+
         elif message.type == Gst.MessageType.QOS:
             data_format, processed, dropped = message.parse_qos_stats()
             format_str = Gst.Format.get_name(data_format)
@@ -695,11 +747,19 @@ class EZStreamerWindow(QMainWindow):
         self.fm_radio = self.findChild(QRadioButton, "fm_radio")
         self.lo_check = self.findChild(QCheckBox, "lo_check")
         self.od_check = self.findChild(QCheckBox, "od_check")
+        self.dm_check = self.findChild(QCheckBox, "dm_check")
 
         # Set Event Listener
         self.stream_button.clicked.connect(self.StreamController)
         self.exit_button.clicked.connect(self.QuitProgram)
         self.rtmp_check.clicked.connect(self.CheckRTMPEnabled)
+
+        # Set Event Listener for 
+        self.nothing_radio.clicked.connect(self.NOTHING_Controller)
+        self.em_radio.clicked.connect(self.EM_Controller)
+        self.fm_radio.clicked.connect(self.FM_Controller)
+        self.od_check.clicked.connect(self.OD_Controller)
+        self.dm_check.clicked.connect(self.DM_Controller)
 
         # Initialize ezstreamer_core
         self.ezstreamer_core = EZStreamerCore(sys.argv[1:])
@@ -736,7 +796,8 @@ class EZStreamerWindow(QMainWindow):
         else:
             self.ezstreamer_core.set_option_info("RTMP", False)
 
-        self.ezstreamer_core.get_option_info()
+        # uncomment if you want to check option information
+        # self.ezstreamer_core.get_option_info()
         self.ezstreamer_core.run_example()
 
     def stop_stream(self):
@@ -745,20 +806,12 @@ class EZStreamerWindow(QMainWindow):
     def toggle_control(self):
         if self.stream_button.text() == "STOP":
             self.auth_inputbox.setEnabled(False)
-            self.nothing_radio.setEnabled(False)
-            self.em_radio.setEnabled(False)
-            self.fm_radio.setEnabled(False)
             self.rtmp_check.setEnabled(False)
             self.lo_check.setEnabled(False)
-            self.od_check.setEnabled(False)
 
         elif self.stream_button.text() == "START":
-            self.nothing_radio.setEnabled(True)
-            self.em_radio.setEnabled(True)
-            self.fm_radio.setEnabled(True)
             self.rtmp_check.setEnabled(True)
             self.lo_check.setEnabled(True)
-            self.od_check.setEnabled(True)
 
             if self.rtmp_check.isChecked():
                 self.auth_inputbox.setEnabled(True)
@@ -781,7 +834,40 @@ class EZStreamerWindow(QMainWindow):
             self.stream_button.setText("START")
             self.toggle_control()
             self.stop_stream()
-    
+
+    @Slot()
+    def NOTHING_Controller(self):
+        if self.nothing_radio.isChecked():
+            self.ezstreamer_core.set_option_info("FM", False)
+            self.ezstreamer_core.set_option_info("EM", False)
+
+    @Slot()
+    def FM_Controller(self):
+        if self.fm_radio.isChecked():
+            self.ezstreamer_core.set_option_info("FM", True)
+            self.ezstreamer_core.set_option_info("EM", False)
+        
+    @Slot()
+    def EM_Controller(self):
+        if self.em_radio.isChecked():
+            self.ezstreamer_core.set_option_info("FM", False)
+            self.ezstreamer_core.set_option_info("EM", True)
+
+    @Slot()
+    def OD_Controller(self):
+        if self.od_check.isChecked():
+            self.ezstreamer_core.set_option_info("OD", True)
+
+        else:
+            self.ezstreamer_core.set_option_info("OD", False)
+
+    @Slot()
+    def DM_Controller(self):
+        if self.dm_check.isChecked():
+            self.ezstreamer_core.set_option_info("DM", True)
+        else:
+            self.ezstreamer_core.set_option_info("DM", False)
+
     @Slot()
     def QuitProgram(self):
         self.close()
@@ -791,4 +877,3 @@ if __name__ == "__main__":
     myWindow = EZStreamerWindow()
     myWindow.show()
     app.exec_()
-
