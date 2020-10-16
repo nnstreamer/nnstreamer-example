@@ -6,6 +6,7 @@
  *        Users can customize the condition of taking a photo.
  * @author	Jaeyun Jung <jy1210.jung@samsung.com>
  * @author  Yeonuk Jeong <dusdnrl1@naver.com>
+ * @author  Sanghyun Park <park03851@naver.com>
  * @bug		No known bugs
  */
 
@@ -60,6 +61,7 @@ static JavaVM *java_vm;
 static jfieldID custom_data_field_id;
 static jmethodID set_message_method_id;
 static jmethodID on_gstreamer_initialized_method_id;
+static SettingData * datas;/**< space for conditions */
 
 /* list of registered pipelines */
 static GSList *g_pipelines = NULL;
@@ -526,6 +528,9 @@ gst_native_finalize(JNIEnv *env, jobject thiz)
 
   if (!data)
     return;
+  
+  /* Free memory space with conditions */
+  free(datas);
 
   gst_native_stop(env, thiz);
 
@@ -714,6 +719,68 @@ gst_native_get_description(JNIEnv *env, jobject thiz, jint id, jint option)
 }
 
 /**
+ * @brief Delete line and label
+ */
+static void
+gst_native_delete_line_and_label(JNIEnv *env, jobject thiz)
+{
+  nns_ex_delete_line_and_label();
+}
+
+/**
+ * @brief Insert line and label
+ */
+static void
+gst_native_insert_line_and_label(JNIEnv *env, jobject thiz)
+{
+  nns_ex_insert_line_and_label();
+}
+
+/**
+ * @brief Get condition object
+ */
+static void
+gst_native_get_condition_object(JNIEnv *env, jobject _obj, jobjectArray _objects)
+{
+  jsize len = (*env)->GetArrayLength(env, _objects);
+  jobject conditionsObj;
+  jclass clazz;
+  jfieldID fid;
+  jstring jstr;
+
+  datas = (SettingData *)malloc(sizeof(SettingData) * len);
+
+  for(int i = 0; i < len; ++i)
+  {
+    conditionsObj = (*env)->GetObjectArrayElement(env, _objects, i);
+    clazz = (*env)->GetObjectClass(env, conditionsObj);
+    fid = (*env)->GetFieldID(env, clazz, "name", "Ljava/lang/String;");
+    jstr = (jstring)(*env)->GetObjectField(env, conditionsObj, fid);
+    const char * pName = (*env)->GetStringUTFChars(env, jstr, NULL);
+    fid = (*env)->GetFieldID(env, clazz, "count", "I");
+    int count = (*env)->GetIntField(env, conditionsObj, fid);
+    strcpy(datas[i].name, pName);
+    datas[i].count = count;
+
+    nns_logd("Conditions Data --> %s -- %d \n", pName, count);
+    (*env)->ReleaseStringUTFChars(env, jstr, pName);
+  }
+
+  nns_ex_register_settings(datas, len);
+}
+
+/**
+ * @brief Get autocapture status
+ */
+static gboolean
+gst_native_get_auto_capture(JNIEnv *env, jobject thiz)
+{
+    gboolean auto_capture = nns_ex_get_auto_capture();
+    nns_logd("Auto Capture Value : %d\n", auto_capture);
+    return auto_capture;
+}
+
+/**
  * @brief List of implemented native methods
  */
 static JNINativeMethod native_methods[] = {
@@ -729,7 +796,11 @@ static JNINativeMethod native_methods[] = {
     {"nativeGetName", "(II)Ljava/lang/String;", (void *)gst_native_get_name},
     {"nativeGetDescription", "(II)Ljava/lang/String;",
      (void *)gst_native_get_description},
-    {"nativeClassInit", "()Z", (void *)gst_native_class_init}};
+    {"nativeClassInit", "()Z", (void *)gst_native_class_init},
+    {"nativeDeleteLineAndLabel", "()V", (void *)gst_native_delete_line_and_label},
+    {"nativeInsertLineAndLabel", "()V", (void *)gst_native_insert_line_and_label},
+    {"nativeGetCondition", "([Ljava/lang/Object;)V", (void *)gst_native_get_condition_object},
+    {"nativeGetAutoCapture", "()Z", (void *)gst_native_get_auto_capture}};
 
 /**
  * @brief Library initializer
