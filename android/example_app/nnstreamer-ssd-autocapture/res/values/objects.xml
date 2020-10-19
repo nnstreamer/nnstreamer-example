@@ -4,7 +4,10 @@
         <item>person</item>
         <item>labtop</item>
         <item>tv</item>
+        <item>mouse</item>
+        <item>keyboard</item>
+        <item>bottle</item>
+        <item>bird</item>
+        <item>clock</item>
     </string-array>
-
 </resources>
-
