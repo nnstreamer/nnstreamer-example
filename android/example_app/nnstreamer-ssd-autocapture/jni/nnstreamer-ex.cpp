@@ -6,6 +6,7 @@
  *        Users can customize the condition of taking a photo.
  * @author	Jaeyun Jung <jy1210.jung@samsung.com>
  * @author  Yeonuk Jeong <dusdnrl1@naver.com>
+ * @author  Sanghyun Park <park03851@naver.com>
  * @bug		No known bugs
  *
  * Before running this example, model and labels should be in an internal storage of Android device.
@@ -13,6 +14,7 @@
  */
 
 #include <vector>
+#include <map>
 #include <iostream>
 #include <fstream>
 #include <algorithm>
@@ -73,10 +75,24 @@ typedef struct
   gboolean is_initialized;
 } nns_ex_model_info_s;
 
+/**
+ * @brief Operator to compare name of label.
+ */
+struct cmp_str
+{
+    bool operator()(const char* a, const char *b) const
+    {
+        return std::strcmp(a, b) < 0;
+    }
+};
+
 static gint launch_option = 0;
 static nns_ex_model_info_s nns_ex_model_info;
 static GMutex res_mutex;
 static std::vector<ssd_object_s> detected_object;
+static std::map<gchararray, gint, cmp_str> setting_object_list; /**< space for autocapture conditions sent by Activity in Android. */
+static gboolean is_line_title; /**< determine whether to display object detection objects on the screen. */
+static gboolean is_auto_capture; /**< pass 'true' if the conditions specified on the screen are satisfied and 'false' is passed on to Android's Activity if not. */
 
 /**
  * @brief Read strings from file.
@@ -393,19 +409,48 @@ ssd_get_detected_objects(ssd_object_s *objects)
 }
 
 /**
+ * @brief Compare detected objects with conditions.
+ */
+static bool
+ssd_matching_detect_and_condition(std::map<gchararray, gint, cmp_str> detected_object_list)
+{
+  bool check = true;
+
+  if(setting_object_list.empty() || detected_object_list.empty())
+  {
+    return false;
+  }
+
+  for(auto i = setting_object_list.begin(); i != setting_object_list.end(); ++i)
+  {
+    gchararray label = i->first;
+    gint count = i->second;
+
+    if(detected_object_list.find(label) == detected_object_list.end() || detected_object_list[label] != count)
+    {
+      check = false;
+      break;
+    }
+  }
+
+  return check;
+}
+
+/**
  * @brief Draw detected object.
  */
 static void
 ssd_draw_object(cairo_t *cr, ssd_object_s *objects, const gint size)
 {
+  std::map<gchararray, gint, cmp_str> detected_object_list; /**< space for objects currently being detected. */
   guint i;
   gdouble x, y, width, height;
   gdouble red, green, blue;
   gchar *label;
 
-  /* Set clolr */
-  red = 1.0;
-  green = blue = 0.0;
+  /* Set color */
+  red = 0.0;
+  green = blue = 1.0;
 
   for (i = 0; i < size; ++i)
   {
@@ -424,19 +469,41 @@ ssd_draw_object(cairo_t *cr, ssd_object_s *objects, const gint size)
     if (nns_ex_get_label(objects[i].class_id, &label))
     {
       cairo_move_to(cr, x + 5, y + 15);
-      cairo_text_path(cr, label);
+
+      if(is_line_title)
+      {
+        cairo_text_path(cr, label);
+      }
+      else
+      {
+        cairo_text_path(cr, "");
+      }
       cairo_set_source_rgb(cr, red, green, blue);
       cairo_fill_preserve(cr);
       cairo_set_source_rgb(cr, 1, 1, 1);
       cairo_set_line_width(cr, .3);
       cairo_stroke(cr);
       cairo_fill_preserve(cr);
+
+      /* Remember the objects that are detected */
+      if(detected_object_list.find(label) != detected_object_list.end())
+      {
+        detected_object_list[label]++;
+      }
+      else
+      {
+        detected_object_list[label] = 1;
+      }
     }
     else
     {
       nns_logd("Failed to get label (class id %d)", objects[i].class_id);
     }
   }
+  /* send true or false values by comparing detected objects with conditions */
+  is_auto_capture = ssd_matching_detect_and_condition(detected_object_list);
+
+  detected_object_list.clear();
 }
 
 /**
@@ -532,8 +599,8 @@ nns_ex_launch_pipeline(GstElement **pipeline, const gint option)
   launch_option = option;
 
   str_pipeline = g_strdup_printf("ahc2src ! videoconvert ! video/x-raw,format=RGB,width=640,height=480,framerate=30/1 ! tee name=traw "
-                                 "traw. ! queue ! videoconvert ! cairooverlay name=res_cairooverlay ! glimagesink "
-                                 "traw. ! queue leaky=2 max-size-buffers=2 ! videoscale ! video/x-raw,format=RGB,width=%d,height=%d ! tensor_converter ! "
+                                 "traw. ! queue ! videoflip method=clockwise ! videoconvert ! cairooverlay name=res_cairooverlay ! glimagesink "
+                                 "traw. ! queue leaky=2 max-size-buffers=2 ! videoflip method=clockwise ! videoscale ! video/x-raw,format=RGB,width=%d,height=%d ! tensor_converter ! "
                                  "tensor_transform mode=arithmetic option=typecast:float32,add:-127.5,div:127.5 ! "
                                  "tensor_filter framework=tensorflow-lite model=%s ! tensor_sink name=res_obj",
                                  SSD_MODEL_WIDTH, SSD_MODEL_HEIGHT, EX_OBJ_MODEL);
@@ -620,4 +687,51 @@ nns_ex_register_pipeline(void)
   {
     nns_loge("Failed to register pipeline.");
   }
+}
+
+/**
+ * @brief Return delete line and label value
+ */
+extern "C" void
+nns_ex_delete_line_and_label(void)
+{
+  is_line_title = false;
+}
+
+/**
+ * @brief Return insert line and label value
+ */
+extern "C" void
+nns_ex_insert_line_and_label(void)
+{
+  is_line_title = true;
+}
+
+/**
+ * @brief Bring conditions to autocapture
+ */
+extern "C" void
+nns_ex_register_settings(SettingData * datas, gint len)
+{
+  if(!setting_object_list.empty())
+  {
+    setting_object_list.clear();
+  }
+
+  for(int i = 0; i < len; ++i)
+  {
+    if(setting_object_list.find((gchararray)datas[i].name) == setting_object_list.end())
+    {
+      setting_object_list[(gchararray)datas[i].name] = datas[i].count;
+    }
+  }
+}
+
+/**
+ * @brief Return autocapture status
+ */
+extern "C" gboolean
+nns_ex_get_auto_capture(void)
+{
+  return is_auto_capture;
 }

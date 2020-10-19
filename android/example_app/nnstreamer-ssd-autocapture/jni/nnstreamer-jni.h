@@ -41,6 +41,15 @@ typedef struct _NNSPipelineInfo
     gboolean (*launch_pipeline)(GstElement **pipeline, const gint option);
 } NNSPipelineInfo;
 
+/**
+* @brief Conditions for AutoCapture.
+*/
+typedef struct _SettingData
+{
+    gchar name[256];
+    gint count;
+}SettingData;
+
 #ifdef __cplusplus
 extern "C"
 {
