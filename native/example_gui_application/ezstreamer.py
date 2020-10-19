@@ -5,23 +5,19 @@
 @see		https://github.com/nnstreamer/nnstreamer
 @author		Jongha Jang <jangjongha.sw@gmail.com>
 @author		Soonbeen Kim <ksb940925@gmail.com>
-@bug		More optimization and debugging required.
-
+@author     yongjoonseo <koreakkrea12@naver.com>
+@bug		No Known bugs
 This code is GUI example of using nnstreamer, three neural models, and rtmp streaming.
-
 Get model by
 $ cd $NNST_ROOT/bin
 $ ./get-model.sh face-detection-tflite
 $ ./get-model.sh object-detection-tflite
 $ ./get-model.sh pose-estimation-tflite
-
 Run example :
 Before running this example, GST_PLUGIN_PATH should be updated for nnstreamer plugin.
 Python 3 is required to run this application.
-
 $ export GST_PLUGIN_PATH=$GST_PLUGIN_PATH:<nnstreamer plugin path>
 $ python3 ezstreamer.py
-
 See https://lazka.github.io/pgi-docs/#Gst-1.0 for Gst API details.
 """
 
@@ -138,8 +134,11 @@ class EZStreamerCore:
         self.OPTION_EM = False  # EYE MASKING
         self.OPTION_OD = False  # OBJECT DETECTING
         self.OPTION_DM = False  # DETECT ME
+        self.OPTION_ROI = False  # REGION OF INTEREST
         self.OPTION_XV = False  # XVIMAGESINK
         self.OPTION_RTMP = False    # RTMP
+        self.OPTION_KNIFE = False   # KNIFE
+        self.OPTION_SCISSOR = False # SCISSOR
 
         GObject.threads_init()
         Gst.init(argv)
@@ -162,6 +161,15 @@ class EZStreamerCore:
 
         if mode == "DM":
             self.OPTION_DM = value
+
+        if mode == "ROI":
+            self.OPTION_ROI = value
+
+        if mode == "KNIFE":
+            self.OPTION_KNIFE = value
+
+        if mode == "SCISSOR":
+            self.OPTION_SCISSOR = value
 
     def set_rtmp_auth_key(self, value):
         self.AUTH_KEY = value
@@ -557,11 +565,29 @@ class EZStreamerCore:
             return
         
         drawed = 0
+        calculated = 0
+        face_sizes = [0 for _ in range(len(detected_faces))]
+        MAX_DETECTION = self.MAX_FACE_DETECTION
         context.select_font_face('Sans', cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_BOLD)
         context.set_font_size(20.0)
 
         for idx, obj in enumerate(detected_faces):
+            width = obj['width'] * self.VIDEO_WIDTH // self.FACE_MODEL_WIDTH
+            height = obj['height'] * self.VIDEO_HEIGHT // self.FACE_MODEL_HEIGHT
+            face_sizes[idx] = width * height
+
+            calculated += 1
+            if calculated >= MAX_DETECTION:
+                break
+
+        if len(face_sizes) != 0:
+            target_image_idx = face_sizes.index(max(face_sizes))
+
+        for idx, obj in enumerate(detected_faces):
             # Eye informations are in 1, 2 index
+
+            if target_image_idx == idx and not self.OPTION_DM:
+                continue
 
             # Face indexes
             fx = obj['x'] * self.VIDEO_WIDTH // self.FACE_MODEL_WIDTH
@@ -589,7 +615,7 @@ class EZStreamerCore:
             context.stroke()
             
             # draw rectangle
-            if self.OPTION_DM:
+            if self.OPTION_ROI:
                 context.rectangle(fx, fy, width, height)
                 context.set_source_rgb(1, 0, 0)
                 context.set_line_width(1.5)
@@ -626,7 +652,6 @@ class EZStreamerCore:
 
         for idx, obj in enumerate(detected):
             label = tflite_labels[obj['class_id']][:-1]
-
             x = obj['x'] * self.VIDEO_WIDTH // self.FACE_MODEL_WIDTH
             y = obj['y'] * self.VIDEO_HEIGHT // self.FACE_MODEL_HEIGHT
             width = obj['width'] * self.VIDEO_WIDTH // self.FACE_MODEL_WIDTH
@@ -645,21 +670,34 @@ class EZStreamerCore:
 
             else:
                 # draw rectangle
-                context.rectangle(x, y, width, height)
-                context.set_source_rgb(1, 0, 0)
-                context.set_line_width(1.5)
-                context.stroke()
-                context.fill_preserve()
+                if self.OPTION_ROI:
+                    context.rectangle(x, y, width, height)
+                    context.set_source_rgb(1, 0, 0)
+                    context.set_line_width(1.5)
+                    context.stroke()
+                    context.fill_preserve()
 
-                # draw title
-                context.move_to(x + 5, y + 25)
-                context.text_path(label)
-                context.set_source_rgb(1, 0, 0)
-                context.fill_preserve()
-                context.set_source_rgb(1, 1, 1)
-                context.set_line_width(0.3)
-                context.stroke()
-                context.fill_preserve()
+                    # draw title
+                    context.move_to(x + 5, y + 25)
+                    context.text_path(label)
+                    context.set_source_rgb(1, 0, 0)
+                    context.fill_preserve()
+                    context.set_source_rgb(1, 1, 1)
+                    context.set_line_width(0.3)
+                    context.stroke()
+                    context.fill_preserve()
+
+                if self.OPTION_KNIFE:
+                    if label == 'knife':
+                        context.rectangle(x, y, width, height)
+                        context.set_source(self.pattern)
+                        context.fill() 
+
+                if self.OPTION_SCISSOR:
+                    if label == 'scissors':
+                        context.rectangle(x, y, width, height)
+                        context.set_source(self.pattern)
+                        context.fill() 
 
             drawed += 1
             if drawed >= MAX_DETECTION:
@@ -684,7 +722,6 @@ class EZStreamerCore:
 
         if self.OPTION_EM:
             self.eye_mask_drawer(overlay, context, timestamp, duration, detected_faces, detected_kps)
-
 
     def on_bus_message(self, bus, message):
         """
@@ -736,6 +773,7 @@ class EZStreamerWindow(QMainWindow):
     def __init__(self):
         super(EZStreamerWindow, self).__init__()
         uic.loadUi('ezstreamer.ui', self)
+        self.setContentsMargins(9, 9, 9, 9) # Margins must defined manually in PyQT
         
         # Get Widget info
         self.stream_button = self.findChild(QPushButton, "start_stop_button")
@@ -748,18 +786,25 @@ class EZStreamerWindow(QMainWindow):
         self.lo_check = self.findChild(QCheckBox, "lo_check")
         self.od_check = self.findChild(QCheckBox, "od_check")
         self.dm_check = self.findChild(QCheckBox, "dm_check")
+        self.roi_check = self.findChild(QCheckBox, "roi_check")
+        self.knife_check = self.findChild(QCheckBox, "knife_check")
+        self.scissor_check = self.findChild(QCheckBox, "scissor_check")
 
         # Set Event Listener
         self.stream_button.clicked.connect(self.StreamController)
         self.exit_button.clicked.connect(self.QuitProgram)
         self.rtmp_check.clicked.connect(self.CheckRTMPEnabled)
+        self.od_check.clicked.connect(self.CheckMaskingObjectEnabled)
 
-        # Set Event Listener for 
+        # Set Event Listener for Option
         self.nothing_radio.clicked.connect(self.NOTHING_Controller)
         self.em_radio.clicked.connect(self.EM_Controller)
         self.fm_radio.clicked.connect(self.FM_Controller)
         self.od_check.clicked.connect(self.OD_Controller)
         self.dm_check.clicked.connect(self.DM_Controller)
+        self.roi_check.clicked.connect(self.ROI_Controller)
+        self.knife_check.clicked.connect(self.Knife_Controller)
+        self.scissor_check.clicked.connect(self.Scissor_Controller)
 
         # Initialize ezstreamer_core
         self.ezstreamer_core = EZStreamerCore(sys.argv[1:])
@@ -775,19 +820,12 @@ class EZStreamerWindow(QMainWindow):
             elif self.em_radio.isChecked():
                 self.ezstreamer_core.set_option_info("FM", False)
                 self.ezstreamer_core.set_option_info("EM", True)
-        
-        if self.od_check.isChecked():
-            self.ezstreamer_core.set_option_info("OD", True)
 
-        else:
-            self.ezstreamer_core.set_option_info("OD", False)
-
-        if self.lo_check.isChecked():
-            self.ezstreamer_core.set_option_info("XV", True)
-
-        else:
-            self.ezstreamer_core.set_option_info("XV", False)
-
+        self.ezstreamer_core.set_option_info("OD", self.od_check.isChecked())
+        self.ezstreamer_core.set_option_info("XV", self.lo_check.isChecked())
+        self.ezstreamer_core.set_option_info("ROI", self.roi_check.isChecked())
+        self.ezstreamer_core.set_option_info("KNIFE", self.knife_check.isChecked())
+        self.ezstreamer_core.set_option_info("SCISSOR", self.scissor_check.isChecked())
 
         if self.rtmp_check.isChecked():
             self.ezstreamer_core.set_option_info("RTMP", True)
@@ -824,6 +862,19 @@ class EZStreamerWindow(QMainWindow):
             self.auth_inputbox.setEnabled(False)
 
     @Slot()
+    def CheckMaskingObjectEnabled(self):
+        if self.od_check.isChecked():
+            self.knife_check.setEnabled(True)
+            self.scissor_check.setEnabled(True)
+            self.ezstreamer_core.set_option_info("KNIFE", self.knife_check.isChecked())
+            self.ezstreamer_core.set_option_info("SCISSOR", self.scissor_check.isChecked())
+        else:
+            self.knife_check.setEnabled(False)
+            self.scissor_check.setEnabled(False)
+            self.ezstreamer_core.set_option_info("KNIFE", False)
+            self.ezstreamer_core.set_option_info("SCISSOR", False)
+
+    @Slot()
     def StreamController(self):
         if self.stream_button.text() == "START":
             self.stream_button.setText("STOP")
@@ -855,19 +906,24 @@ class EZStreamerWindow(QMainWindow):
 
     @Slot()
     def OD_Controller(self):
-        if self.od_check.isChecked():
-            self.ezstreamer_core.set_option_info("OD", True)
-
-        else:
-            self.ezstreamer_core.set_option_info("OD", False)
+        self.ezstreamer_core.set_option_info("OD", self.od_check.isChecked())
 
     @Slot()
     def DM_Controller(self):
-        if self.dm_check.isChecked():
-            self.ezstreamer_core.set_option_info("DM", True)
-        else:
-            self.ezstreamer_core.set_option_info("DM", False)
+        self.ezstreamer_core.set_option_info("DM", self.dm_check.isChecked())
 
+    @Slot()
+    def ROI_Controller(self):
+        self.ezstreamer_core.set_option_info("ROI", self.roi_check.isChecked())
+    
+    @Slot()
+    def Knife_Controller(self):
+        self.ezstreamer_core.set_option_info("KNIFE", self.knife_check.isChecked())
+
+    @Slot()
+    def Scissor_Controller(self):
+        self.ezstreamer_core.set_option_info("SCISSOR", self.scissor_check.isChecked())
+    
     @Slot()
     def QuitProgram(self):
         self.close()
@@ -877,3 +933,4 @@ if __name__ == "__main__":
     myWindow = EZStreamerWindow()
     myWindow.show()
     app.exec_()
+
