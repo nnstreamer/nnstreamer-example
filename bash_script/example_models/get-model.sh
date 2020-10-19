@@ -8,6 +8,7 @@ print_usage()
   echo -e "\t\tobject-detection-tf"
   echo -e "\t\tobject-detection-tflite"
   echo -e "\t\tface-detection-tflite"
+  echo -e "\t\thand-detection-tflite"
   echo -e "\t\tspeech-command"
   echo -e "\t\timage-segmentation-tflite"
   echo -e "\t\ttext-classification-tflite"
@@ -69,6 +70,14 @@ elif [[ ${model} == "face-detection-tflite" ]]; then
   download_url="http://nnsuite.mooo.com/warehouse/nnmodels/"
   wget ${download_url}/detect_face.tflite
   wget ${download_url}/labels_face.txt
+  wget ${download_url}/box_priors.txt
+
+elif [[ ${model} == "hand-detection-tflite" ]]; then
+  mkdir -p tflite_model
+  cd tflite_model
+  download_url="http://nnsuite.mooo.com/warehouse/nnmodels/"
+  wget ${download_url}/detect_hand.tflite
+  wget ${download_url}/labels_hand.txt
   wget ${download_url}/box_priors.txt
 
 elif [[ ${model} == "speech-command" ]]; then

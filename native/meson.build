@@ -12,6 +12,7 @@ if have_tensorflow_lite
   subdir('example_face_detection_tflite')
   subdir('example_multi_model_tflite')
   subdir('example_rtmp_live_streaming')
+  subdir('example_servo_tracking')
   subdir('example_image_classification_tflite')
   subdir('example_object_detection_tensorflow_lite')
   subdir('example_object_detection_tensorflow_lite_appsrc')
