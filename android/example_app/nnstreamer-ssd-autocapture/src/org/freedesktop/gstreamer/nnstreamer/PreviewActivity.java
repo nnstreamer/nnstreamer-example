@@ -4,10 +4,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.Image;
 import android.net.Uri;
 import android.os.Environment;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -22,7 +20,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class PreviewActivity extends Activity implements View.OnClickListener {
-
     private boolean initialized = false;
 
     private ImageView imageView_preview;
@@ -70,7 +67,7 @@ public class PreviewActivity extends Activity implements View.OnClickListener {
 
         switch (viewId) {
             case R.id.preview_button_save:
-                // Set file name with current time and save the bitmap
+                /* Set file name with current time and save the bitmap */
                 Date date = new Date(System.currentTimeMillis());
                 SimpleDateFormat sdfNow = new SimpleDateFormat("yyyyMMdd_HHmmss");
                 String formatDate = sdfNow.format(date);
@@ -85,14 +82,13 @@ public class PreviewActivity extends Activity implements View.OnClickListener {
         }
     }
 
-    // Save bitmap to JPEG
+    /* Save bitmap to JPEG */
     public void saveBitmaptoJpeg(Bitmap bitmap,String folder, String name){
         String ex_storage = Environment.getExternalStorageDirectory().getAbsolutePath();
         // Get Absolute Path in External Sdcard
         String folder_name = "/DCIM/"+folder+"/";
         String file_name = name+".jpg";
         String string_path = ex_storage+folder_name;
-
 
         File file_path;
         try{
@@ -105,7 +101,6 @@ public class PreviewActivity extends Activity implements View.OnClickListener {
             out.flush();
             out.close();
 
-            // Refresh to see this image in gallery
             Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
             File file = new File(string_path);
             intent.setData(Uri.fromFile(file));
@@ -118,4 +113,3 @@ public class PreviewActivity extends Activity implements View.OnClickListener {
         }
     }
 }
-
