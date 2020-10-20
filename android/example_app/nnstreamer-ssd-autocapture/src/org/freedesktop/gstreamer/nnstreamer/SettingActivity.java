@@ -9,9 +9,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class SettingActivity extends Activity implements View.OnClickListener, AdapterView.OnItemSelectedListener {
-
     private boolean initialized = false;
 
     private Button buttonAdd;
@@ -68,23 +68,30 @@ public class SettingActivity extends Activity implements View.OnClickListener, A
 
         switch (viewId) {
             case R.id.setting_button_add:
-                // When the data in selectedObject is exist
-                // Add a condition to textView
+                /* When the data in selectedObject is exist*/
+                /* Add a condition to textView */
                 if(selectedObject.length() != 0){
                     String tmp = textViewConditionList.getText().toString();
                     String num = editTextNumber.getText().toString();
-                    textViewConditionList.setText(tmp + selectedObject + " : " + num + "\n");
+                    if(!num.equals("")){
+                        textViewConditionList.setText(tmp + selectedObject + " : " + num + "\n");
+                        editTextNumber.setText("");
+                    }else{
+                        Toast.makeText(this,"You must insert 'Number'", Toast.LENGTH_LONG).show();
+                    }
                 }
                 break;
             case R.id.setting_button_reset:
                 editTextNumber.setText("");
                 break;
             case R.id.setting_button_settingComplete:
-                // To send ConditionList to NNStreamerActivity make a Intent and put data
+                /* To send ConditionList to NNStreamerActivity make a Intent and put data*/
                 String data = textViewConditionList.getText().toString();
-                Intent intent = new Intent();
-                intent.putExtra("conditionList",data);
-                setResult(RESULT_OK,intent);
+                if (!data.equals("")){
+                    Intent intent = new Intent();
+                    intent.putExtra("conditionList",data);
+                    setResult(RESULT_OK,intent);
+                }
                 finish();
                 break;
             case R.id.setting_button_deleteList:
@@ -97,7 +104,6 @@ public class SettingActivity extends Activity implements View.OnClickListener, A
 
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-        //adapterView.getItemAtPosition(i)
         selectedObject = adapterView.getItemAtPosition(i).toString();
     }
 
@@ -106,4 +112,3 @@ public class SettingActivity extends Activity implements View.OnClickListener, A
 
     }
 }
-
