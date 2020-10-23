@@ -317,8 +317,8 @@ public class MainActivity extends Activity {
             int[] dim = info.getTensorDimension(i);
 
             Log.d(TAG, "Info index " + i +
-                    " name: " + info.getTensorName(0) +
-                    " type: " + info.getTensorType(0) +
+                    " name: " + info.getTensorName(i) +
+                    " type: " + info.getTensorType(i) +
                     " dim: " + dim[0] + ":" + dim[1] + ":" + dim[2] + ":" + dim[3]);
         }
     }
