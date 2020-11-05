@@ -28,16 +28,12 @@ We provide example nnstreamer applications:
 $ sudo add-apt-repository ppa:nnstreamer/ppa
 $ sudo apt-get update
 $ sudo apt-get install nnstreamer
-```
-
-* Download nnstreamer example :
-```
-$ sudo add-apt-repository ppa:nnstreamer-example/ppa
-$ sudo apt-get update
 $ sudo apt-get install nnstreamer-example
 $ cd /usr/lib/nnstreamer/bin # binary install directory
 ```
 
+ *note: `nnstreamer-example` ppa was integrated into `nnstreamer` ppa.
+ 
 As of 2018/10/13, we support 16.04 and 18.04
 
 If you want to build nnstreamer example yourself, please refer to the link : [[Build example](https://github.com/nnstreamer/nnstreamer/wiki/usage-examples-screenshots#build-examples-ubuntu-1604)]
