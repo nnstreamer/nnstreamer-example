@@ -1,3 +1,9 @@
+nnstreamer-example (0.1.2) stable; urgency=medium
+
+  * Cut the dependency on nnstreamer-tensorflow except for amd64
+
+ -- Wook Song <wook16.song@samsung.com>  Tue, 10 Nov 2020 11:52:00 +0900
+
 nnstreamer-example (0.1.1) stable; urgency=medium
 
   * Update debian dist to upload on launchpad
