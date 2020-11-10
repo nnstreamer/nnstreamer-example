@@ -636,9 +636,9 @@ gst_native_surface_init(JNIEnv *env, jobject thiz, jobject surface)
     {
       nns_logd("New native window is the same as the previous one %p",
                data->native_window);
+      ANativeWindow_release (new_native_window);
       if (data->video_sink)
       {
-        gst_video_overlay_expose(GST_VIDEO_OVERLAY(data->video_sink));
         gst_video_overlay_expose(GST_VIDEO_OVERLAY(data->video_sink));
       }
       return;

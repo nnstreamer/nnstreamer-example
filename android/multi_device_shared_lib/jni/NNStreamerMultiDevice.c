@@ -566,8 +566,8 @@ append_description (gchar * old, gchar * str, const gchar * color)
 }
 
 /**
- * @brief set description 
- * 0: Default ( Camera ) 
+ * @brief set description
+ * 0: Default ( Camera )
  * 1: Face Detection
  * 2: Hand Detection
  * 3: Pose Estimation
@@ -904,8 +904,8 @@ gst_native_surface_init (JNIEnv * env, jobject thiz, jobject surface)
     if (data->native_window == new_native_window) {
       GST_DEBUG ("New native window is the same as the previous one %p",
           data->native_window);
+      ANativeWindow_release (new_native_window);
       if (data->video_sink) {
-        gst_video_overlay_expose (GST_VIDEO_OVERLAY (data->video_sink));
         gst_video_overlay_expose (GST_VIDEO_OVERLAY (data->video_sink));
       }
       return;
