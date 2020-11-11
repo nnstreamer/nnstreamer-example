@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.ImageFormat;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -19,7 +20,6 @@ import org.nnsuite.nnstreamer.Pipeline;
 import org.nnsuite.nnstreamer.TensorsData;
 import org.nnsuite.nnstreamer.TensorsInfo;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.List;
@@ -28,7 +28,7 @@ import java.util.List;
  * Sample code to run the application with nnstreamer-api.
  * Before building this sample, copy nnstreamer-api library file (nnstreamer-YYYY-MM-DD.aar) into 'libs' directory.
  */
-public class MainActivity extends Activity implements SurfaceHolder.Callback, Camera.PreviewCallback {
+public class MainActivity extends Activity {
     private static final String TAG = "NNStreamer-JAVA-CAMERA-Sample";
     private static final int PERMISSION_REQUEST_CODE = 3;
     private static final String[] requiredPermissions = new String[] {
@@ -39,37 +39,16 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Ca
     private boolean initialized = false;
 
     private ImageView mScaledView;
-    private Bitmap scaledBitmap;
-
     private ImageView mFlippedView;
-    private Bitmap flippedBitmap;
-
     private SurfaceView mCameraView;
-    private SurfaceHolder mCameraHolder;
     private Camera mCamera;
-
-    private String desc = "appsrc name=srcx ! " +
-        "video/x-raw,format=NV21,width=640,height=480,framerate=(fraction)30/1 ! videoflip method=clockwise ! " +
-        "tee name=t " +
-            "t. ! queue ! videoconvert ! videoscale ! video/x-raw,width=640,height=480 ! " +
-                "tensor_converter ! tensor_sink name=sinkscaled " +
-            "t. ! queue ! videoflip method=clockwise ! videoconvert ! videoscale ! video/x-raw,width=640,height=480 ! " +
-                "tensor_converter ! tensor_sink name=sinkflipped ";
 
     private Pipeline pipe;
     private TensorsInfo info;
 
-    @Override
-    public void onPreviewFrame(byte[] data, Camera camera) {
-        TensorsData input = info.allocate();
-        ByteBuffer buffer = input.getTensorData(0);
-        buffer.put(Arrays.copyOf(data, data.length));
-        input.setTensorData(0, buffer);
-        pipe.inputData("srcx", input);
-    }
+    private void initCamera() {
+        mCamera = Camera.open();
 
-    @Override
-    public void surfaceCreated(SurfaceHolder holder) {
         Camera.Parameters parameters = mCamera.getParameters();
         List<String> focusModes = parameters.getSupportedFocusModes();
         if (focusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)){
@@ -78,70 +57,67 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Ca
         }
 
         parameters.setPreviewSize(640, 480);
-        parameters.setPreviewFormat(17); // NV21. NV21 or YV12 is supported
+        parameters.setPreviewFormat(ImageFormat.NV21);
         parameters.setPreviewFrameRate(30);
+
         mCamera.setParameters(parameters);
-
-        try {
-            if (mCamera == null) {
-                mCamera.setPreviewDisplay(holder);
-                mCamera.startPreview();
-            }
-        } catch (IOException e) {
-
-        }
-    }
-
-    @Override
-    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-        if (mCameraHolder.getSurface() == null) {
-            Log.d(TAG, "Preview surface does not exist");
-            return;
-        }
-
-        try {
-            mCamera.stopPreview();
-            Log.d(TAG, "Preview stopped.");
-        } catch (Exception e) {
-            Log.d(TAG, "Error on stopping camera preview: " + e.getMessage());
-        }
-
-        try {
-            mCamera.setPreviewDisplay(mCameraHolder);
-            mCamera.setPreviewCallback(this);
-            mCamera.startPreview();
-            Log.d(TAG, "Preview resumed.");
-        } catch (Exception e) {
-            Log.d(TAG, "Error on starting camera preview: " + e.getMessage());
-        }
-    }
-
-    @Override
-    public void surfaceDestroyed(SurfaceHolder holder) {
-        if (mCamera != null) {
-            mCamera.stopPreview();
-            mCamera.release();
-            mCamera = null;
-        }
-    }
-
-    private void initCamera() {
-        mCamera = Camera.open();
         mCamera.setDisplayOrientation(90);
-        mCameraHolder = mCameraView.getHolder();
-        mCameraHolder.addCallback(this);
-        mCameraHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+        mCamera.setPreviewCallback(new Camera.PreviewCallback() {
+            @Override
+            public void onPreviewFrame(byte[] data, Camera camera) {
+                TensorsData input = info.allocate();
+                ByteBuffer buffer = input.getTensorData(0);
+                buffer.put(Arrays.copyOf(data, data.length));
+                input.setTensorData(0, buffer);
+                pipe.inputData("srcx", input);
+            }
+        });
+    }
+
+    private void initView() {
+        mCameraView.getHolder().addCallback(new SurfaceHolder.Callback() {
+            @Override
+            public void surfaceCreated(SurfaceHolder holder) {
+                Log.d(TAG, "Preview surface created");
+            }
+
+            @Override
+            public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+                Log.d(TAG, "Preview surface changed");
+
+                try {
+                    mCamera.stopPreview();
+
+                    mCamera.setPreviewDisplay(holder);
+                    mCamera.startPreview();
+                    Log.d(TAG, "Preview resumed.");
+                } catch (Exception e) {
+                    Log.e(TAG, "Error on starting camera preview: " + e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void surfaceDestroyed(SurfaceHolder holder) {
+                Log.d(TAG, "Preview surface destroyed");
+
+                if (mCamera != null) {
+                    mCamera.stopPreview();
+                }
+            }
+        });
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        initNNStreamer();
 
         setContentView(R.layout.activity_main);
 
-        mCameraView = (SurfaceView) findViewById(R.id.cameraView);
-        mScaledView = (ImageView) findViewById(R.id.scaled_result);
-        mFlippedView = (ImageView) findViewById(R.id.flipped_result);
+        mCameraView = findViewById(R.id.cameraView);
+        mScaledView = findViewById(R.id.scaled_result);
+        mFlippedView = findViewById(R.id.flipped_result);
 
         /* check permissions */
         for (String permission : requiredPermissions) {
@@ -151,57 +127,15 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Ca
                 return;
             }
         }
-        initCamera();
-        initNNStreamer();
-        pipe = new Pipeline(desc);
-        info = new TensorsInfo();
-        /* The preview has format of (NV21 640*480) */
-        info.addTensorInfo(NNStreamer.TensorType.UINT8, new int[]{(int) (1.5 * 640 * 480), 1, 1, 1});
 
-        /* register sink callback for scale */
-        pipe.registerSinkCallback("sinkscaled", new Pipeline.NewDataCallback() {
-            @Override
-            public void onNewDataReceived(TensorsData data) {
-                try {
-                    scaledBitmap = Bitmap.createBitmap(640, 480, Bitmap.Config.ARGB_8888);
-                    scaledBitmap.copyPixelsFromBuffer(data.getTensorData(0));
-                    tryDrawingScaled(scaledBitmap);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-        /* register sink callback for flip */
-        pipe.registerSinkCallback("sinkflipped", new Pipeline.NewDataCallback() {
-            @Override
-            public void onNewDataReceived(TensorsData data) {
-                try {
-                    flippedBitmap = Bitmap.createBitmap(640, 480, Bitmap.Config.ARGB_8888);
-                    flippedBitmap.copyPixelsFromBuffer(data.getTensorData(0));
-                    tryDrawingFlipped(flippedBitmap);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-    }
-
-    private void tryDrawingScaled(Bitmap bitmap) {
-        mScaledView.setImageBitmap(bitmap);
-    }
-
-
-    private void tryDrawingFlipped(Bitmap bitmap) {
-        mFlippedView.setImageBitmap(bitmap);
+        preparePreview();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
 
-        if (initialized) {
-
+        if (pipe != null) {
             pipe.start();
         }
     }
@@ -209,7 +143,26 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Ca
     @Override
     protected void onPause() {
         super.onPause();
-        pipe.stop();
+
+        if (pipe != null) {
+            pipe.stop();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        if (pipe != null) {
+            pipe.close();
+        }
+
+        if (mCamera != null) {
+            mCamera.stopPreview();
+            mCamera.setPreviewCallback(null);
+            mCamera.release();
+            mCamera = null;
+        }
     }
 
     /**
@@ -234,6 +187,58 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback, Ca
             return;
         }
         finish();
+    }
+
+    /**
+     * Prepare camera preview.
+     */
+    private void preparePreview() {
+        final String desc = "appsrc name=srcx ! " +
+                "video/x-raw,format=NV21,width=640,height=480,framerate=(fraction)30/1 ! " +
+                "videoflip method=clockwise ! tee name=t " +
+                "t. ! queue ! videoconvert ! videoscale ! video/x-raw,width=320,height=240 ! " +
+                    "tensor_converter ! tensor_sink name=sinkscaled " +
+                "t. ! queue ! videoflip method=clockwise ! videoconvert ! " +
+                    "tensor_converter ! tensor_sink name=sinkflipped";
+
+        pipe = new Pipeline(desc);
+
+        /* The preview has format of (NV21 640*480) */
+        info = new TensorsInfo();
+        info.addTensorInfo(NNStreamer.TensorType.UINT8, new int[]{(int) (1.5 * 640 * 480), 1, 1, 1});
+
+        /* register sink callback for scale */
+        pipe.registerSinkCallback("sinkscaled", new Pipeline.NewDataCallback() {
+            @Override
+            public void onNewDataReceived(TensorsData data) {
+                try {
+                    Bitmap bitmap = Bitmap.createBitmap(320, 240, Bitmap.Config.ARGB_8888);
+                    bitmap.copyPixelsFromBuffer(data.getTensorData(0));
+
+                    mScaledView.setImageBitmap(bitmap);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        /* register sink callback for flip */
+        pipe.registerSinkCallback("sinkflipped", new Pipeline.NewDataCallback() {
+            @Override
+            public void onNewDataReceived(TensorsData data) {
+                try {
+                    Bitmap bitmap = Bitmap.createBitmap(640, 480, Bitmap.Config.ARGB_8888);
+                    bitmap.copyPixelsFromBuffer(data.getTensorData(0));
+
+                    mFlippedView.setImageBitmap(bitmap);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        initCamera();
+        initView();
     }
 
     /**
