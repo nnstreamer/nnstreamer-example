@@ -15,3 +15,4 @@ if have_openvino
   subdir('example_person_detection_openvino')
 endif
 subdir('example_models')
+subdir('example_join')
