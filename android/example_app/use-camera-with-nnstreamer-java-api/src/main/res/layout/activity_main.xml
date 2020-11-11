@@ -5,32 +5,31 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:weightSum="3"
     tools:context=".MainActivity">
-
 
     <SurfaceView
         android:id="@+id/cameraView"
-        android:layout_width="418dp"
-        android:layout_height="212dp"
-        app:layout_constraintBottom_toTopOf="@+id/textView"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.746" />
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="2dp"
+        android:scaleType="centerInside"
+        android:layout_weight="1" />
 
     <ImageView
         android:id="@+id/scaled_result"
         android:layout_width="match_parent"
-        android:layout_height="255dp"
-        android:scaleType="centerInside" />
+        android:layout_height="match_parent"
+        android:layout_margin="2dp"
+        android:scaleType="centerInside"
+        android:layout_weight="1" />
 
     <ImageView
         android:id="@+id/flipped_result"
         android:layout_width="match_parent"
-        android:layout_height="264dp"
-        android:scaleType="centerInside" />
-
-
+        android:layout_height="match_parent"
+        android:layout_margin="2dp"
+        android:scaleType="centerInside"
+        android:layout_weight="1" />
 
 </LinearLayout>
