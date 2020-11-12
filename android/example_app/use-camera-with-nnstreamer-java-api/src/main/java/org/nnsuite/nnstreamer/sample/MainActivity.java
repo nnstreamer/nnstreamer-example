@@ -3,7 +3,6 @@ package org.nnsuite.nnstreamer.sample;
 import android.Manifest;
 import android.app.Activity;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.graphics.ImageFormat;
 import android.hardware.Camera;
 import android.os.Bundle;
@@ -13,7 +12,6 @@ import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.widget.ImageView;
 
 import org.nnsuite.nnstreamer.NNStreamer;
 import org.nnsuite.nnstreamer.Pipeline;
@@ -38,8 +36,8 @@ public class MainActivity extends Activity {
     };
     private boolean initialized = false;
 
-    private ImageView mScaledView;
-    private ImageView mFlippedView;
+    private SurfaceView mScaledView;
+    private SurfaceView mFlippedView;
     private SurfaceView mCameraView;
     private Camera mCamera;
 
@@ -106,6 +104,42 @@ public class MainActivity extends Activity {
                 }
             }
         });
+
+        mScaledView.getHolder().addCallback(new SurfaceHolder.Callback() {
+            @Override
+            public void surfaceCreated(SurfaceHolder holder) {
+                Log.d(TAG, "Scaledview surface created");
+            }
+
+            @Override
+            public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+                Log.d(TAG, "Scaledview surface changed");
+                pipe.setSurface("sinkscaled", holder);
+            }
+
+            @Override
+            public void surfaceDestroyed(SurfaceHolder holder) {
+                Log.d(TAG, "Scaledview surface destroyed");
+            }
+        });
+
+        mFlippedView.getHolder().addCallback(new SurfaceHolder.Callback() {
+            @Override
+            public void surfaceCreated(SurfaceHolder holder) {
+                Log.d(TAG, "Flippedview surface created");
+            }
+
+            @Override
+            public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+                Log.d(TAG, "Flippedview surface changed");
+                pipe.setSurface("sinkflipped", holder);
+            }
+
+            @Override
+            public void surfaceDestroyed(SurfaceHolder holder) {
+                Log.d(TAG, "Flippedview surface destroyed");
+            }
+        });
     }
 
     @Override
@@ -155,6 +189,7 @@ public class MainActivity extends Activity {
 
         if (pipe != null) {
             pipe.close();
+            pipe = null;
         }
 
         if (mCamera != null) {
@@ -197,45 +232,15 @@ public class MainActivity extends Activity {
                 "video/x-raw,format=NV21,width=640,height=480,framerate=(fraction)30/1 ! " +
                 "videoflip method=clockwise ! tee name=t " +
                 "t. ! queue ! videoconvert ! videoscale ! video/x-raw,width=320,height=240 ! " +
-                    "tensor_converter ! tensor_sink name=sinkscaled " +
+                    "glimagesink name=sinkscaled " +
                 "t. ! queue ! videoflip method=clockwise ! videoconvert ! " +
-                    "tensor_converter ! tensor_sink name=sinkflipped";
+                    "glimagesink name=sinkflipped";
 
         pipe = new Pipeline(desc);
 
         /* The preview has format of (NV21 640*480) */
         info = new TensorsInfo();
         info.addTensorInfo(NNStreamer.TensorType.UINT8, new int[]{(int) (1.5 * 640 * 480), 1, 1, 1});
-
-        /* register sink callback for scale */
-        pipe.registerSinkCallback("sinkscaled", new Pipeline.NewDataCallback() {
-            @Override
-            public void onNewDataReceived(TensorsData data) {
-                try {
-                    Bitmap bitmap = Bitmap.createBitmap(320, 240, Bitmap.Config.ARGB_8888);
-                    bitmap.copyPixelsFromBuffer(data.getTensorData(0));
-
-                    mScaledView.setImageBitmap(bitmap);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-        /* register sink callback for flip */
-        pipe.registerSinkCallback("sinkflipped", new Pipeline.NewDataCallback() {
-            @Override
-            public void onNewDataReceived(TensorsData data) {
-                try {
-                    Bitmap bitmap = Bitmap.createBitmap(640, 480, Bitmap.Config.ARGB_8888);
-                    bitmap.copyPixelsFromBuffer(data.getTensorData(0));
-
-                    mFlippedView.setImageBitmap(bitmap);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
 
         initCamera();
         initView();

@@ -16,7 +16,7 @@
         android:scaleType="centerInside"
         android:layout_weight="1" />
 
-    <ImageView
+    <SurfaceView
         android:id="@+id/scaled_result"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -24,7 +24,7 @@
         android:scaleType="centerInside"
         android:layout_weight="1" />
 
-    <ImageView
+    <SurfaceView
         android:id="@+id/flipped_result"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
