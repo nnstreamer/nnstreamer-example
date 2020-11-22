@@ -58,6 +58,7 @@ Refer to this link for more examples : [[NNStreamer example](https://github.com/
 | [![pose-estimation](./native/example_pose_estimation_tflite/yongjoo2.webp)](./native/example_pose_estimation_tflite)<br> [Pose Estimation](./native/example_pose_estimation_tflite) | - [C++ (tflite)](./native/example_pose_estimation_tflite/nnstreamer_example_pose_estimation_tflite.cc)<br> - [Python (tflite)](./native/example_pose_estimation_tflite/nnstreamer_example_pose_estimation_tflite.py) | - v4l2src for input image stream<br> - cairooverlay for drawing body points |
 | Image Classification with tensor_decoder | - [C++ (tflite)](./native/example_decoder_image_labelling/nnstreamer_example_decoder_image_labelling.c) | - [`tensor_decoder mode=image_labeling`](https://github.com/nnstreamer/nnstreamer/blob/main/ext/nnstreamer/tensor_decoder/tensordec-imagelabel.c) for postprocessing<br> | 9/P | TBD |
 | Text Classification| - [C (tflite)](./native/example_text_classification/nnstreamer_example_text_classification_tflite.c) | - appsrc for input text data |
+| [![object-detection-2cam](./native/example_object_detection_tflite_2cam/phone.webp)](./native/example_object_detection_tflite_2cam)<br> [Object Detection with 2 cameras](./native/example_object_detection_tflite_2cam) | - [C++ (tflite)](./native/example_object_detection_tflite_2cam/nnstreamer_example_object_detection_tflite_2cam.cc) | - v4l2src for input image stream<br> - cairooverlay for drawing boxes |
 
 ## With gst-launch-1.0
 
