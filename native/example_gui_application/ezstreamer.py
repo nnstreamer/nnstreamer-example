@@ -1,7 +1,7 @@
 """
 @file		ezstreamer.py
 @date		19 Oct 2020
-@brief		Optimization and Adjustment in Progress
+@brief		Python GUI example of nnstreamer
 @see		https://github.com/nnstreamer/nnstreamer
 @author		Jongha Jang <jangjongha.sw@gmail.com>
 @author		Soonbeen Kim <ksb940925@gmail.com>
@@ -38,9 +38,9 @@ from gi.repository import Gst, GObject
 DEBUG = False
 OVERLAY_DEBUG = False
 
-from PyQt5.QtWidgets import *
-from PyQt5 import uic
-from PySide.QtCore import QObject, Slot, Signal, QThread
+from PySide2.QtWidgets import *
+from PySide2.QtCore import QFile, QObject, Slot, Signal, QThread
+from ui_ezstreamer import Ui_MainWindow
 
 class EZStreamerCore:
     """EZStreamer Core"""
@@ -742,8 +742,9 @@ class EZStreamerCore:
             self.loop.quit()
 
         elif message.type == Gst.MessageType.WARNING:
+            ignore_list = ["A lot of buffers are being dropped.", "Can't record audio fast enough"]
             error, debug = message.parse_warning()
-            if error.message != "A lot of buffers are being dropped." and error.message != "Can't record audio fast enough":
+            if error.message not in ignore_list:
                 logging.warning('[warning] %s : %s', error.message, debug)
 
         elif message.type == Gst.MessageType.STREAM_START:
@@ -772,8 +773,8 @@ class EZStreamerCore:
 class EZStreamerWindow(QMainWindow):
     def __init__(self):
         super(EZStreamerWindow, self).__init__()
-        uic.loadUi('ezstreamer.ui', self)
-        self.setContentsMargins(9, 9, 9, 9) # Margins must defined manually in PyQT
+        self.ui = Ui_MainWindow()
+        self.ui.setupUi(self)
         
         # Get Widget info
         self.stream_button = self.findChild(QPushButton, "start_stop_button")
