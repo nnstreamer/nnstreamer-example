@@ -3,7 +3,7 @@
 ### Introduction
 EZStreamer is a native nnstreamer application on ubuntu environment. 
 
-This example offers convenient **graphical user interface (GUI)** which is based on PyQT5 and PySide. 
+This example offers convenient **graphical user interface (GUI)** which is based on PySide2. 
 
 ### Features
 
@@ -22,13 +22,11 @@ This example offers convenient **graphical user interface (GUI)** which is based
 ### How to Run
 
 Since the example is based on `GLib` and `GObject`, these packages need to be installed before running. NumPy is also needed.
-Additional packages for GUI application requires to run. To install PyQT5, check details below.
+Additional packages for GUI application requires to run. To install PySide2, check details below.
 
 ```bash
 $ sudo apt-get install pkg-config libcairo2-dev gcc python3-dev libgirepository1.0-dev python3-numpy
-$ sudo apt-get install python3-pyqt5 qttools5-dev-tools python3-pyqt5.qtmultimedia \
-                    python3-pyside python3-pyside.qtcore python3-pyside.qtgui python3-pyside.qtuitools
-$ pip3 install gobject PyGObject
+$ pip3 install gobject PyGObject pyside2==5.14.2.3
 ```
 
 This example requires specific tflite models and label data.
@@ -43,6 +41,4 @@ $ ./get-model.sh object-detection-tflite
 $ ./get-model.sh pose-estimation-tflite
 $ python3 ezstreamer.py
 ```
-
-
 
