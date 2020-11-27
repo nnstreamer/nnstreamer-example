@@ -16,3 +16,4 @@ if have_openvino
 endif
 subdir('example_models')
 subdir('example_join')
+subdir('example_early_exit')
