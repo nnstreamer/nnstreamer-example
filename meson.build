@@ -38,6 +38,9 @@ thread_dep = dependency('threads') # pthread for tensorflow-lite
 # Dependency for custom filter examples
 nns_dep = dependency('nnstreamer', required: false)
 
+# Dependency for nnstreamer C-API examples
+nns_capi_dep = dependency('capi-nnstreamer', required: false)
+
 # Dependency for tensorflow example
 tf_dep = dependency('tensorflow', required: false)
 protobuf_dep = dependency('protobuf', version: '>= 3.4.0', required: false)
