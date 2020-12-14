@@ -137,9 +137,6 @@ _message_cb (GstBus * bus, GstMessage * message, gpointer user_data)
 
 /**
  * @brief Get early exit module description
- * @note early exit module diagram
- * ... input stream -> tensor_filter -> tee ------------------> mux --> tensor_if -> TRUE action(early exit) -> join
- *                                       |---> tensor_filter ----^          |------> FALSE action -> next module
  */
 static gchar *
 _get_early_exit_desc (const int idx, const gchar * main_model,
@@ -154,13 +151,11 @@ _get_early_exit_desc (const int idx, const gchar * main_model,
 
   gchar *EE_module =
       g_strdup_printf
-      ("tensor_filter framework=custom-easy model=%s ! tee name=t_%d "
-      "t_%d. ! queue ! mux_%d.sink_0 "
-      "t_%d. ! queue ! tensor_filter framework=custom-easy model=%s ! mux_%d.sink_1 "
-      "tensor_mux name=mux_%d ! tensor_if name=tif_%d compared-value=A_VALUE compared-value-option=0:0:0:0,1 "
+      ("tensor_filter framework=custom-easy model=%s ! tensor_filter framework=custom-easy model=%s outputCombination=i0,o0 ! "
+      "tensor_if name=tif_%d compared-value=A_VALUE compared-value-option=0:0:0:0,1 "
       "supplied-value=200 operator=GE then=TENSORPICK then-option=0 else=TENSORPICK else-option=0 "
-      "tif_%d.src_0 ! %s ! join.sink_%d " "tif_%d.src_1 ", main_model, idx, idx,
-      idx, idx, check_model, idx, idx, idx, idx, extra_str, idx, idx);
+      "tif_%d.src_0 ! %s ! join.sink_%d " "tif_%d.src_1 ", main_model,
+      check_model, idx, idx, extra_str, idx, idx);
 
   g_free (extra_str);
   return EE_module;
