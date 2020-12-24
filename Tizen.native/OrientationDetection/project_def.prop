@@ -1,7 +1,7 @@
 APPNAME = orientationdetection
 
 type = app
-profile = wearable-5.5
+profile = wearable-6.0
 
 USER_SRCS = src/orientationdetection.c
 USER_DEFS =
