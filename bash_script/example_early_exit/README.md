@@ -1,3 +1,7 @@
+---
+title: Early Exit Network
+...
+
 # NNStreamer Native Sample Application - Early exit network
 ## Introduction
 As networks become more larger and larger, this is limited in real-time processing and low power devices.  

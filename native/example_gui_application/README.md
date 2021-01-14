@@ -1,3 +1,7 @@
+---
+title: EZStreamer
+...
+
 ## Ubuntu Native NNStreamer GUI Application - EZStreamer
 
 ### Introduction

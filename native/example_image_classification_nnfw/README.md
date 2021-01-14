@@ -1,3 +1,7 @@
+---
+title: Image Classification (nnfw)
+...
+
 ## Ubuntu Native NNStreamer Application Example - Image Classification
 ### Introduction
 This example passes camera video stream to a neural network using **tensor_filter**. 

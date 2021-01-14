@@ -1,3 +1,7 @@
+---
+title: Face detection
+...
+
 ## Ubuntu Native NNStreamer Application Example - Face Detection
 ### Introduction
 

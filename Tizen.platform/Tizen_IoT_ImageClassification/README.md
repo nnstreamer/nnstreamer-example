@@ -1,3 +1,7 @@
+---
+title: Image classification (Tizen IoT)
+...
+
 # Image classification with Tizen IoT platform
 This application provides example of edge AI using nnstreamer.
 

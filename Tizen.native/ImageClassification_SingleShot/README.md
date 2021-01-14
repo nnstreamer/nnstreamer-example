@@ -1,3 +1,7 @@
+---
+title: Image Classification (Single Shot)
+...
+
 # Image Classification Sample App with NNStreamer Single Shot C-API
 Tizen Native App with NNStreamer SingleShot API
 

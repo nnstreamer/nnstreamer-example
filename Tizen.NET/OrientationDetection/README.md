@@ -1,3 +1,7 @@
+---
+title: Orientation Detection
+...
+
 # Tizen .NET (Wearable) NNStreamer Application Example - Orientation Detection
 
 ## Introduction

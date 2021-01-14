@@ -1,3 +1,7 @@
+---
+title: Tizen Native
+...
+
 # Tizen native (c) NNStreamer Example Application
 
 Provides a basic tizen native application to verify that platform libraries can

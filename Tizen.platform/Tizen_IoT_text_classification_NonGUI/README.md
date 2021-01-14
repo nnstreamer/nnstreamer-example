@@ -1,3 +1,7 @@
+---
+title: Text classification (Tizen IoT)
+...
+
 # Text classification with Tizen IoT platform
 This sample application provides a guide for how to use the nnstreamer on Tizen IoT platform.
 Text classifications are classified into predefined groups based on sentences. Pre-trained models predict whether a paragraph is positive or negative.
