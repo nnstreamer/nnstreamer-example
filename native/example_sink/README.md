@@ -1,3 +1,7 @@
+---
+title: sink eample
+...
+
 ## sink_example
 This sample example shows how to init tensor sink element and get data.
 

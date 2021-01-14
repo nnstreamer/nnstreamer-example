@@ -1,3 +1,7 @@
+---
+title: Object Detection (2 cam)
+...
+
 ## Object Detection with 2 cameras
 This example passes camera video stream to a neural network using **tensor_filter**.
 Then the given neural network predicts multiple objects with bounding boxes. The detected boxes are drawen by **cairooveray** GStreamer plugin.

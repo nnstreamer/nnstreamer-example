@@ -1,3 +1,7 @@
+---
+title: Image Classification (Pipeline)
+...
+
 # Image Classification Sample App with NNStreamer
 
 ## Description

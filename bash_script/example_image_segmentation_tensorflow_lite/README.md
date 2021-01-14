@@ -1,3 +1,7 @@
+---
+title: Image Segmentation (edgeTPU)
+...
+
 ## NNStreamer Edge-AI Apllication - Image Segmentation (edgeTPU)
 ### Introduction
 Image segmentation is the process of partitioning a digital image into multiple segments.

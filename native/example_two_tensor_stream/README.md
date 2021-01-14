@@ -1,3 +1,7 @@
+---
+title: Two Tensor Stream
+...
+
 ## Native NNStreamer Application Example - Two Tensor Stream
 ### Introduction
 This example passes both camera and audio source to two separate neural network using **tensor_filter**. Image classification and speech command classification results are saved using **tensor_sink**, and they are combined using **compositor** GStreamer plugin. 

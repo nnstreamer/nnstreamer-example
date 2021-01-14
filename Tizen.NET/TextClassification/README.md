@@ -1,3 +1,7 @@
+---
+title: Text Classification
+...
+
 ## Tizen .NET NNStreamer Application Example - Text Classification
 
 ## Results

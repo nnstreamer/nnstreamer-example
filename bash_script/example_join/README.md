@@ -1,3 +1,7 @@
+---
+title: Join
+...
+
 ## NNStreamer Native Sample Application - join
 ### Introduction
 

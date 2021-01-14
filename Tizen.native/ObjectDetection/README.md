@@ -1,3 +1,7 @@
+---
+title: Object Detection
+...
+
 # Object Detection Sample App with NNStreamer Pipeline C-API
 Tizen Native App with NNStreamer Pipeline API
 

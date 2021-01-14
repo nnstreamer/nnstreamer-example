@@ -1,3 +1,7 @@
+---
+title: Pose Estimation
+...
+
 ## Ubuntu Native NNStreamer Application Example - Pose Estimation (Single Person)
 ### Introduction
 This example passes camera video stream to a neural network using **tensor_filter**.
