@@ -52,9 +52,10 @@ endif
 
 # Dependency for tensorflow-lite example
 tflite_dep = dependency('tensorflow-lite', required: false)
+tflite2_dep = dependency('tensorflow2-lite', required: false)
 
 have_tensorflow_lite = false
-if tflite_dep.found()
+if tflite_dep.found() or tflite2_dep.found()
   have_tensorflow_lite = true
 endif
 
