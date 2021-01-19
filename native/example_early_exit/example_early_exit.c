@@ -151,7 +151,7 @@ _get_early_exit_desc (const int idx, const gchar * main_model,
 
   gchar *EE_module =
       g_strdup_printf
-      ("tensor_filter framework=custom-easy model=%s ! tensor_filter framework=custom-easy model=%s outputCombination=i0,o0 ! "
+      ("tensor_filter framework=custom-easy model=%s ! tensor_filter framework=custom-easy model=%s output-combination=i0,o0 ! "
       "tensor_if name=tif_%d compared-value=A_VALUE compared-value-option=0:0:0:0,1 "
       "supplied-value=200 operator=GE then=TENSORPICK then-option=0 else=TENSORPICK else-option=0 "
       "tif_%d.src_0 ! %s ! join.sink_%d " "tif_%d.src_1 ", main_model,
