@@ -25,7 +25,7 @@ BuildRequires:	pkgconfig(gstreamer-audio-1.0)
 BuildRequires:	pkgconfig(gstreamer-app-1.0)
 BuildRequires:	pkgconfig(nnstreamer)
 BuildRequires:	meson
-BuildRequires:	capi-nnstreamer-devel
+BuildRequires:	capi-machine-learning-inference-devel
 
 # for tensorflow
 %if 0%{?tensorflow-support}

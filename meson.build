@@ -39,7 +39,7 @@ thread_dep = dependency('threads') # pthread for tensorflow-lite
 nns_dep = dependency('nnstreamer', required: false)
 
 # Dependency for nnstreamer C-API examples
-nns_capi_dep = dependency('capi-nnstreamer', required: false)
+nns_capi_dep = dependency('capi-ml-inference', required: false)
 
 # Dependency for tensorflow example
 tf_dep = dependency('tensorflow', required: false)
