@@ -4,21 +4,21 @@
  * @brief	Example with tensor_mux
  * @author	HyoungJoo Ahn <hello.ahn@samsung.com>
  * @bug		No known bugs.
- * 
+ *
  * appsrc ──> tee ──> tensor_filter:0 ──> tensor_mux ──> tensor_sink
  *             │                              ↑
  *             └────> tensor_filter:1 ────────┘ 
- * 
+ *
  * At the above pipeline, the `tensor_filter:1` has 3 modes
  *  1. on
  *  2. off
  *  3. delay (for N secs)
- * 
- * According to the mode of `tensor_filter:1`, the sync_mode of 
+ *
+ * According to the mode of `tensor_filter:1`, the sync-mode of
  * `tensor_mux` will also be changed.
- *  1. sync_mode=slowest
- *  2. sync_mode=refresh
- *  3. sync_mode=slowest
+ *  1. sync-mode=slowest
+ *  2. sync-mode=refresh
+ *  3. sync-mode=slowest
  */
 
 #include <stdio.h>
@@ -228,7 +228,7 @@ main (int argc, char **argv)
   app_data_s *app;
   gchar *pipeline;
   gchar *sync_mode;
-  
+
   if (argv[1] == NULL){
     g_critical ("please input the TEST MODE: 1-3. e.g. nnstreamer_example_tensor_mux 1");
     return -1;
@@ -238,7 +238,7 @@ main (int argc, char **argv)
     case MODE_1:
       sync_mode = g_strdup_printf ("slowest");
       break;
-    
+
     case MODE_2:
       sync_mode = g_strdup_printf ("refresh");
       break;
@@ -246,7 +246,7 @@ main (int argc, char **argv)
     case MODE_3:
       sync_mode = g_strdup_printf ("slowest");
       break;
-    
+
     default:
       g_critical ("please input the TEST MODE: 1-3");
       return -1;
@@ -261,15 +261,14 @@ main (int argc, char **argv)
   /* init pipeline */
   pipeline =
       g_strdup_printf (
-        "tensor_mux name=mux sync_mode=%s silent=false ! tensor_sink name=sink "
-
+        "tensor_mux name=mux sync-mode=%s silent=false ! tensor_sink name=sink "
         "appsrc name=appsrc caps=other/tensor,dimension=(string)1:1:1:1,type=(string)uint8,framerate=(fraction)0/1 ! "
         "tee name=t "
           "t. ! queue ! tensor_filter framework=custom-easy model=model1 ! queue ! mux.sink_0 "
           "t. ! queue ! tensor_filter framework=custom-easy model=model2 ! queue ! mux.sink_1 "
         , sync_mode);
 
- /* setting tensor_filter custom-easy */
+  /* setting tensor_filter custom-easy */
   const GstTensorsInfo info_in = {
     .num_tensors = 1U,
     .info = {{ .name = NULL, .type = _NNS_UINT8, .dimension = { 1, 1, 1, 1}}},
@@ -281,7 +280,7 @@ main (int argc, char **argv)
 
   NNS_custom_easy_register ("model1", function_1,
       NULL, &info_in, &info_out);
-  
+
   NNS_custom_easy_register ("model2", function_2,
       NULL, &info_in, &info_out);
 

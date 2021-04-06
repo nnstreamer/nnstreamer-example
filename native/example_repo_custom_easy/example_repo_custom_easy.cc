@@ -4,7 +4,7 @@
  * @brief	Example with tensor_repo and custom_easy for experiment.
  * @author	HyoungJoo Ahn <hello.ahn@samsung.com>
  * @bug		No known bugs.
- * 
+ *
  *  +------------------------------ slot 0 <------------------------------+
  *  |                                                                     |
  *  +-->repo_src:0 --┐                ┌--filter0(on/off) -->repo_sink:0 --+
@@ -208,7 +208,7 @@ main (int argc, char **argv)
   /* init pipeline */
   pipeline =
       g_strdup_printf (
-        "tensor_mux name=mux sync_mode=refresh ! tee name=t "
+        "tensor_mux name=mux sync-mode=refresh ! tee name=t "
           "t. ! queue ! tensor_filter framework=custom-easy model=model1 ! tensor_reposink name=slot0 slot-index=0 "
           "t. ! queue ! tensor_filter framework=custom-easy model=model2 ! tensor_reposink name=slot1 slot-index=1 "
           "t. ! queue ! tensor_sink name=sink async=false "
@@ -233,7 +233,7 @@ main (int argc, char **argv)
 
   NNS_custom_easy_register ("model1", function_1,
       NULL, &info_in, &info_out);
-  
+
   NNS_custom_easy_register ("model2", function_2,
       NULL, &info_in, &info_out);
 
