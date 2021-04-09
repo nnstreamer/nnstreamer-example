@@ -63,7 +63,7 @@ int init_pipeline()
   "videoflip method=clockwise ! videoconvert ! videoscale ! video/x-raw,width=300,height=300,format=RGB,framerate=30/1 ! "
   "tensor_converter ! tensor_transform mode=arithmetic option=typecast:float32,add:-127.5,div:127.5 ! "
   "tensor_filter framework=tensorflow-lite model=%s ! "
-  "tensor_decoder mode=bounding_boxes option1=tflite-ssd option2=%s option3=%s option4=640:480 option5=300:300 name=dec dec. ! "
+  "tensor_decoder mode=bounding_boxes option1=mobilenet-ssd option2=%s option3=%s option4=640:480 option5=300:300 name=dec dec. ! "
   "video/x-raw,width=640,height=480,format=RGBA,framerate=30/1 ! " 
   "tensor_converter ! tensor_sink name=sinkx ", model_path, label_path, box_prior_path);
 

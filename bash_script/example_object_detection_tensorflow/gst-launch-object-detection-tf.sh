@@ -7,6 +7,6 @@ gst-launch-1.0 \
             output=1,100:1,100:1,4:100:1 \
             outputname=num_detections,detection_classes,detection_scores,detection_boxes \
             outputtype=float32,float32,float32,float32 ! \
-        tensor_decoder mode=bounding_boxes option1=tf-ssd option2=tf_model/coco_labels_list.txt option4=640:480 option5=640:480 ! \
+        tensor_decoder mode=bounding_boxes option1=mobilenet-ssd-postprocess option2=tf_model/coco_labels_list.txt option4=640:480 option5=640:480 ! \
         compositor name=mix sink_0::zorder=2 sink_1::zorder=1 ! videoconvert ! ximagesink \
     t. ! queue leaky=2 max-size-buffers=10 ! mix.
