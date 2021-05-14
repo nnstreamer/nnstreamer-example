@@ -376,8 +376,10 @@ timer_update_result_cb (gpointer user_data)
  * @brief Main function.
  */
 int
-main (int argc, char **argv)
+main (int argc, char *argv[])
 {
+
+  printf("\n\nUsage:\n./nnstreamer_example_speech_command [alsasrc_device]\n\n");
   /* check your device */
   const gchar alsa_device[] = "hw:2";
   const gchar tflite_model_path[] = "./speech_model";
@@ -414,7 +416,7 @@ main (int argc, char **argv)
       "tensor_transform mode=arithmetic option=typecast:float32,div:32767.0 ! "
       "tensor_filter framework=custom model=./libnnscustom_speech_command_tflite.so ! "
       "tensor_filter framework=tensorflow-lite model=%s ! tensor_sink name=tensor_sink",
-      alsa_device, g_app.tflite_info.model_path);
+      argc > 1 ? argv[1] : alsa_device, g_app.tflite_info.model_path);
 
   /**
    * tensor info (conv_actions_frozen.tflite)

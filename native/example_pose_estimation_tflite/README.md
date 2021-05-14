@@ -5,7 +5,7 @@ title: Pose Estimation
 ## Ubuntu Native NNStreamer Application Example - Pose Estimation (Single Person)
 ### Introduction
 This example passes camera video stream to a neural network using **tensor_filter**.
-The neural network predicts positions of 17 body parts of the person in input stream. The results are drawn by **cairooveray** GStreamer plugin.
+The neural network predicts positions of 17 body parts of the person in input stream. The results are drawn by **cairooverlay** GStreamer plugin.
 
 ### How to Run
 This example requires pose estimation tf lite model and key point label (for body parts).  
