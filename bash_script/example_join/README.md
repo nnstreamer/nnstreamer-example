@@ -14,3 +14,7 @@ If the brightness of the camera is bright, the camera image is output, and if it
 
 
 ![pipeline-img](./join.png)
+
+### prerequisite
+
+If using a ppa installation the join plugin can be installed with the `nnstreamer-misc` package.
