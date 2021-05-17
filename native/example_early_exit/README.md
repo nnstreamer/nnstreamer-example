@@ -21,3 +21,7 @@ If you have successfully completed the build nnstreamer-example, you can run exa
 $ cd $NNST_ROOT/bin
 $ ./nnstreamer_example_early_exit
 ```
+
+### prerequisite
+
+If using a ppa installation the join plugin can be installed with the `nnstreamer-misc` package.

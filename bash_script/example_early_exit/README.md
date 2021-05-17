@@ -46,6 +46,8 @@ $ ./gst-launch-early-exit-normal.sh
 $ ./gst-launch-early-exit-demo.sh
 ```
 
+If using a ppa installation the join plugin can be installed with the `nnstreamer-misc` package.
+
 ### gst-launch-early-exit-normal.sh
 This example is not the actual eraly exit network, but it shows how to construct pipeline.  
 You can change the input/output and model used in the example to the appropriate framework and model.  
