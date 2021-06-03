@@ -6,7 +6,7 @@
         <icon>icon.png</icon>
     </ui-application>
     <privileges>
-        <privilege>http://tizen.org/privilege/mediastorage</privilege>
+        <privilege>http://tizen.org/privilege/appmanager.launch</privilege>
     </privileges>
     <feature name="http://tizen.org/feature/machine_learning">true</feature>
     <feature name="http://tizen.org/feature/machine_learning.inference">true</feature>

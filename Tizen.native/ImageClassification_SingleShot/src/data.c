@@ -9,7 +9,6 @@
 
 #include "main.h"
 #include "data.h"
-#include "my_file_selector.h"
 #include <image_util.h>
 #include <storage.h>
 
@@ -58,59 +57,6 @@ init_label_data()
   g_free(label_path);
   g_free(contents);
   free(res_path);
-}
-
-/**
- * @brief Sets the file that will be used.
- * @details Called when the file is chosen in the file selecting pop-up
- * @remarks This function matches the Evas_Smart_Cb() type signature
- *          defined in EFL API.
- *
- * @param file_path The path to the file
- * @param data Additional data passed to the function(not used here)
- */
-void
-file_selected(const char *file_path, void *data)
-{
-  snprintf(image_file_path, BUFLEN, "%s", file_path);
-  dlog_print(DLOG_DEBUG, LOG_TAG, "[%s:%d] selected file path: %s",
-      __FUNCTION__, __LINE__, image_file_path);
-
-  /* Set the path to the image for the EFL image object created earlier, to display the photo. */
-  elm_image_file_set(image, image_file_path, NULL);
-
-  /* Check whether an error occurred during loading of the photo. */
-  Evas_Load_Error error = evas_object_image_load_error_get(image);
-
-  if (EVAS_LOAD_ERROR_NONE != error) {
-    dlog_print(DLOG_ERROR, LOG_TAG,
-        "elm_image_file_set() failed! Could not load image: %s. Error message is \"%s\"\n",
-        image_file_path, evas_load_error_str(error));
-  } else {
-    DLOG_PRINT_DEBUG_MSG("elm_image_file_set() successful. Image %s loaded.",
-        image_file_path);
-    evas_object_show(image);
-  }
-}
-
-/**
- * @brief Shows the file selection pop-up.
- * @details Called when "Select file" button is clicked
- * @remarks This function matches the Evas_Smart_Cb() type signature
- *          defined in EFL API.
- *
- * @param data The data passed to the callback
- * @param obj The object for which the 'clicked' event was triggered(not used here)
- * @param event_info Additional event information(not used here)
- */
-static void
-__thumbnail_util_select_file_cb(void *data, Evas_Object * obj,
-    void *event_info)
-{
-  set_file_extension("jpg");
-  set_file_selected_callback(file_selected);
-
-  _show_file_popup();
 }
 
 /**
@@ -415,8 +361,6 @@ create_buttons_in_main_window()
       EVAS_HINT_EXPAND);
 
   /* Create buttons for the Image Util. */
-  _create_button(SELECT_IMAGE_BTN, display, "Search Image File(*.jpg)",
-      __thumbnail_util_select_file_cb);
   _create_button(GET_LABEL_BTN, display, "Get Image Label Result",
       _image_util_start_cb);
 
