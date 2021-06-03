@@ -378,7 +378,6 @@ timer_update_result_cb (gpointer user_data)
 int
 main (int argc, char *argv[])
 {
-
   printf("\n\nUsage:\n./nnstreamer_example_speech_command [alsasrc_device]\n\n");
   /* check your device */
   const gchar alsa_device[] = "hw:2";
