@@ -10,8 +10,6 @@
 #include "main.h"
 #include "view.h"
 #include "data.h"
-#include "my_file_selector.h"
-#include "private_privilege_support.h"
 
 #define BUFLEN 256
 
@@ -43,84 +41,12 @@ static struct view_info
   Evas_Object *win;
   Evas_Object *conform;
   Evas_Object *navi;
-  Evas_Object *buttons[4];
-  Evas_Object *file_popup;
+  Evas_Object *buttons[2];
 } s_info = {
   .win = NULL,
   .conform = NULL,
   .navi = NULL,
-  .buttons = {NULL},
-  .file_popup = NULL,};
-
-
-/**
- * @brief Closes the application if the user refuses to grant the privilege
- * @remarks This function matches the private_privilege_permission_cb()
- *          type signature defined in the private_privilege_support.h file
- * @param   privilege   The privilege the decision is about
- * @param   result      The user's response to privilege permission request.
- */
-void
-_decision_made_cb(const char *privilege,
-    private_privilege_permission_result result)
-{
-  if (result == PRIVATE_PRIVILEGE_RESULT_DENY) {
-    ui_app_exit();
-  }
-  s_info.file_popup = create_file_popup(s_info.win, file_selected, NULL);
-}
-
-/**
- * @brief Checks whether the application was granted the privilege.
- *
- * @param privilege     The privilege that needs to be verified
- */
-void
-verify_permission_granted(const char *privilege)
-{
-  char *simple_privilege_name = map_privilege_name(privilege);
-  char deny_forever_user_info[BUFLEN];
-  snprintf(deny_forever_user_info, BUFLEN,
-      "Access to %s was denied. It's necessary for the app to work.",
-      simple_privilege_name);
-  char deny_once_user_info[BUFLEN];
-  snprintf(deny_once_user_info, BUFLEN,
-      "This app can't work without the access to %s.", simple_privilege_name);
-  check_and_request_permission(privilege, s_info.win, _decision_made_cb,
-      deny_forever_user_info, deny_once_user_info);
-}
-
-/**
- * @brief Called when the current view is popped.
- * @remarks This function matches the Elm_Naviframe_Item_Pop_Cb() signature
- *          defined in the EFL API.
- *
- * @param data The data passed to the callback(not used here)
- * @param item The object to pop(not used here)
- *
- * @return @c EINA_FALSE to cancel the item popping request
- */
-Eina_Bool
-_pop_cb(void *data, Elm_Object_Item * item)
-{
-  if (evas_object_visible_get(s_info.file_popup)) {
-    /* If the file selection pop-up is visible, hide it. */
-    evas_object_hide(s_info.file_popup);
-  } else {
-    /* Otherwise minimize the application. */
-    elm_win_lower(s_info.win);
-  }
-  return EINA_FALSE;
-}
-
-/**
- * @brief Shows file pop-up
- */
-void
-_show_file_popup()
-{
-  evas_object_show(s_info.file_popup);
-}
+  .buttons = {NULL},};
 
 /**
  * @brief Pops a navi that is on top of the stack
@@ -227,12 +153,6 @@ _create_new_cd_display(char *name, void *callback)
       scroller, NULL);
   elm_object_item_part_text_set(item, "subtitle", name);
 
-  if (callback != NULL)
-    elm_naviframe_item_pop_cb_set(item, (Elm_Naviframe_Item_Pop_Cb) callback,
-        NULL);
-  else
-    elm_naviframe_item_pop_cb_set(item, _pop_cb, NULL);
-
   /* Create the main box */
   Evas_Object *box = elm_box_add(scroller);
   elm_object_content_set(scroller, box);
@@ -328,7 +248,7 @@ view_create_win(const char *pkg_name)
 {
   Evas_Object *win = NULL;
 
-        /**
+  /**
 	 * Window
 	 * Create and initialize elm_win.
 	 * elm_win is mandatory to manipulate the window.
@@ -349,43 +269,6 @@ view_create_win(const char *pkg_name)
 }
 
 /**
- * @brief Creates a layout to target parent object with edje file
- *
- * @param parent The object to which you want to add this layout
- * @param file_path File path of EDJ file will be used
- * @param group_name Name of group in EDJ you want to set to
- * @param cb_function The function will be called when back event is detected
- * @param user_data The user data to be passed to the callback functions
- * @return The newly created layout
- */
-Evas_Object *
-view_create_layout(Evas_Object * parent, const char *file_path,
-    const char *group_name, Eext_Event_Cb cb_function, void *user_data)
-{
-  Evas_Object *layout = NULL;
-
-  if (parent == NULL) {
-    dlog_print(DLOG_ERROR, LOG_TAG, "parent is NULL.");
-    return NULL;
-  }
-
-  /* Create layout using EDC(an edje file) */
-  layout = elm_layout_add(parent);
-  elm_layout_file_set(layout, file_path, group_name);
-
-  /* Layout size setting */
-  evas_object_size_hint_weight_set(layout, EVAS_HINT_EXPAND, EVAS_HINT_EXPAND);
-
-  if (cb_function)
-    eext_object_event_callback_add(layout, EEXT_CALLBACK_BACK, cb_function,
-        user_data);
-
-  evas_object_show(layout);
-
-  return layout;
-}
-
-/**
  * @brief Creates a conformant without indicator for wearable app.
  * @details Conformant is mandatory for base GUI to have proper size.
  *
@@ -395,7 +278,7 @@ view_create_layout(Evas_Object * parent, const char *file_path,
 Evas_Object *
 view_create_conformant_without_indicator(Evas_Object * win)
 {
-        /**
+  /**
 	 * Conformant
 	 * Create and initialize elm_conformant.
 	 * elm_conformant is mandatory for base GUI to have proper size
@@ -448,27 +331,4 @@ view_create_naviframe(Evas_Object * conform)
   evas_object_show(navi);
 
   return navi;
-}
-
-/**
- * @brief Destroys window and frees its resources.
- */
-void
-view_destroy(void)
-{
-  if (s_info.win == NULL)
-    return;
-
-  evas_object_del(s_info.win);
-}
-
-/**
- * @brief Destroys given layout.
- *
- * @param layout The layout to destroy
- */
-void
-view_destroy_layout(Evas_Object * layout)
-{
-  evas_object_del(layout);
 }

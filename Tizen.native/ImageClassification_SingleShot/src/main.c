@@ -17,9 +17,6 @@
 #include "view.h"
 #include "data.h"
 
-static const char *mediastorage_privilege =
-    "http://tizen.org/privilege/mediastorage";
-
 /**
  * @brief Hook to take necessary actions before main event loop starts.
  * Initialize UI resources and application's data.
@@ -73,7 +70,6 @@ app_pause(void *user_data)
 static void
 app_resume(void *user_data)
 {
-  verify_permission_granted(mediastorage_privilege);
 }
 
 /**
@@ -128,7 +124,7 @@ main(int argc, char *argv[])
   event_callback.resume = app_resume;
   event_callback.app_control = app_control;
 
-        /**
+	/**
 	 * If you want to handle more events,
 	 * please check the application life cycle guide.
 	 */

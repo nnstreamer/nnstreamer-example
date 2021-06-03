@@ -22,9 +22,14 @@ void data_initialize(void);
  */
 void data_finalize(void);
 
+/**
+ * @brief Create the buttons for the application
+ */
 void create_buttons_in_main_window(void);
-void file_selected(const char *file_path, void *data);
-void thumbnail_pop_cb();
+
+/**
+ * @brief The callback function to reset the image area
+ */
 void _image_util_reset_cb(void *data, Evas_Object *obj, void *event_info);
 
 #endif
