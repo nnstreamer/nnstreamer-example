@@ -1,1 +1,1 @@
-include ':api-sample', ':capi-sample', ':nnstreamer-ssd', ':nnstreamer-multi', ':nnstreamer-media-ssd', ':use-camera-with-nnstreamer-java-api', ':nnstreamer-ssd-autocapture'
+include ':api-sample', ':capi-sample', ':nnstreamer-ssd', ':nnstreamer-multi', ':nnstreamer-media-ssd', ':use-camera-with-nnstreamer-java-api', ':nnstreamer-ssd-autocapture', ':style-transfer-with-nnstreamer-java-api'
