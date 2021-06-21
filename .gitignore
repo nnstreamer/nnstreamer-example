@@ -53,3 +53,6 @@ build/
 *.su
 *.idb
 *.pdb
+
+# Pacage files
+*.wgt
