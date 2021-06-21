@@ -60,6 +60,11 @@ Evas_Object *_new_button(void *data, Evas_Object *display, char *name, void *cb)
  */
 Evas_Object *_create_new_cd_display(char *name, void *cb);
 
+/**
+ * @brief Called when the current view is popped.
+ */
+Eina_Bool _pop_cb(void *data, Elm_Object_Item *item);
+
 
 /**
  * @brief Sets the 'disabled' state of a button.

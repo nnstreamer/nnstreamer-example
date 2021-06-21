@@ -48,6 +48,24 @@ static struct view_info
   .navi = NULL,
   .buttons = {NULL},};
 
+
+/**
+ * @brief Called when the current view is popped.
+ * @remarks This function matches the Elm_Naviframe_Item_Pop_Cb() signature
+ *          defined in the EFL API.
+ *
+ * @param data The data passed to the callback(not used here)
+ * @param item The object to pop(not used here)
+ *
+ * @return @c EINA_FALSE to cancel the item popping request
+ */
+Eina_Bool
+_pop_cb(void *data, Elm_Object_Item * item)
+{
+  elm_win_lower(s_info.win);
+  return EINA_FALSE;
+}
+
 /**
  * @brief Pops a navi that is on top of the stack
  */
@@ -152,6 +170,12 @@ _create_new_cd_display(char *name, void *callback)
       elm_naviframe_item_push(s_info.navi, "Machine Learning", NULL, NULL,
       scroller, NULL);
   elm_object_item_part_text_set(item, "subtitle", name);
+
+  if (callback != NULL)
+    elm_naviframe_item_pop_cb_set(item, (Elm_Naviframe_Item_Pop_Cb) callback,
+        NULL);
+  else
+    elm_naviframe_item_pop_cb_set(item, _pop_cb, NULL);
 
   /* Create the main box */
   Evas_Object *box = elm_box_add(scroller);
