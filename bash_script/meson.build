@@ -17,3 +17,4 @@ endif
 subdir('example_models')
 subdir('example_join')
 subdir('example_early_exit')
+subdir('example_gst_gz')
