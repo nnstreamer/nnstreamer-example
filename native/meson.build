@@ -25,6 +25,7 @@ if have_tensorflow_lite
   subdir('example_text_classification')
   subdir('example_pose_estimation_tflite')
   subdir('example_gui_application')
+  subdir('example_query_object_detection')
 endif
 
 if have_caffe2
