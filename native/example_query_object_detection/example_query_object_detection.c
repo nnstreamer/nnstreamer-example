@@ -10,6 +10,23 @@
 #include <glib.h>
 #include <nnstreamer.h>
 
+static GMainLoop *loop; /**< main event loop */
+
+/**
+ * @brief Timer callback for client
+ */
+static gboolean
+timeout_cb (gpointer user_data)
+{
+  g_message ("timeout_cb");
+  if (loop) {
+    g_main_loop_quit (loop);
+    g_main_loop_unref (loop);
+    loop = NULL;
+  }
+  return FALSE;
+}
+
 /**
  * @brief Main function.
  */
@@ -42,8 +59,8 @@ main (int argc, char **argv)
 
   if (argc == 2) {
     g_print ("Run pipeline as default option.\n");
-    src_host = g_strdup ("127.0.0.1");
-    sink_host = g_strdup ("127.0.0.1");
+    src_host = g_strdup ("localhost");
+    sink_host = g_strdup ("localhost");
   } else {
     g_print ("Run pipeline as given option.%s %s\n",argv[2], argv[3]);
     src_host = g_strdup (argv[2]);
@@ -53,7 +70,8 @@ main (int argc, char **argv)
   }
   g_print ("src host: %s, src port: %u, sink host: %s, sink port: %u\n", src_host, src_port, sink_host, sink_port);
 
-  /* init pipeline */
+  /* Create main loop and pipeline */
+  loop = g_main_loop_new (NULL, FALSE);
   if (is_server) {
     str_pipeline =
         g_strdup_printf
@@ -65,7 +83,7 @@ main (int argc, char **argv)
     str_pipeline =
         g_strdup_printf
         ("compositor name=mix sink_0::zorder=2 sink_1::zorder=1 ! videoconvert ! ximagesink "
-          "videotestsrc ! videoconvert ! videoscale ! video/x-raw,width=640,height=480,format=RGB,framerate=10/1 ! tee name=t "
+          "v4l2src ! videoconvert ! videoscale ! video/x-raw,width=640,height=480,format=RGB,framerate=10/1 ! tee name=t "
             "t. ! queue ! videoscale ! video/x-raw,width=300,height=300,format=RGB ! tensor_converter ! "
             "tensor_transform mode=arithmetic option=typecast:float32,add:-127.5,div:127.5 ! queue leaky=2 max-size-buffers=2 ! "
             "tensor_query_client src-host=%s src-port=%u sink-host=%s sink-port=%u ! "
@@ -73,11 +91,15 @@ main (int argc, char **argv)
             "t. ! queue ! mix.sink_1", src_host, src_port, sink_host, sink_port);
   }
   g_print ("%s\n", str_pipeline);
-  ml_pipeline_construct (str_pipeline, NULL, NULL, &pipe);
 
+  /** Shut down the application after 10 seconds. */
+  g_timeout_add_seconds (10, timeout_cb, NULL);
+
+  ml_pipeline_construct (str_pipeline, NULL, NULL, &pipe);
   ml_pipeline_start (pipe);
 
-  sleep (10);
+  /* run main loop */
+  g_main_loop_run (loop);
 
   ml_pipeline_stop (pipe);
   ml_pipeline_destroy (pipe);
