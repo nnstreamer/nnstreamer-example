@@ -28,6 +28,10 @@ if have_tensorflow_lite
   subdir('example_query_object_detection')
 endif
 
+if have_nnsquery
+  subdir('edgeAI_performance_benchmark')
+endif
+
 if have_caffe2
   subdir('example_image_classification_caffe2')
 endif
