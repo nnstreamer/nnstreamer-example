@@ -6,16 +6,16 @@ set(SOURCES
     src/main.c
 )
 
+include(FindPkgConfig)
+pkg_check_modules(VIVANTE_REQUIRE_PKGS REQUIRED glib-2.0 capi-ml-inference)
+
 add_executable(vivante-yolov3-pipeline ${SOURCES})
 
 target_include_directories(vivante-yolov3-pipeline
     PUBLIC 
-        /usr/include/glib-2.0/
-        /usr/lib/glib-2.0/include/
-        /usr/include/nnstreamer/
+        ${VIVANTE_REQUIRE_PKGS_INCLUDE_DIRS}
 )
 
 target_link_libraries(vivante-yolov3-pipeline
-    -lm
-    -lglib-2.0
-    -lcapi-nnstreamer)
+    ${VIVANTE_REQUIRE_PKGS_LDFLAGS}
+)

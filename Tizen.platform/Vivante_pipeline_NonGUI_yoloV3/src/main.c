@@ -8,6 +8,10 @@
  *
  */
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
 #include <glib.h>
 #include <stdint.h>  /* integer types such as int8_t, init16_t, ... */
 #include <stdio.h>
@@ -171,7 +175,7 @@ int main(int argc, char *argv[]){
 
   /* read result from `gst-launch-1.0` */
   int fd;
-  if (0 < (fd = open(bin_path, 'r')))
+  if (0 < (fd = open(bin_path, O_RDONLY)))
   {
     read(fd, buff, BUFF_SIZE);
     puts(buff);
