@@ -13,7 +13,7 @@ Requires:	vivante-neural-network-models
 BuildRequires:	glib2-devel
 BuildRequires:  capi-base-common-devel
 BuildRequires:	pkgconfig(nnstreamer)
-BuildRequires:	capi-nnstreamer-devel
+BuildRequires:	pkgconfig(capi-ml-inference)
 
 %description
 Tizen Native C-API Sample-pipeline with Vivante
@@ -23,8 +23,7 @@ Tizen Native C-API Sample-pipeline with Vivante
 cp %{SOURCE1001} .
 
 %build
-export C_INCLUDE_PATH=$C_INCLUDE_PATH:/usr/include/glib-2.0/:/usr/lib/glib-2.0/include/:/usr/include/nnstreamer/
-gcc src/main.c -o %{name} -lglib-2.0 -lcapi-nnstreamer
+gcc src/main.c -o %{name} `pkg-config --libs --cflags capi-ml-inference glib-2.0`
 
 %install
 mkdir -p %{buildroot}%{_bindir}

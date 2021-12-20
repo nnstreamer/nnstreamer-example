@@ -14,7 +14,7 @@ BuildRequires:	cmake
 BuildRequires:	glib2-devel
 BuildRequires:  capi-base-common-devel
 BuildRequires:	pkgconfig(nnstreamer)
-BuildRequires:	capi-nnstreamer-devel
+BuildRequires:	pkgconfig(capi-ml-inference)
 
 %description
 Tizen Native C-API Sample-pipeline with Vivante
