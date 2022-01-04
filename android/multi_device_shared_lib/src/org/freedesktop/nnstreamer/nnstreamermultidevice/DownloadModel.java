@@ -129,7 +129,7 @@ public class DownloadModel extends AsyncTask<ArrayList<String>, String, Boolean>
     }
 
     private boolean downloadFile(String fileName) {
-        final String downUrl = "http://nnsuite.mooo.com/warehouse/nnmodels/";
+        final String downUrl = "http://nnstreamer.mooo.com/warehouse/nnmodels/";
 
         HttpURLConnection connection = null;
         InputStream input = null;

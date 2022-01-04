@@ -28,7 +28,7 @@ $ adb install nnstreamer-ssd-autocapture-debug.apk
 
 When first launching `Autocapture app` on your Android device, Application automatically downloads a SSD-autocapture model and label file into your target device.
 
-If your device does not access the Internet, you can download these files from [Our model repository](http://nnsuite.mooo.com/warehouse/nnmodels/) on your PC and put them in the internal storage of your Android target device as below.
+If your device does not access the Internet, you can download these files from [Our model repository](http://nnstreamer.mooo.com/warehouse/nnmodels/) on your PC and put them in the internal storage of your Android target device as below.
 
 ```
 {INTERNAL_STORAGE}/nnstreamer/tflite_model/box_priors.txt

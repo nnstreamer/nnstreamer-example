@@ -67,7 +67,7 @@ elif [[ ${model} == "object-detection-tflite" ]]; then
 elif [[ ${model} == "face-detection-tflite" ]]; then
   mkdir -p tflite_model
   cd tflite_model
-  download_url="http://nnsuite.mooo.com/warehouse/nnmodels/"
+  download_url="http://nnstreamer.mooo.com/warehouse/nnmodels/"
   wget ${download_url}/detect_face.tflite
   wget ${download_url}/labels_face.txt
   wget ${download_url}/box_priors.txt
@@ -75,7 +75,7 @@ elif [[ ${model} == "face-detection-tflite" ]]; then
 elif [[ ${model} == "hand-detection-tflite" ]]; then
   mkdir -p tflite_model
   cd tflite_model
-  download_url="http://nnsuite.mooo.com/warehouse/nnmodels/"
+  download_url="http://nnstreamer.mooo.com/warehouse/nnmodels/"
   wget ${download_url}/detect_hand.tflite
   wget ${download_url}/labels_hand.txt
   wget ${download_url}/box_priors.txt
