@@ -15,6 +15,7 @@ print_usage()
   echo -e "\t\tpose-estimation-tflite"
   echo -e "\t\tperson-detection-openvino"
   echo -e "\t\tface-detection-openvino"
+  echo -e "\t\tlow-light-image-enhancement"
   exit 1
 }
 
@@ -119,6 +120,12 @@ elif [[ ${model} == "face-detection-openvino" ]]; then
   download_url="https://github.com/nnsuite/testcases/raw/master/DeepLearningModels/openvino/face_detection"
   wget ${download_url}/face-detection-retail-0005.xml
   wget ${download_url}/face-detection-retail-0005.bin
+
+elif [[ ${model} == "low-light-image-enhancement" ]]; then
+  mkdir -p tflite_low_light_image_enhancement
+  cd tflite_low_light_image_enhancement
+  download_url="https://github.com/nnsuite/testcases/raw/master/DeepLearningModels/tensorflow-lite/zero_dce_tflite"
+  wget ${download_url}/lite-model_zero-dce_1.tflite
 
 else
   echo -e "${model}:not a valid model_name\n"
