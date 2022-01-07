@@ -104,8 +104,9 @@ elif [[ ${model} == "text-classification-tflite" ]]; then
 elif [[ ${model} == "pose-estimation-tflite" ]]; then
   mkdir -p tflite_pose_estimation
   cd tflite_pose_estimation
-  wget https://storage.googleapis.com/download.tensorflow.org/models/tflite/posenet_mobilenet_v1_100_257x257_multi_kpt_stripped.tflite
-  echo -e "nose\nleftEye\nrightEye\nleftEar\nrightEar\nleftShoulder\nrightShoulder\nleftElbow\nrightElbow\nleftWrist\nrightWrist\nleftHip\nrightHip\nleftKnee\nrightKnee\nleftAnkle\nrightAnkle" > key_point_labels.txt
+  download_url="https://github.com/nnsuite/testcases/raw/master/DeepLearningModels/tensorflow-lite/pose_estimation"
+  wget ${download_url}/posenet_mobilenet_v1_100_257x257_multi_kpt_stripped.tflite
+  wget ${download_url}/point_labels.txt
 
 elif [[ ${model} == "person-detection-openvino" ]]; then
   mkdir -p openvino_models

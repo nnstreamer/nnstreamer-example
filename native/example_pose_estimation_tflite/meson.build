@@ -4,3 +4,8 @@ nnstreamer_example_pose_estimation_tflite = executable('nnstreamer_example_pose_
   install: true,
   install_dir: examples_install_dir
 )
+
+# Install python example
+install_data('nnstreamer_example_pose_estimation_tflite.py',
+  install_dir: examples_install_dir
+)
