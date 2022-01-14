@@ -96,6 +96,8 @@ if nnsquery_dep.found()
   have_nnsquery = true
 endif
 
+opencv_dep = dependency('opencv4', required: false)
+
 # Build and install nnstreamer native examples
 subdir('native')
 
