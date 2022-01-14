@@ -13,8 +13,15 @@ The public model can be obtained from this link: https://tfhub.dev/sayannath/lit
 **get-model.<span>sh** download these resources.
 ```bash
 # bash
+# python
 $ ./get-model.sh low-light-image-enhancement
 $ python3 nnstreamer_example_low_light_image_enhancement.py
+
+# cc
+$ cd $NNST_ROOT/bin
+$ ./get-model.sh low-light-image-enhancement
+$ export GST_PLUGIN_PATH=$GST_PLUGIN_PATH:$NNST_ROOT/lib/gstreamer-1.0
+$ ./nnstreamer_example_low_light_image_enhancement
 ```
 
 ### Screenshot of Result
