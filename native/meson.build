@@ -27,6 +27,7 @@ if have_tensorflow_lite
   subdir('example_gui_application')
   subdir('example_query_object_detection')
   subdir('example_low_light_image_enhancement')
+  subdir('example_palm_tracking_tflite')
 endif
 
 if have_nnsquery
