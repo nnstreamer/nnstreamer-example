@@ -99,7 +99,7 @@ $ adb install nnstreamer-ssd-debug.apk
 
 When first launching `NNStreamer App` on your Android device, Application automatically downloads a SSD model and label file into your target device.
 
-If your device does not access the Internet, you can download these files from [Our model repository](http://nnstreamer.mooo.com/warehouse/nnmodels/) on your PC and put them in the internal storage of your Android target device as below.
+If your device does not access the Internet, you can download these files from [Our model repository](http://ci.nnstreamer.ai/warehouse/nnmodels/) on your PC and put them in the internal storage of your Android target device as below.
 
 ```
 {INTERNAL_STORAGE}/nnstreamer/tflite_model/box_priors.txt
