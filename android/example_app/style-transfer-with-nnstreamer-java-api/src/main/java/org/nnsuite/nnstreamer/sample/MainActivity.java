@@ -358,7 +358,7 @@ public class MainActivity extends Activity {
                 "videoconvert ! " +
                 "video/x-raw,format=RGB,width=640,height=480,framerate=(fraction)0/1 ! " +
                 "videoflip method=clockwise ! videocrop left=0 right=0 top=80 bottom=80 ! " +
-                "videoconvert ! videoscale ! video/x-raw,width=384,height=384 ! tensor_converter ! " +
+                "videoscale ! video/x-raw,width=384,height=384 ! tensor_converter ! " +
                 "other/tensor,dimension=(string)3:384:384:1,type=(string)uint8,framerate=(fraction)0/1 ! " +
                 "tensor_transform mode=arithmetic option=typecast:float32,add:0.0,div:255.0 ! mux.sink_0 "+
                 "appsrc name=src1 ! " +
