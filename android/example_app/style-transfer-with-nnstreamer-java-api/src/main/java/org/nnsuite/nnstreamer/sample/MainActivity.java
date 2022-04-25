@@ -173,9 +173,9 @@ public class MainActivity extends Activity {
 
         currentPipe = new Pipeline(getDesc());
         mCamera = Camera.open();
+
         resetView();
         resetCamera();
-        mCamera.setPreviewCallback(getNewPreviewCallback());
     }
 
     private void copyFilesToExternalDir()
@@ -255,6 +255,7 @@ public class MainActivity extends Activity {
                 try {
                     mCamera.stopPreview();
                     mCamera.setPreviewDisplay(holder);
+                    mCamera.setPreviewCallback(getNewPreviewCallback());
                     mCamera.startPreview();
                     Log.d(TAG, "Preview resumed.");
                 } catch (Exception e) {
@@ -284,7 +285,7 @@ public class MainActivity extends Activity {
             @Override
             public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
                 Log.d(TAG, "Styledview surface changed");
-                getCurrentPipe().setSurface("sinkstyled", holder);
+                getCurrentPipe().setSurface("sinkstyled", holder.getSurface());
             }
 
             @Override
@@ -328,7 +329,6 @@ public class MainActivity extends Activity {
                     getCurrentPipe().inputData("src1", input1);
 
                     getCurrentPipe().stop();
-
                 }
                 if(updateFrame > updateLimit)
                 {

@@ -60,16 +60,6 @@ public class MainActivity extends Activity {
 
         mCamera.setParameters(parameters);
         mCamera.setDisplayOrientation(90);
-        mCamera.setPreviewCallback(new Camera.PreviewCallback() {
-            @Override
-            public void onPreviewFrame(byte[] data, Camera camera) {
-                TensorsData input = info.allocate();
-                ByteBuffer buffer = input.getTensorData(0);
-                buffer.put(Arrays.copyOf(data, data.length));
-                input.setTensorData(0, buffer);
-                pipe.inputData("srcx", input);
-            }
-        });
     }
 
     private void initView() {
@@ -87,6 +77,16 @@ public class MainActivity extends Activity {
                     mCamera.stopPreview();
 
                     mCamera.setPreviewDisplay(holder);
+                    mCamera.setPreviewCallback(new Camera.PreviewCallback() {
+                        @Override
+                        public void onPreviewFrame(byte[] data, Camera camera) {
+                            TensorsData input = info.allocate();
+                            ByteBuffer buffer = input.getTensorData(0);
+                            buffer.put(Arrays.copyOf(data, data.length));
+                            input.setTensorData(0, buffer);
+                            pipe.inputData("srcx", input);
+                        }
+                    });
                     mCamera.startPreview();
                     Log.d(TAG, "Preview resumed.");
                 } catch (Exception e) {
@@ -114,7 +114,7 @@ public class MainActivity extends Activity {
             @Override
             public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
                 Log.d(TAG, "Scaledview surface changed");
-                pipe.setSurface("sinkscaled", holder);
+                pipe.setSurface("sinkscaled", holder.getSurface());
             }
 
             @Override
@@ -132,7 +132,7 @@ public class MainActivity extends Activity {
             @Override
             public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
                 Log.d(TAG, "Flippedview surface changed");
-                pipe.setSurface("sinkflipped", holder);
+                pipe.setSurface("sinkflipped", holder.getSurface());
             }
 
             @Override
