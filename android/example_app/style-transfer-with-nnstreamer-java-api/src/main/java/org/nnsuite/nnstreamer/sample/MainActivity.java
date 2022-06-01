@@ -27,6 +27,7 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.List;
 import java.io.File;
+import java.nio.ByteOrder;
 
 import java.nio.file.Files;
 
@@ -51,6 +52,7 @@ public class MainActivity extends Activity {
     private Pipeline currentPipe;
     private File predictModel;
     private File transferModel;
+    private File mxnetModel;
     private SurfaceHolder.Callback prevCameraCallback;
     private SurfaceHolder.Callback prevScaledCallback;
     String path;
@@ -60,6 +62,7 @@ public class MainActivity extends Activity {
     private int updateLimit = 25;
     private int styleNumber = 0;
 
+    private boolean mInvalidState = false;
     /**
      * Initialize NNStreamer.
      */
@@ -163,6 +166,39 @@ public class MainActivity extends Activity {
     }
 
     /**
+     * Gets the label index with max score, for  image classification.
+     */
+    public static int getMaxScore(ByteBuffer buffer) {
+        int index = -1;
+        float maxScore = -Float.MAX_VALUE;
+
+        if (isValidBuffer(buffer, 4 * 1)) {
+            for (int i = 0; i < 1; i++) {
+                /* convert to float */
+                float score = buffer.getFloat(i * 4);
+                Log.e("INCEPTION MODEL RESULT", Float.toString(score));
+
+                if (score > maxScore) {
+                    maxScore = score;
+                    index = i;
+                }
+            }
+        }
+
+        return index;
+    }
+
+    public static boolean isValidBuffer(ByteBuffer buffer, int expected) {
+        if (buffer != null && buffer.isDirect() && buffer.order() == ByteOrder.nativeOrder()) {
+            int capacity = buffer.capacity();
+
+            return (capacity == expected);
+        }
+
+        return false;
+    }
+
+    /**
      * Prepare camera preview.
      */
     private void preparePreview() {
@@ -170,12 +206,34 @@ public class MainActivity extends Activity {
         path = getExternalFilesDir(null).getAbsolutePath();
         predictModel = new File(path+"/style_predict_quantized_256.tflite");
         transferModel = new File(path+"/style_transfer_quantized_384.tflite");
+        mxnetModel = new File(path+"/Inception-BN.json");
 
         currentPipe = new Pipeline(getDesc());
         mCamera = Camera.open();
 
         resetView();
         resetCamera();
+
+        mCamera.setPreviewCallback(getNewPreviewCallback());
+
+        currentPipe.registerSinkCallback("sinkx", new Pipeline.NewDataCallback() {
+            @Override
+            public void onNewDataReceived(TensorsData data) {
+                if (data == null || data.getTensorsCount() != 1) {
+                    mInvalidState = true;
+                    return;
+                }
+
+                ByteBuffer buffer = data.getTensorData(0);
+                int labelIndex = getMaxScore(buffer);
+
+                /* check label index (orange) */
+                if (labelIndex != 951) {
+                    mInvalidState = true;
+                }
+
+            }
+        });
     }
 
     private void copyFilesToExternalDir()
@@ -355,24 +413,13 @@ public class MainActivity extends Activity {
     {
         String desc = "appsrc name=srcx ! " +
                 "video/x-raw,format=NV21,width=640,height=480,framerate=(fraction)0/1 ! " +
-                "videoconvert ! " +
-                "video/x-raw,format=RGB,width=640,height=480,framerate=(fraction)0/1 ! " +
-                "videoflip method=clockwise ! videocrop left=0 right=0 top=80 bottom=80 ! " +
-                "videoscale ! video/x-raw,width=384,height=384 ! tensor_converter ! " +
-                "other/tensor,dimension=(string)3:384:384:1,type=(string)uint8,framerate=(fraction)0/1 ! " +
-                "tensor_transform mode=arithmetic option=typecast:float32,add:0.0,div:255.0 ! mux.sink_0 "+
-                "appsrc name=src1 ! " +
-                "other/tensor,dimension=(string)3:256:256:1,type=(string)uint8,framerate=(fraction)0/1 ! " +
-                "tensor_transform mode=arithmetic option=typecast:float32,add:0.0,div:255.0 ! " +
-                "tensor_filter framework=tensorflow-lite model=" + predictModel.getAbsolutePath() + " ! " +
-                "mux.sink_1 " +
-                "tensor_mux name=mux sync_mode=nosync ! tensor_filter framework=tensorflow-lite model=" + transferModel.getAbsolutePath() +" ! " +
-                "tensor_transform mode=arithmetic option=mul:255.0,add:0.0 ! " +
-                "tensor_transform mode=typecast option=uint8 ! " +
-                "tensor_decoder mode=direct_video ! " +
-                "videoconvert ! " +
-                "video/x-raw,format=RGB,width=384,height=384,framerate=(fraction)0/1 ! " +
-                "glimagesink name=sinkstyled";
+                "videoconvert ! video/x-raw,format=RGB,width=640,height=480,framerate=(fraction)0/1 ! " +
+                "videoscale ! video/x-raw,format=RGB,width=224,height=224 ! tensor_converter ! " +
+                "tensor_transform mode=arithmetic option=typecast:float32,per-channel:true@0,add:-123.68@0,add:-116.779@1,add:-103.939@2 ! " +
+                "tensor_transform mode=dimchg option=0:2 ! " +
+                "tensor_filter framework=mxnet model=" + mxnetModel.getAbsolutePath() +
+                " input=1:3:224:224 inputtype=float32 inputname=data output=1 outputtype=float32 outputname=argmax_channel custom=input_rank=4,enable_tensorrt=false latency=1 ! " +
+                "tensor_sink name=sinkx";
 
         return desc;
     }
