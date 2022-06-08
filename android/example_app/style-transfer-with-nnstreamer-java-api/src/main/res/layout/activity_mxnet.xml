@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mainLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".MXNetActivity">
+
+    <SurfaceView
+        android:id="@+id/cameraView"
+        android:layout_width="255dp"
+        android:layout_height="340dp"
+        android:layout_gravity="center"
+        android:layout_margin="5dp"
+        android:layout_weight="1"/>
+
+    <FrameLayout
+        android:layout_width="340dp"
+        android:layout_height="340dp"
+        android:layout_gravity="center"
+        android:layout_margin="5dp"
+        android:layout_weight="1">
+        <SurfaceView
+            android:id="@+id/resultView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:textSize="20sp"
+            android:textColor="#ffffff"
+            android:shadowColor="#000000"
+            android:shadowRadius="2"
+            android:layout_gravity="center|bottom"
+            android:gravity="center_horizontal"/>
+    </FrameLayout>
+
+</LinearLayout>
