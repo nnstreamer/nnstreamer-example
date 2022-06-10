@@ -25,5 +25,5 @@
 
 (1) ![styletransfer_nnstreamer_screenshot](./styletransfer_nnstreamer_screenshot.webp)
 
-(2) ![image](https://user-images.githubusercontent.com/81565280/173046757-ff4c989a-bf12-4212-87a6-e583ab79506c.png){: width="100" height="100"}
+(2) <img src="https://user-images.githubusercontent.com/81565280/173046757-ff4c989a-bf12-4212-87a6-e583ab79506c.png" width="200" height="400"/>
 
