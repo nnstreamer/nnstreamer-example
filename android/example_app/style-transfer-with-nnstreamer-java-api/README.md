@@ -4,8 +4,8 @@
 
 - To run this sample, copy nnstreamer-api library file (nnstreamer-YYYY-MM-DD.aar) into 'libs' directory.
 - For image classification, user should turn on MXNet option.
-- ![image](https://user-images.githubusercontent.com/81565280/173046787-ded3aa1e-6815-41d2-b61b-b9616371a5a7.png)
 - [How to build NNStreamer for Android](https://github.com/nnstreamer/nnstreamer/tree/master/api/android)
+- ![image](https://user-images.githubusercontent.com/81565280/173046787-ded3aa1e-6815-41d2-b61b-b9616371a5a7.png){: width="100" height="100"}
 
 ## Introduction
 
@@ -25,5 +25,5 @@
 
 (1) ![styletransfer_nnstreamer_screenshot](./styletransfer_nnstreamer_screenshot.webp)
 
-(2) ![image](https://user-images.githubusercontent.com/81565280/173046757-ff4c989a-bf12-4212-87a6-e583ab79506c.png)
+(2) ![image](https://user-images.githubusercontent.com/81565280/173046757-ff4c989a-bf12-4212-87a6-e583ab79506c.png) {: width="100" height="100"}
 
