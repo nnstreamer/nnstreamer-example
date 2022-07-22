@@ -5,4 +5,4 @@ gst-launch-1.0 v4l2src ! videoconvert ! videoscale ! video/x-raw, format=RGB, wi
                               supplied-value=100 operator=GT then=TENSORPICK then-option=0 else=TENSORPICK else-option=1 \
                tif.src_0 ! queue ! join.sink_0 \
                tif.src_1 ! queue ! join.sink_1 \
-               join name=join ! tensor_decoder mode=direct_video ! videoconvert ! ximagesink
+               join name=join ! tensor_decoder mode=direct_video ! videoconvert ! ximagesink sync=false
