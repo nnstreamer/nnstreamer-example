@@ -29,7 +29,7 @@ if have_tensorflow_lite
   subdir('example_low_light_image_enhancement')
 endif
 
-if have_nnsquery
+if nns_edge_dep.found()
   subdir('edgeAI_performance_benchmark')
 endif
 

@@ -28,9 +28,9 @@ CLIENT_MEM_TOT=0
 
 START_TIME=$(date +%s.%3N)
 
-if [[ "$PROTOCOL" == "query/mqtt" ]]; then
-  ./performance_benchmark_query --server -t 100 --mqtthost=localhost --operation=oper --width=$WIDTH --height=$HEIGHT &
-  ./performance_benchmark_query --client -t 100 --mqtthost=localhost --operation=oper --width=$WIDTH --height=$HEIGHT &
+if [[ "$PROTOCOL" == "query/hybrid" ]]; then
+  ./performance_benchmark_query --server -t 100 --desthost=127.0.0.1 --destport=1883 --topic=profilingTopic --width=$WIDTH --height=$HEIGHT --connecttype=HYBRID &
+  ./performance_benchmark_query --client -t 100 --desthost=127.0.0.1 --destport=1883 --topic=profilingTopic --width=$WIDTH --height=$HEIGHT --connecttype=HYBRID &
   SERVER_PID=`ps aux | grep performance_benchmark | grep server | awk '{print $2}'`
   CLIENT_PID=`ps aux | grep performance_benchmark | grep client | awk '{print $2}'`
 elif [[ "$PROTOCOL" == "query/tcp" ]]; then
@@ -38,14 +38,24 @@ elif [[ "$PROTOCOL" == "query/tcp" ]]; then
   ./performance_benchmark_query --client -t 100 --width=$WIDTH --height=$HEIGHT &
   SERVER_PID=`ps aux | grep performance_benchmark | grep server | awk '{print $2}'`
   CLIENT_PID=`ps aux | grep performance_benchmark | grep client | awk '{print $2}'`
-elif [[ "$PROTOCOL" == "zmq" ]]; then
-  ./performance_benchmark_broadcast --zmq --pub -t 100 --width=$WIDTH --height=$HEIGHT &
-  ./performance_benchmark_broadcast --zmq --sub -t 100 --width=$WIDTH --height=$HEIGHT &
+elif [[ "$PROTOCOL" == "pubsub/zmq" ]]; then # zemsrc/sink
+  ./performance_benchmark_broadcast --pub -t 100 --width=$WIDTH --height=$HEIGHT --connecttype=ZMQ &
+  ./performance_benchmark_broadcast --sub -t 100 --width=$WIDTH --height=$HEIGHT --connecttype=ZMQ &
   SERVER_PID=`ps aux | grep performance_benchmark | grep pub | awk '{print $2}'`
   CLIENT_PID=`ps aux | grep performance_benchmark | grep sub | awk '{print $2}'`
-else
-  ./performance_benchmark_broadcast --mqtt --pub -t 100 --width=$WIDTH --height=$HEIGHT &
-  ./performance_benchmark_broadcast --mqtt --sub -t 100 --width=$WIDTH --height=$HEIGHT &
+elif [[ "$PROTOCOL" == "pubsub/hybrid" ]]; then #edgesrc/sink
+  ./performance_benchmark_broadcast --pub -t 100 --desthost=127.0.0.1 --destport=1883 --topic=profilingTopic --width=$WIDTH --height=$HEIGHT --connecttype=HYBRID &
+  ./performance_benchmark_broadcast --sub -t 100 --desthost=127.0.0.1 --destport=1883 --topic=profilingTopic --width=$WIDTH --height=$HEIGHT --connecttype=HYBRID &
+  SERVER_PID=`ps aux | grep performance_benchmark | grep pub | awk '{print $2}'`
+  CLIENT_PID=`ps aux | grep performance_benchmark | grep sub | awk '{print $2}'`
+elif [[ "$PROTOCOL" == "pubsub/aitt" ]]; then #edgesrc/sink
+  ./performance_benchmark_broadcast --pub -t 100 --desthost=127.0.0.1 --destport=1883 --topic=profilingTopic --width=$WIDTH --height=$HEIGHT --connecttype=AITT &
+  ./performance_benchmark_broadcast --sub -t 100 --desthost=127.0.0.1 --destport=1883 --topic=profilingTopic --width=$WIDTH --height=$HEIGHT --connecttype=AITT &
+  SERVER_PID=`ps aux | grep performance_benchmark | grep pub | awk '{print $2}'`
+  CLIENT_PID=`ps aux | grep performance_benchmark | grep sub | awk '{print $2}'`
+else # mqttsrc/sink
+  ./performance_benchmark_broadcast --pub -t 100 --width=$WIDTH --height=$HEIGHT --connecttype=MQTT &
+  ./performance_benchmark_broadcast --sub -t 100 --width=$WIDTH --height=$HEIGHT --connecttype=MQTT &
   SERVER_PID=`ps aux | grep performance_benchmark | grep pub | awk '{print $2}'`
   CLIENT_PID=`ps aux | grep performance_benchmark | grep sub | awk '{print $2}'`
 fi

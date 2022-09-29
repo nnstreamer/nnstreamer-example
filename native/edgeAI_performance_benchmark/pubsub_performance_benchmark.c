@@ -26,23 +26,7 @@
  */
 #define _print_log(...) if (DBG) g_message (__VA_ARGS__)
 
-static GMainLoop *loop; /**< main event loop */
 guint received;
-
-/**
- * @brief Timer callback for client
- */
-static gboolean
-timeout_cb (gpointer user_data)
-{
-  g_message ("timeout_cb");
-  if (loop) {
-    g_main_loop_quit (loop);
-    g_main_loop_unref (loop);
-    loop = NULL;
-  }
-  return FALSE;
-}
 
 /**
  * @brief Print usage info
@@ -82,24 +66,25 @@ int
 main (int argc, char **argv)
 {
   gchar *str_pipeline = NULL, *in_dim = NULL;
-  gboolean is_pub = TRUE, is_zmq = FALSE;
   GstElement *pipeline, *element;
-  gchar *host = g_strdup (""), *topic = NULL;
-  guint16 port = 1883, repeat = 1, timeout = 10, width = 640, height = 480;
+  gboolean is_pub = TRUE;
+  gchar *host = g_strdup ("127.0.0.1"), *topic = NULL, *connect_type = g_strdup ("TCP"), *dest_host = g_strdup ("");
+  guint16 port = 1883, repeat = 1, timeout = 10, width = 640, height = 480, dest_port=1883;
   gint opt;
   struct option long_options[] = {
-      { "zmq", no_argument, NULL, 'z' },
-      { "mqtt", no_argument, NULL, 'm' },
       { "pub", no_argument, NULL, 'p' },
       { "sub", no_argument, NULL, 's' },
       { "topic", required_argument, NULL, 'o' },
       { "host", required_argument,  NULL, 'u' },
       { "port", required_argument,  NULL, 'b' },
+      { "desthost", required_argument,  NULL, 'm' },
+      { "destport", required_argument,  NULL, 'd' },
       { "repeat", required_argument,  NULL, 'r' },
       { "timeout", required_argument,  NULL, 't' },
       { "help", required_argument,  NULL, 'h' },
       { "width", required_argument,  NULL, 'w' },
       { "height", required_argument,  NULL, 'a' },
+      { "connecttype", required_argument,  NULL, 'c' },
       { 0, 0, 0, 0}
   };
   gchar *optstring = "z:m:p:s:o:u:b:r:t:h:w:a";
@@ -111,12 +96,6 @@ main (int argc, char **argv)
 
   while ((opt = getopt_long (argc, argv, optstring, long_options, NULL)) != -1) {
     switch (opt) {
-      case 'z':
-        is_zmq = TRUE;
-        break;
-      case 'm':
-        is_zmq = FALSE;
-        break;
       case 'p':
         is_pub = TRUE;
         break;
@@ -124,7 +103,7 @@ main (int argc, char **argv)
         is_pub = FALSE;
         break;
       case 'o':
-        topic = g_strdup_printf ("topic=%s", optarg);
+        topic = g_strdup (optarg);
         break;
       case 'u':
         g_free (host);
@@ -145,6 +124,17 @@ main (int argc, char **argv)
       case 'a':
         height = (guint16) g_ascii_strtoll (optarg, NULL, 10);
         break;
+      case 'c':
+        g_free (connect_type);
+        connect_type = g_strdup (optarg);
+        break;
+      case 'm':
+        g_free (dest_host);
+        dest_host = g_strdup (optarg);
+        break;
+      case 'd':
+        dest_port = (guint16) g_ascii_strtoll (optarg, NULL, 10);
+        break;
       default:
         _usage ();
         return 0;
@@ -154,9 +144,8 @@ main (int argc, char **argv)
   g_print ("host: %s, port: %u\n", host, port);
   g_print ("topic: %s, repeat: %u \n\n", topic, repeat);
 
-  /* Create main loop and pipeline */
-  loop = g_main_loop_new (NULL, FALSE);
-  if (is_zmq) {
+  /* Create pipeline */
+  if (0 == g_strcmp0 (connect_type, "ZMQ")) {
     gchar *endpoint = g_strdup ("");
     if (0 != g_ascii_strcasecmp (host, "")) {
       g_free (endpoint);
@@ -165,14 +154,14 @@ main (int argc, char **argv)
     if (is_pub) {
       str_pipeline =
           g_strdup_printf
-          ("videotestsrc ! videoconvert ! videoscale ! video/x-raw,width=%u,height=%u,format=RGB,framerate=60/1 ! tensor_converter ! zmqsink %s", width, height, endpoint);
+          ("videotestsrc is-live=true ! videoconvert ! videoscale ! video/x-raw,width=%u,height=%u,format=RGB,framerate=60/1 ! tensor_converter ! zmqsink %s", width, height, endpoint);
     } else {
       str_pipeline =
           g_strdup_printf
           ("zmqsrc %s ! tensor_sink name=sinkx sync=true", endpoint);
     }
     g_free (endpoint);
-  } else {
+  } else if (0 == g_strcmp0 (connect_type, "MQTT")) {
     gchar *mqtthost = g_strdup ("");
     if (0 != g_ascii_strcasecmp (host, "")) {
       g_free (mqtthost);
@@ -181,21 +170,28 @@ main (int argc, char **argv)
     if (is_pub) {
       str_pipeline =
           g_strdup_printf
-          ("videotestsrc ! videoconvert ! videoscale ! video/x-raw,width=%u,height=%u,format=RGB,framerate=60/1 ! tensor_converter ! mqttsink pub-topic=%s %s sync=true", width, height, topic, mqtthost);
+          ("videotestsrc is-live=true ! videoconvert ! videoscale ! video/x-raw,width=%u,height=%u,format=RGB,framerate=60/1 ! tensor_converter ! mqttsink pub-topic=%s %s sync=true", width, height, topic, mqtthost);
     } else {
       str_pipeline =
            g_strdup_printf
            ("mqttsrc sub-topic=%s %s ! tensor_sink name=sinkx sync=true", topic, mqtthost);
     }
     g_free (mqtthost);
+  } else { /** For edgesrc/sink */
+    if (is_pub) {
+      str_pipeline =
+          g_strdup_printf
+          ("videotestsrc is-live=true ! videoconvert ! videoscale ! video/x-raw,width=%u,height=%u,format=RGB,framerate=60/1 ! tensor_converter ! edgesink host=%s port=0  dest-host=%s dest-port=%u connect-type=%s topic=%s sync=true", width, height, host, dest_host, dest_port, connect_type, topic);
+    } else {
+      str_pipeline =
+           g_strdup_printf
+           ("edgesrc host=%s port=0 dest-host=%s dest-port=%u connect-type=%s topic=%s ! tensor_sink name=sinkx sync=true", host, dest_host, dest_port, connect_type, topic);
+    }
   }
 
   g_print ("%s\n", str_pipeline);
   pipeline = gst_parse_launch (str_pipeline, NULL);
   g_free (str_pipeline);
-
-  /** Shut down the application after timeout. */
-  g_timeout_add_seconds (timeout, timeout_cb, NULL);
 
   element = gst_bin_get_by_name (GST_BIN (pipeline), "sinkx");
   g_signal_connect (element, "new-data", (GCallback) _new_data_cb, NULL);
@@ -205,9 +201,7 @@ main (int argc, char **argv)
   /* start pipeline */
   gst_element_set_state (pipeline, GST_STATE_PLAYING);
 
-  /* run main loop */
-  g_main_loop_run (loop);
-  g_usleep (200 * 1000);
+  g_usleep (timeout * 1000 * 1000);
 
   g_message ("Received data cnt: %u", received);
 
@@ -223,6 +217,8 @@ main (int argc, char **argv)
   gst_object_unref (pipeline);
   pipeline = NULL;
   g_free (host);
+  g_free (dest_host);
+  g_free (connect_type);
   g_free (topic);
   g_free (in_dim);
 

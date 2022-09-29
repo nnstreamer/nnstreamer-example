@@ -89,12 +89,7 @@ endif
 
 
 # Dependency for nnstreamer-edge examples
-nnsquery_dep = dependency('nnsquery', required: false)
-
-have_nnsquery = false
-if nnsquery_dep.found()
-  have_nnsquery = true
-endif
+nns_edge_dep = dependency('nnstreamer-edge', required: false)
 
 opencv_dep = dependency('opencv4', required: false)
 

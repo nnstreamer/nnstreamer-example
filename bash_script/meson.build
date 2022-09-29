@@ -20,6 +20,6 @@ subdir('example_join')
 subdir('example_early_exit')
 subdir('example_gst_gz')
 subdir('example_tensor_query')
-if have_nnsquery
+if nns_edge_dep.found()
   subdir('example_tensor_query_mqtt')
 endif
