@@ -6,7 +6,7 @@ Build-Depends:
  debhelper (>=9), meson (>=0.40), ninja-build (>=1.5),
  libglib2.0-dev, libgstreamer1.0-dev, libgstreamer-plugins-base1.0-dev,
  gstreamer1.0-plugins-base, gstreamer1.0-plugins-good,
- nnstreamer, nnstreamer-dev,
+ nnstreamer, nnstreamer-dev, nnstreamer-edge-dev,
  libcairo2-dev, libopencv-dev,
  tensorflow-lite-dev, tensorflow-dev [amd64], libprotobuf-dev [amd64 arm64]
 Standards-Version: 3.9.6

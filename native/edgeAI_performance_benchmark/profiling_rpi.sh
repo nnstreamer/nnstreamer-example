@@ -17,7 +17,17 @@ if [ -z "$3" ]; then
 else
   PROTOCOL="$3"
 fi
-
+if [ -z "$4" ]; then
+  echo "Please specify the type of the pipeline. Default server (server|client|pub|sub)."
+  TYPE="server"
+else
+  TYPE="$4"
+fi
+if [ -z "$5" ]; then
+  FRAMERATE="60"
+else
+  FRAMERATE="$5"
+fi
 
 echo "" >> temp_result*.txt
 echo "$PROTOCOL" >> temp_result*.txt
@@ -41,18 +51,19 @@ MEM_TOT=0
 START_TIME=$(date +%s.%3N)
 
 if [[ "$PROTOCOL" == "query/mqtt" ]]; then
-  ./performance_benchmark_query --server -t 100 --srchost=  --sinkhost=  --mqtthost= --operation=oper --width=$WIDTH --height=$HEIGHT &
-  PID=`ps aux | grep performance_benchmark | grep server | awk '{print $2}'`
+  ./performance_benchmark_query --$TYPE -t 100 --srvhost= --desthost= --destport= --topic=profilingTopic --width=$WIDTH --height=$HEIGHT --connecttype=HYBRID --framerate=$FRAMERATE &
 elif [[ "$PROTOCOL" == "query/tcp" ]]; then
-  ./performance_benchmark_query --server -t 100 --srchost=  --sinkhost=  --width=$WIDTH --height=$HEIGHT &
-  PID=`ps aux | grep performance_benchmark | grep server | awk '{print $2}'`
-elif [[ "$PROTOCOL" == "zmq" ]]; then
-  ./performance_benchmark_broadcast --zmq --pub -t 100 --host=  --width=$WIDTH --height=$HEIGHT &
-  PID=`ps aux | grep performance_benchmark | grep pub | awk '{print $2}'`
+  ./performance_benchmark_query --$TYPE -t 100 --srvhost= --srvport= --width=$WIDTH --height=$HEIGHT --framerate=$FRAMERATE &
+elif [[ "$PROTOCOL" == "pubsub/zmq" ]]; then
+  ./performance_benchmark_broadcast --$TYPE -t 100 --host=  --width=$WIDTH --height=$HEIGHT --connecttype=ZMQ &
+elif [[ "$PROTOCOL" == "pubsub/hybrid" ]]; then
+  ./performance_benchmark_broadcast --$TYPE -t 100 --host= --desthost= --destport= --topic=profilingTopic --width=$WIDTH --height=$HEIGHT --connecttype=HYBRID &
+elif [[ "$PROTOCOL" == "pubsub/aitt" ]]; then
+  ./performance_benchmark_broadcast --$TYPE -t 100 --host= --desthost= --destport= --topic=profilingTopic --width=$WIDTH --height=$HEIGHT --connecttype=AITT &
 else
-  ./performance_benchmark_broadcast --mqtt --pub -t 100 --host= --width=$WIDTH --height=$HEIGHT &
-  PID=`ps aux | grep performance_benchmark | grep pub | awk '{print $2}'`
+  ./performance_benchmark_broadcast --$TYPE -t 100 --host= --width=$WIDTH --height=$HEIGHT --connecttype=MQTT &
 fi
+PID=`ps aux | grep performance_benchmark | grep $TYPE | awk '{print $2}'`
 
 echo "pid: $PID"
 taskset -cp 0 $PID
@@ -87,4 +98,3 @@ MEM_AVG=`echo "scale=4; $MEM_TOT / $RUNNING_TIME" | bc`
 echo "$ELAPSED" >> temp_result*.txt
 echo "$CPU_AVG" >> temp_result*.txt
 echo "$MEM_AVG" >> temp_result*.txt
-

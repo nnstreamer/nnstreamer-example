@@ -1,5 +1,6 @@
 %define		nnstexampledir	/usr/lib/nnstreamer/bin
 %define		tensorflow_support	0
+%define		nnstreamer_edge_support 0
 
 Name:		nnstreamer-example
 Summary:	examples of nnstreamer (gstremaer plugins for neural networks)
@@ -38,6 +39,11 @@ BuildRequires:	tensorflow-lite-devel
 # for cairo
 BuildRequires:	coregl-devel
 BuildRequires:	cairo-devel
+
+# for nnstreamer-edge
+%if 0%{?nnstreamer_edge_support}
+BuildRequires: nnstreamer-edge-devel
+%endif
 
 %description
 NNStreamer is a set of gstreamer plugins to support general neural networks
