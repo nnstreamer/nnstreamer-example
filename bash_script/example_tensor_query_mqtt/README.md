@@ -39,7 +39,7 @@ If the server connected to the client is stopped, find an alternative server and
 
 ## Prerequisite
  - NNStreamer: [link](https://github.com/nnstreamer/nnstreamer/wiki/usage-examples-screenshots)
- - NNStreamer-edge (nnsquery): [link](https://github.com/nnstreamer/nnstreamer-edge/tree/master/src/libsensor)
+ - NNStreamer-edge: [link](https://github.com/nnstreamer/nnstreamer-edge)
  - Install mosquitto broker: `$ sudo apt install mosquitto mosquitto-clients`
 
 ## Run examples
