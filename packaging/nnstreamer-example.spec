@@ -1,5 +1,5 @@
 %define		nnstexampledir	/usr/lib/nnstreamer/bin
-%define		tensorflow-support	0
+%define		tensorflow_support	0
 
 Name:		nnstreamer-example
 Summary:	examples of nnstreamer (gstremaer plugins for neural networks)
@@ -28,7 +28,7 @@ BuildRequires:	meson
 BuildRequires:	capi-machine-learning-inference-devel
 
 # for tensorflow
-%if 0%{?tensorflow-support}
+%if 0%{?tensorflow_support}
 BuildRequires:	protobuf-devel >= 3.4.0
 BuildRequires:	tensorflow
 BuildRequires:	tensorflow-devel
