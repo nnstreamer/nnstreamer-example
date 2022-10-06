@@ -9,7 +9,7 @@ if [ -z "$2" ]; then
   echo "Broker host address is not given. Use localhost."
   DEST_HOST="tcp://localhost"
 else
-  DEST_HOST="$1"
+  DEST_HOST="$2"
 fi
 
 gst-launch-1.0 \
