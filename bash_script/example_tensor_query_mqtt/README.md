@@ -59,13 +59,12 @@ $ ./get-model.sh object-detection-tflite
 ```
 
 ## Demo video
-![demo_video](./res/demo_video.webp)
+![demo_video](./res/mqtt_hybrid_multi_server_client.webm)
 ### Demo scenario
 1) Run the server 1
 2) Run the server 2
-3) Run the client (The client connected to the server 1)
-4) Stop the server 1 (The client connected to the server 2)
-5) Stop the client
-6) Run the client (The client connected to the server 2)
-7) Run the server 1
-8) Stop the server 2 (The client connected to the server 1)
+3) Run two clients (The clients connected to the server 1)
+4) Stop the server 1 (The clients connected to the server 2)
+5) Run the server 1
+6) Stop the server 2 (The clients connected to the server 1)
+7) Stop the server 1 (The clients terminate the connection because there are no server to connect.)
