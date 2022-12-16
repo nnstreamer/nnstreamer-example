@@ -23,3 +23,4 @@ subdir('example_tensor_query')
 if nns_edge_dep.found()
   subdir('example_tensor_query_mqtt')
 endif
+subdir('example_audio_classification')
