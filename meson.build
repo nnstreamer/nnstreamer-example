@@ -87,6 +87,12 @@ if openvino_dep.found()
   have_openvino = true
 endif
 
+# Dependency for pytorch example
+pytorch_dep = dependency('pytorch', required: false)
+have_pytorch = false
+if pytorch_dep.found()
+  have_pytorch = true
+endif
 
 # Dependency for nnstreamer-edge examples
 nns_edge_dep = dependency('nnstreamer-edge', required: false)
