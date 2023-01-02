@@ -17,11 +17,18 @@ $ ls
 ... yolov5s.torchscript yolov5s-fp16.tflite ...
 ```
 
+## Export to quantized tflite model
+```bash
+$ python export.py --weights=yolov5s.pt --img=320 --include tflite --int8
+... yolov5s-int8.tflite ...
+```
+
 Note that setting the input image size as 320px, rather than the default 640px to increase inference speed. You can take other weight options (n, s, m, l, x) and input image size.
 
 ## Run the object detection example
 
 ```bash
 $ ./gst-launch-object-detection-yolov5-tflite.sh
+$ ./gst-launch-object-detection-yolov5-tflite.sh quantize ## use quantized tflite model
 $ ./gst-launch-object-detection-yolov5-torchscript.sh
 ```
