@@ -15,6 +15,7 @@
 #include <nnstreamer/tensor_filter_custom_easy.h>
 #include <getopt.h>
 
+unsigned int received;
 /**
  * @brief Data struct for options.
  */
@@ -26,6 +27,7 @@ typedef struct
   gchar *dest_port;
   gchar *connect_type;
   guint16 port;
+  gchar *node_type;
 } opt_data_s;
 
 /**
@@ -36,6 +38,8 @@ ce_custom_inference_offloading (void *data, const GstTensorFilterProperties *pro
     const GstTensorMemory *in, GstTensorMemory *out)
 {
   unsigned int t;
+
+  g_message ("[[DEBUG]] tensor filter is called.. num: %u", received++);
 
   for (t = 0; t < prop->output_meta.num_tensors; t++) {
     if (prop->input_meta.num_tensors <= t)
@@ -60,9 +64,10 @@ _get_option (int argc, char **argv, opt_data_s *opt_data)
       { "connecttype", required_argument,  NULL, 'c' },
       { "desthost", required_argument,  NULL, 'b' },
       { "destport", required_argument,  NULL, 'd' },
+      { "nodetype", required_argument,  NULL, 'n' },
       { 0, 0, 0, 0}
   };
-  gchar *optstring = "h:p:t:c:b:d:";
+  gchar *optstring = "h:p:t:c:b:d:n:";
 
   opt_data->host = g_strdup ("localhost");
   opt_data->topic = g_strdup ("");
@@ -70,6 +75,7 @@ _get_option (int argc, char **argv, opt_data_s *opt_data)
   opt_data->dest_host = g_strdup ("");
   opt_data->dest_port = g_strdup ("");
   opt_data->connect_type = g_strdup ("TCP");
+  opt_data->node_type = g_strdup ("QUERY");
 
   while ((opt = getopt_long (argc, argv, optstring, long_options, NULL)) != -1) {
     switch (opt) {
@@ -96,6 +102,10 @@ _get_option (int argc, char **argv, opt_data_s *opt_data)
         g_free (opt_data->dest_port);
         opt_data->dest_port = g_strdup_printf ("dest-port=%s", optarg);
         break;
+      case 'n':
+        g_free (opt_data->node_type);
+        opt_data->node_type = g_strdup (optarg);
+        break;
       default:
         break;
     }
@@ -109,7 +119,7 @@ int
 main (int argc, char **argv)
 {
   gchar *str_pipeline;
-  guint16 timeout = 20;
+  guint16 timeout = 10;
   GMainLoop *loop; /**< main event loop */
   GstElement *pipeline; /**< gst pipeline for data stream */
   opt_data_s opt_data;
@@ -133,11 +143,22 @@ main (int argc, char **argv)
   loop = g_main_loop_new (NULL, FALSE);
 
   /* init pipeline */
-  str_pipeline =
+  if (g_ascii_strcasecmp (opt_data.node_type, "QUERY") == 0) {
+    str_pipeline =
       g_strdup_printf
       ("tensor_query_serversrc host=%s port=%u %s %s connect-type=%s %s ! video/x-raw,width=224,height=224,format=RGB,framerate=0/1 ! "
       "tensor_converter ! tensor_filter framework=custom-easy model=inferecne_offloading ! "
-      "tensor_query_serversink connect-type=%s", opt_data.host, opt_data.port, opt_data.dest_host, opt_data.dest_port, opt_data.connect_type, opt_data.topic, opt_data.connect_type);
+      "tensor_query_serversink connect-type=%s async=false", opt_data.host, opt_data.port, opt_data.dest_host, opt_data.dest_port, opt_data.connect_type, opt_data.topic, opt_data.connect_type);
+  } else if (g_ascii_strcasecmp (opt_data.node_type, "SUB") == 0) {
+    str_pipeline =
+      g_strdup_printf
+      ("edgesrc host=%s port=%u %s %s connect-type=%s %s !  video/x-raw,width=224,height=224,format=RGB,framerate=0/1 ! "
+      "tensor_converter ! tensor_filter framework=custom-easy model=inferecne_offloading ! tensor_sink name=sinkx",
+          opt_data.host, opt_data.port, opt_data.dest_host, opt_data.dest_port, opt_data.connect_type, opt_data.topic);
+  } else {
+    g_critical ("Invalid application node_type. Please choose between QUERY and SUB.");
+    return 0;
+  }
 
   g_message ("[INFO] Pipeline str: %s", str_pipeline);
 
@@ -147,10 +168,17 @@ main (int argc, char **argv)
   g_free (str_pipeline);
 
   /* start pipeline */
+  received = 0;
   gst_element_set_state (pipeline, GST_STATE_PLAYING);
   g_message ("Start pipeline");
 
   g_usleep ((timeout + 1) * 1000 * 1000);
+
+  gst_element_set_state (pipeline, GST_STATE_PAUSED);
+  g_usleep (200 * 1000);
+
+  gst_element_set_state (pipeline, GST_STATE_READY);
+  g_usleep (200 * 1000);
 
   gst_element_set_state (pipeline, GST_STATE_NULL);
   g_usleep (200 * 1000);
@@ -173,6 +201,7 @@ main (int argc, char **argv)
   g_free (opt_data.dest_port);
   g_free (opt_data.topic);
   g_free (opt_data.connect_type);
+  g_free (opt_data.node_type);
 
   return 0;
 }
