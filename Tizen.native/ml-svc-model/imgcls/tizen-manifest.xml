@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns="http://tizen.org/ns/packages" api-version="7.5" package="org.example.imgcls" version="1.0.0">
+	<profile name="tizeniot" />
+	<ui-application appid="org.example.imgcls" exec="imgcls" type="capp" multiple="false" taskmanage="true" nodisplay="false" launch_mode="single">
+		<icon>imgcls.png</icon>
+		<label>imgcls</label>
+		<res-control resource-type="tizen.ai.model" min-res-version="1.0.0" max-res-version="2.0.0" auto-close="true" />
+	</ui-application>
+</manifest>
