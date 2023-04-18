@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns="http://tizen.org/ns/packages" api-version="7.5" package="org.example.mobilenetv2" version="1.0.0">
+	<profile name="tizeniot" />
+	<ui-application appid="org.example.mobilenetv2" exec="mobilenetv2" type="capp" multiple="false" taskmanage="true" nodisplay="false" launch_mode="single">
+		<icon>mobilenetv2.png</icon>
+		<label>mobilenetv2</label>
+	</ui-application>
+</manifest>
