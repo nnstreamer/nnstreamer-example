@@ -1,0 +1,11 @@
+APPNAME = mobilenetv2
+
+type = app
+profile = tizeniot-7.5
+
+USER_SRCS = src/mobilenetv2.c
+USER_DEFS =
+USER_INC_DIRS = inc
+USER_OBJS =
+USER_LIBS =
+USER_EDCS =
