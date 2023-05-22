@@ -556,7 +556,13 @@ _construct_v4l2src_pipeline (nnstrmr_app_context_t * ctx)
   ctx->tee_output_line_pad =
       gst_element_get_static_pad (pipeline_cntnr->tee, "src_0");
   ctx->tee_nn_line_pad =
+#if (GST_VERSION_MAJOR > 1) || \
+    ((GST_VERSION_MAJOR == 1) && (GST_VERSION_MINOR >= 20))
+      /* gst_element_get_request_pad is deprecated with GST >= 1.20 */
+      gst_element_request_pad_simple (pipeline_cntnr->tee, "src_%u");
+#else /* GST < 1.20 */
       gst_element_get_request_pad (pipeline_cntnr->tee, "src_%u");
+#endif
 
 
   return TRUE;
