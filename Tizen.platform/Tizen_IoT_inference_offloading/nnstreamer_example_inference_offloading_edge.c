@@ -13,6 +13,7 @@
 #include <glib.h>
 #include <gst/gst.h>
 #include <nnstreamer/tensor_filter_custom_easy.h>
+#include <nnstreamer_plugin_api_util.h>
 #include <getopt.h>
 
 unsigned int received;
@@ -123,16 +124,20 @@ main (int argc, char **argv)
   GMainLoop *loop; /**< main event loop */
   GstElement *pipeline; /**< gst pipeline for data stream */
   opt_data_s opt_data;
+  GstTensorsInfo info_in;
+  GstTensorsInfo info_out;
 
-  /* setting tensor_filter custom-easy */
-  const GstTensorsInfo info_in = {
-    .num_tensors = 1U,
-    .info = {{.name = NULL,.type = _NNS_UINT8,.dimension = {3, 224, 224, 1}}},
-  };
-  const GstTensorsInfo info_out = {
-    .num_tensors = 1U,
-    .info = {{.name = NULL,.type = _NNS_UINT8,.dimension = {10, 10, 1, 1}}},
-  };
+  gst_tensors_info_init (&info_in);
+  gst_tensors_info_init (&info_out);
+  info_in.num_tensors = 1U;
+  info_in.info[0].name = NULL;
+  info_in.info[0].type = _NNS_UINT8;
+  gst_tensor_parse_dimension ("3:224:224:1", info_in.info[0].dimension);
+
+  info_out.num_tensors = 1U;
+  info_out.info[0].name = NULL;
+  info_out.info[0].type = _NNS_UINT8;
+  gst_tensor_parse_dimension ("10:10:1:1", info_out.info[0].dimension);
 
   /* init gstreamer */
   gst_init (&argc, &argv);
