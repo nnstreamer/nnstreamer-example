@@ -1,7 +1,7 @@
 subdir('example_cam')
 subdir('example_sink')
 subdir ('example_early_exit')
-
+subdir ('example_data_preprocessing_for_training')
 if have_tensorflow
   subdir('example_object_detection_tensorflow')
 endif
