@@ -10,7 +10,7 @@
  * Run example :
  * Before running this example, GST_PLUGIN_PATH should be updated for nnstreamer plug-in.
  * $ export GST_PLUGIN_PATH=$GST_PLUGIN_PATH:<nnstreamer plugin path>
- * $ ./nnstreamer_example_data_preprocessing input_data_path new_file_name(for rename(optional))
+ * $ ./nnstreamer_example_data_preprocessing input_data_path new_file_name(for rename)
  */
 
 #include <glib.h>
@@ -234,7 +234,7 @@ main (int argc, char **argv)
 error:
   _print_log ("close app..");
   _print_log
-      ("command: ./nnstreamer_example_data_preprocessing input_data_path new_file_name(optional)\n");
+      ("command: ./nnstreamer_example_data_preprocessing input_data_path new_file_name(for rename)\n");
 
   _free_app_data ();
   g_array_free (images_list, TRUE);
