@@ -16,6 +16,7 @@ if have_tensorflow_lite
   subdir('example_servo_tracking')
   subdir('example_image_classification_tflite')
   subdir('example_object_detection_tensorflow_lite')
+  subdir('example_video_crop')
   subdir('example_object_detection_tensorflow_lite_appsrc')
   subdir('example_object_detection_tflite_2cam')
   subdir('example_decoder_image_labelling')
