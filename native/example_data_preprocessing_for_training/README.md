@@ -28,13 +28,15 @@ e.g. rename("000000005477.png", "image_003.png");
 ```
 
 ### How to Run
-Extract coco_sample.zip at the desired location(the example is the current directory). 
+Extract coco_sample.zip at $NNST_ROOT/bin
 run as below.
 ```
 argv[0] : file path
 argv[1] : new name for rename
 #bash
+$ mv coco_sample.zip $NNST_ROOT/bin
 $ cd $NNST_ROOT/bin
+$ unzip coco_sample.zip
 $ export GST_PLUGIN_PATH=$GST_PLUGIN_PATH:$NNST_ROOT/lib/gstreamer-1.0
-$ ./nnstreamer_example_data_preprocessing ./coco_sample image
+$ ./nnstreamer_example_data_preprocessing coco_sample image
 ```
