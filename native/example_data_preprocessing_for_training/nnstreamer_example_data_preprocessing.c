@@ -10,7 +10,7 @@
  * Run example :
  * Before running this example, GST_PLUGIN_PATH should be updated for nnstreamer plug-in.
  * $ export GST_PLUGIN_PATH=$GST_PLUGIN_PATH:<nnstreamer plugin path>
- * $ ./nnstreamer_example_data_preprocessing input_data_path new_file_name(for rename)
+ * $ ./nnstreamer_example_data_preprocessing input_data_dir_name new_file_name(for rename)
  */
 
 #include <glib.h>
@@ -127,6 +127,19 @@ bus_callback (GstBus * bus, GstMessage * message, gpointer data)
 }
 
 /**
+ * @brief get root path
+ */
+
+char *
+get_root_path(char* path)
+{
+  gchar *cur_path = g_get_current_dir();
+  gchar *root_path = g_build_filename(cur_path, path, NULL);
+  g_free(cur_path);
+  return root_path;
+}
+
+/**
  * @brief Main function.
  */
 int
@@ -138,21 +151,24 @@ main (int argc, char **argv)
   GArray *images_list = NULL;
   GArray *annotations_list = NULL;
   gchar *images_path = NULL;
+  gchar *path = NULL;
   gchar *label_file = NULL;
+  gchar *root_path;
 
   _print_log ("start app..");
 
   data_path = argv[1];
   _check_cond_err (data_path != NULL);
-  images_path = g_build_filename (data_path, "images", NULL);
+  root_path = get_root_path(data_path);
+  images_path = g_build_filename (root_path, "images", NULL);
 
   images_list = create_images_list (images_path);
   _check_cond_err (images_list != NULL);
-
   new_name = argv[2];
   if (new_name) {
     rename_images_filename (images_path, new_name, images_list);
   }
+  g_free (root_path);
 
   /* Let's create an annotations_list in the order of images_list read with g_dir_open(). */
   annotations_list = create_annotations_list (images_list);
@@ -177,7 +193,7 @@ main (int argc, char **argv)
   g_string_append_printf (filename, "%s_", new_name);
   g_string_append (filename, "%03d.png");
 
-  images_path = g_build_filename (images_path, filename->str, NULL);
+  path = g_build_filename (images_path, filename->str, NULL);
 
   /* Generate yolov.data and yolov.json using datareposink */
   str_pipeline = g_strdup_printf
@@ -188,10 +204,11 @@ main (int argc, char **argv)
       "filesrc location=%s blocksize=200 ! application/octet-stream ! "
       "tensor_converter input_dim=1:50:1:1 input-type=float32 ! mux.sink_1 "
       "tensor_mux name=mux sync-mode=nosync ! "
-      "datareposink location=yolo.data json=yolo.json", images_path,
+      "datareposink location=yolo.data json=yolo.json", path,
       label_file);
   g_string_free (filename, FALSE);
-  _print_log ("%s\n", str_pipeline);
+  g_free (images_path);
+  g_free (path);
 
   g_app.pipeline = gst_parse_launch (str_pipeline, NULL);
   g_free (str_pipeline);
@@ -215,7 +232,6 @@ main (int argc, char **argv)
   /* Read yolo.data with yolo.json */
   str_pipeline = g_strdup_printf
       ("gst-launch-1.0 datareposrc location=yolo.data json=yolo.json ! tensor_sink");
-  _print_log ("%s\n", str_pipeline);
 
   g_app.pipeline = gst_parse_launch (str_pipeline, NULL);
   g_free (str_pipeline);
@@ -234,7 +250,7 @@ main (int argc, char **argv)
 error:
   _print_log ("close app..");
   _print_log
-      ("command: ./nnstreamer_example_data_preprocessing input_data_path new_file_name(for rename)\n");
+      ("command: ./nnstreamer_example_data_preprocessing input_data_dir_name new_file_name(for rename)\n");
 
   _free_app_data ();
   g_array_free (images_list, TRUE);
