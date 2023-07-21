@@ -99,6 +99,9 @@ nns_edge_dep = dependency('nnstreamer-edge', required: false)
 
 opencv_dep = dependency('opencv4', required: false)
 
+# Dependency for training offloading example
+nntrainer_dep = dependency('nntrainer', required: false)
+
 # Build and install nnstreamer native examples
 subdir('native')
 
