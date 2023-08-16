@@ -182,7 +182,8 @@ main (int argc, char **argv)
     str_pipeline =
         g_strdup_printf
         ("datareposrc location=%s json=%s epochs=%d start-sample-index=%d stop-sample-index=%d ! "
-        "edgesink port=0 connect-type=HYBRID topic=tempTopic dest-host=%s dest-port=%d",
+        "edgesink port=0 connect-type=HYBRID topic=tempTopic dest-host=%s dest-port=%d "
+        "wait-connection=true connection-timeout=10000 ",
         filename, json, epochs, start_sample_index, stop_sample_index,
         dest_host, dest_port);
   } else if (!g_strcmp0 (stream_role, "receiver")) {
