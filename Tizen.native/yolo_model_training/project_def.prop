@@ -1,0 +1,11 @@
+APPNAME = yolo_model_training
+
+type = app
+profile = tizen-8.0
+
+USER_SRCS = src/yolo_model_training.c
+USER_DEFS =
+USER_INC_DIRS = inc
+USER_OBJS =
+USER_LIBS =
+USER_EDCS =
