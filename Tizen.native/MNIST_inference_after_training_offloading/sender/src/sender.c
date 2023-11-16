@@ -86,22 +86,18 @@ typedef struct appdata
 static void
 destroy_ml_service_handle (appdata_s * ad)
 {
-  /** bug
   if (ad->option_h) {
     ml_option_destroy (ad->option_h);
     ad->option_h = NULL;
   }
-  */
   if (ad->service_h) {
     ml_service_destroy (ad->service_h);
     ad->service_h = NULL;
   }
-
   if (ad->activated_model_info) {
     ml_information_destroy (ad->activated_model_info);
     ad->activated_model_info = NULL;
   }
-
 }
 
 /**
@@ -549,14 +545,14 @@ start_model_receiver (appdata_s * ad)
     return;
   }
 
-  ret = ml_option_set (ad->option_h, "node-type", "remote_receiver", g_free);
+  ret = ml_option_set (ad->option_h, "node-type", "remote_receiver", NULL);
   if (ML_ERROR_NONE != ret) {
     dlog_print (DLOG_ERROR, LOG_TAG,
         "Failed to set node-type(remote_receiver)(%d)", ret);
     return;
   }
 
-  ret = ml_option_set (ad->option_h, "dest-host", BROKER_IP, g_free);
+  ret = ml_option_set (ad->option_h, "dest-host", BROKER_IP, NULL);
   if (ML_ERROR_NONE != ret) {
     dlog_print (DLOG_ERROR, LOG_TAG, "Failed to set dest-host (%d)", ret);
     return;
@@ -567,33 +563,48 @@ start_model_receiver (appdata_s * ad)
     dlog_print (DLOG_ERROR, LOG_TAG, "Failed to set dest-port (%d)", ret);
     return;
   }
+
+  /** A path to save the received model file */
+  g_autofree gchar *shared_path = app_get_shared_data_path ();
+  dlog_print (DLOG_ERROR, LOG_TAG, "path (%s)", shared_path);
+
+  /** Currently, the path setting function cannot be used because
+    it is not applied to the Tizen platform binary. It will be updated ASAP. */
+#if 0
+  ret = ml_option_set (ad->option_h, "path", shared_path, NULL);
+  if (ML_ERROR_NONE != ret) {
+    dlog_print (DLOG_ERROR, LOG_TAG, "Failed to set path (%d)", ret);
+    return;
+  }
+#endif
+
 #ifdef USE_HYBRID
-  ret = ml_option_set (ad->option_h, "connect-type", "HYBRID", g_free);
+  ret = ml_option_set (ad->option_h, "connect-type", "HYBRID", NULL);
   if (ML_ERROR_NONE != ret) {
     dlog_print (DLOG_ERROR, LOG_TAG, "Failed to set connect-type (%d)", ret);
     return;
   }
 #if 0
-  ret = ml_option_set (ad->option_h, "host", "192.168.0.6", g_free);
+  ret = ml_option_set (ad->option_h, "host", "192.168.0.6", NULL);
   if (ML_ERROR_NONE != ret) {
     dlog_print (DLOG_ERROR, LOG_TAG, "Failed to set dest-host (%d)", ret);
     return;
   }
 #endif
 #else
-  ret = ml_option_set (ad->option_h, "connect-type", "AITT", g_free);
+  ret = ml_option_set (ad->option_h, "connect-type", "AITT", NULL);
   if (ML_ERROR_NONE != ret) {
     dlog_print (DLOG_ERROR, LOG_TAG, "Failed to set connect-type (%d)", ret);
     return;
   }
 #endif
-  ret = ml_option_set (ad->option_h, "topic", "model_offloading_topic", g_free);
+  ret = ml_option_set (ad->option_h, "topic", "model_offloading_topic", NULL);
   if (ML_ERROR_NONE != ret) {
     dlog_print (DLOG_ERROR, LOG_TAG, "Failed to set topic (%d)", ret);
     return;
   }
 
-  ret = ml_remote_service_create (ad->option_h, &ad->service_h);
+  ret = ml_service_remote_create (ad->option_h, &ad->service_h);
   if (ML_ERROR_NONE != ret) {
     dlog_print (DLOG_ERROR, LOG_TAG, "Failed to create ml remote service (%d)",
         ret);

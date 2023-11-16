@@ -85,10 +85,10 @@ destroy_ml_service_handle (appdata_s * ad)
     ml_option_destroy (ad->service_option_h);
     ad->service_option_h = NULL;
   }
-  /** bug
-     if (ad->service_h)
+  if (ad->service_h) {
      ml_service_destroy (ad->service_h);
-   */
+     ad->service_h = NULL;
+  }
 }
 
 /**
@@ -411,14 +411,14 @@ start_model_sender (appdata_s * ad)
     return;
   }
 
-  ret = ml_option_set (ad->option_h, "node-type", "remote_sender", g_free);
+  ret = ml_option_set (ad->option_h, "node-type", "remote_sender", NULL);
   if (ML_ERROR_NONE != ret) {
     dlog_print (DLOG_ERROR, LOG_TAG,
         "Failed to set node-type(remote_sender)(%d)", ret);
     return;
   }
 
-  ret = ml_option_set (ad->option_h, "dest-host", BROKER_IP, g_free);
+  ret = ml_option_set (ad->option_h, "dest-host", BROKER_IP, NULL);
   if (ML_ERROR_NONE != ret) {
     dlog_print (DLOG_ERROR, LOG_TAG, "Failed to set dest-host (%d)", ret);
     return;
@@ -430,32 +430,32 @@ start_model_sender (appdata_s * ad)
     return;
   }
 #ifdef USE_HYBRID
-  ret = ml_option_set (ad->option_h, "connect-type", "HYBRID", g_free);
+  ret = ml_option_set (ad->option_h, "connect-type", "HYBRID", NULL);
   if (ML_ERROR_NONE != ret) {
     dlog_print (DLOG_ERROR, LOG_TAG, "Failed to set connect-type (%d)", ret);
     return;
   }
 
-  ret = ml_option_set (ad->option_h, "host", "192.168.0.4", g_free);
+  ret = ml_option_set (ad->option_h, "host", "192.168.0.4", NULL);
   if (ML_ERROR_NONE != ret) {
     dlog_print (DLOG_ERROR, LOG_TAG, "Failed to set dest-host (%d)", ret);
     return;
   }
 #else
-  ret = ml_option_set (ad->option_h, "connect-type", "AITT", g_free);
+  ret = ml_option_set (ad->option_h, "connect-type", "AITT", NULL);
   if (ML_ERROR_NONE != ret) {
     dlog_print (DLOG_ERROR, LOG_TAG, "Failed to set connect-type (%d)", ret);
     return;
   }
 #endif
 
-  ret = ml_option_set (ad->option_h, "topic", "model_offloading_topic", g_free);
+  ret = ml_option_set (ad->option_h, "topic", "model_offloading_topic", NULL);
   if (ML_ERROR_NONE != ret) {
     dlog_print (DLOG_ERROR, LOG_TAG, "Failed to set topic (%d)", ret);
     return;
   }
 
-  ret = ml_remote_service_create (ad->option_h, &ad->service_h);
+  ret = ml_service_remote_create (ad->option_h, &ad->service_h);
   if (ML_ERROR_NONE != ret) {
     dlog_print (DLOG_ERROR, LOG_TAG, "Failed to create ml remote service (%d)",
         ret);
@@ -469,7 +469,7 @@ start_model_sender (appdata_s * ad)
   }
 
   ret =
-      ml_option_set (ad->service_option_h, "service-type", "model_raw", g_free);
+      ml_option_set (ad->service_option_h, "service-type", "model_raw", NULL);
   if (ML_ERROR_NONE != ret) {
     dlog_print (DLOG_ERROR, LOG_TAG, "Failed to set service-type (%d)", ret);
     return;
@@ -483,13 +483,13 @@ start_model_sender (appdata_s * ad)
     return;
   }
 
-  ret = ml_option_set (ad->service_option_h, "activate", "true", g_free);
+  ret = ml_option_set (ad->service_option_h, "activate", "true", NULL);
   if (ML_ERROR_NONE != ret) {
     dlog_print (DLOG_ERROR, LOG_TAG, "Failed to set activate (%d)", ret);
     return;
   }
 
-  ret = ml_option_set (ad->service_option_h, "name", MODEL_NAME, g_free);
+  ret = ml_option_set (ad->service_option_h, "name", MODEL_NAME, NULL);
   if (ML_ERROR_NONE != ret) {
     dlog_print (DLOG_ERROR, LOG_TAG, "Failed to set name (%d)", ret);
     return;
@@ -502,7 +502,7 @@ start_model_sender (appdata_s * ad)
 
   ret =
       ml_option_set (ad->service_option_h, "description", model_description,
-      g_free);
+      NULL);
   if (ML_ERROR_NONE != ret) {
     dlog_print (DLOG_ERROR, LOG_TAG, "Failed to set description (%d)", ret);
     return;
@@ -521,7 +521,7 @@ start_model_sender (appdata_s * ad)
   g_usleep (1000000);
 
   ret =
-      ml_remote_service_register (ad->service_h, ad->service_option_h,
+      ml_service_remote_register (ad->service_h, ad->service_option_h,
       ad->contents, len);
   if (ML_ERROR_NONE != ret) {
     dlog_print (DLOG_ERROR, LOG_TAG, "Failed ml_remote_service_register (%d)",

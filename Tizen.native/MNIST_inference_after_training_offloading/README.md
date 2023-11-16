@@ -145,6 +145,19 @@ Example of inference of the number 9
 * Update Tizen package manager to the latest.
 * Prepare 2 RPI4 units.
 * RPI4 flashed with the latest tizen headed image.
+* Install mosquitto package on RPI4 to use MQTT, download rpm (mosquitto and mosquitto-client) from [this page](http://download.tizen.org/snapshots/TIZEN/Tizen/Tizen-Unified/reference/repos/standard/packages/)(There are armv7l and aarch64 architectures for RPI4.)
+```
+  [host]
+  sdb push mosquitto-1.6.8-0.armv7l.rpm mosquitto-clients-1.6.8-0.armv7l.rpm
+  or
+  sdb push mosquitto-1.6.8-0.aarch64.rpm mosquitto-clients-1.6.8-0.aarch64.rpm
+  
+  [target]
+  rpm -Uvh *.rpm
+  cd /etc/mosquitto
+  cp mosquitto.conf.example mosquitto.conf
+  systemctl start mosquitto
+```
 * Connect PC and RPI4 for sender application.
 * Unzip data.zip in the res folder.
 * Launch Tizen Studio
