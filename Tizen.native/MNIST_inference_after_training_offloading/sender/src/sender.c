@@ -14,7 +14,7 @@
 #include <nnstreamer-tizen-internal.h>
 #include "sender.h"
 
-#define BROKER_IP "192.168.0.6"
+#define BROKER_IP "192.168.0.5"
 #define RECT_SIZE 1000
 #define EPOCHS 100
 #define SAMPLES 1000
@@ -170,7 +170,7 @@ create_inference_pipeline (appdata_s * ad)
 
   pipeline_description =
       g_strdup_printf ("filesrc location=%s ! jpegdec ! videoconvert ! "
-      "video/x-raw,format=GRAY8,framerate=0/1 ! tensor_converter ! "
+      "video/x-raw,format=GRAY8 ! tensor_converter ! "
       "tensor_transform mode=transpose option=1:2:0:3 ! "
       "tensor_transform mode=typecast option=float32 ! "
       "tensor_filter framework=nntrainer model=%s input=28:28:1:1 "
@@ -568,15 +568,11 @@ start_model_receiver (appdata_s * ad)
   g_autofree gchar *shared_path = app_get_shared_data_path ();
   dlog_print (DLOG_ERROR, LOG_TAG, "path (%s)", shared_path);
 
-  /** Currently, the path setting function cannot be used because
-    it is not applied to the Tizen platform binary. It will be updated ASAP. */
-#if 0
   ret = ml_option_set (ad->option_h, "path", shared_path, NULL);
   if (ML_ERROR_NONE != ret) {
     dlog_print (DLOG_ERROR, LOG_TAG, "Failed to set path (%d)", ret);
     return;
   }
-#endif
 
 #ifdef USE_HYBRID
   ret = ml_option_set (ad->option_h, "connect-type", "HYBRID", NULL);
@@ -584,13 +580,6 @@ start_model_receiver (appdata_s * ad)
     dlog_print (DLOG_ERROR, LOG_TAG, "Failed to set connect-type (%d)", ret);
     return;
   }
-#if 0
-  ret = ml_option_set (ad->option_h, "host", "192.168.0.6", NULL);
-  if (ML_ERROR_NONE != ret) {
-    dlog_print (DLOG_ERROR, LOG_TAG, "Failed to set dest-host (%d)", ret);
-    return;
-  }
-#endif
 #else
   ret = ml_option_set (ad->option_h, "connect-type", "AITT", NULL);
   if (ML_ERROR_NONE != ret) {
@@ -604,7 +593,7 @@ start_model_receiver (appdata_s * ad)
     return;
   }
 
-  ret = ml_service_remote_create (ad->option_h, &ad->service_h);
+  ret = ml_service_remote_create (ad->option_h, NULL, NULL, &ad->service_h);
   if (ML_ERROR_NONE != ret) {
     dlog_print (DLOG_ERROR, LOG_TAG, "Failed to create ml remote service (%d)",
         ret);

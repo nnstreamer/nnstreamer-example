@@ -14,7 +14,8 @@
 #include <nnstreamer-tizen-internal.h>
 #include "receiver.h"
 
-#define BROKER_IP "192.168.0.6"
+#define BROKER_IP "192.168.0.5"
+#define DEVICE_IP "192.168.0.7"
 #define RECT_SIZE 1000
 #define EPOCHS 100
 #define SAMPLES 1000
@@ -214,9 +215,9 @@ create_training_pipeline (appdata_s * ad)
 
   pipeline_description =
       g_strdup_printf
-      ("edgesrc dest-host=%s dest-port=1883 connect-type=AITT topic=tempTopic ! tee name=t ! queue ! "
+      ("edgesrc dest-host=%s dest-port=1883 connect-type=AITT topic=tempTopic ! "
       "other/tensors, format=static, num_tensors=2, framerate=0/1, dimensions=28:28:1:1.10:1:1:1, types=float32.float32 ! "
-      "tensor_trainer name=tensor_trainer0 framework=nntrainer "
+      "tee name=t ! queue ! tensor_trainer name=tensor_trainer0 framework=nntrainer "
       "model-config=%s model-save-path=%s num-inputs=1 num-labels=1 "
       "num-training-samples=500 num-validation-samples=500 epochs=%d ! "
       "tensor_sink name=tensor_sink0 sync=true "
@@ -240,11 +241,12 @@ create_training_pipeline (appdata_s * ad)
     return;
   }
 
+  dlog_print (DLOG_ERROR, LOG_TAG, "get_received_data_from_tensor_sink");
   ret =
       ml_pipeline_sink_register (ad->model_training_pipe, "tensor_sink1",
       get_received_data_from_tensor_sink, ad, &ad->sink_handle1);
   if (ret != ML_ERROR_NONE) {
-    dlog_print (DLOG_INFO, LOG_TAG, "Failed to register tensor_sink0");
+    dlog_print (DLOG_INFO, LOG_TAG, "Failed to register tensor_sink1");
     ml_pipeline_destroy (ad->model_training_pipe);
     return;
   }
@@ -436,7 +438,7 @@ start_model_sender (appdata_s * ad)
     return;
   }
 
-  ret = ml_option_set (ad->option_h, "host", "192.168.0.4", NULL);
+  ret = ml_option_set (ad->option_h, "host", DEVICE_IP, NULL);
   if (ML_ERROR_NONE != ret) {
     dlog_print (DLOG_ERROR, LOG_TAG, "Failed to set dest-host (%d)", ret);
     return;
@@ -455,7 +457,7 @@ start_model_sender (appdata_s * ad)
     return;
   }
 
-  ret = ml_service_remote_create (ad->option_h, &ad->service_h);
+  ret = ml_service_remote_create (ad->option_h, NULL, NULL, &ad->service_h);
   if (ML_ERROR_NONE != ret) {
     dlog_print (DLOG_ERROR, LOG_TAG, "Failed to create ml remote service (%d)",
         ret);
