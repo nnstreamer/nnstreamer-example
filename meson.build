@@ -97,6 +97,13 @@ endif
 # Dependency for nnstreamer-edge examples
 nns_edge_dep = dependency('nnstreamer-edge', required: false)
 
+# Dependency for ncnn examples
+ncnn_dep = dependency('ncnn', required: false)
+have_ncnn = false
+if ncnn_dep.found()
+  have_ncnn = true
+endif
+
 opencv_dep = dependency('opencv4', required: false)
 
 # Dependency for training offloading example
