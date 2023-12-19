@@ -5,8 +5,10 @@ print_usage()
   echo -e "usage: $0 [model_name]"
   echo -e "model_name\timage-classification-tflite"
   echo -e "\t\timage-classification-caffe2"
+  echo -e "\t\timage-classification-ncnn"
   echo -e "\t\tobject-detection-tf"
   echo -e "\t\tobject-detection-tflite"
+  echo -e "\t\tobject-detection-ncnn"
   echo -e "\t\tface-detection-tflite"
   echo -e "\t\thand-detection-tflite"
   echo -e "\t\tspeech-command"
@@ -50,6 +52,15 @@ elif [[ ${model} == "image-classification-caffe2" ]]; then
   wget ${download_url}/init_net.pb
   mv synset_words.txt labels.txt
 
+elif [[ ${model} == "image-classification-ncnn" ]]; then
+  mkdir -p ncnn_model
+  cd ncnn_model
+  wget "https://github.com/Tencent/ncnn/raw/master/examples/synset_words.txt"
+  mv synset_words.txt squeezenet_labels.txt
+  download_url="https://github.com/nihui/ncnn-assets/raw/master/models"
+  wget ${download_url}/squeezenet_v1.1.bin
+  wget ${download_url}/squeezenet_v1.1.param
+
 elif [[ ${model} == "object-detection-tf" ]]; then
   mkdir -p tf_model
   cd tf_model
@@ -64,6 +75,15 @@ elif [[ ${model} == "object-detection-tflite" ]]; then
   wget ${download_url}/ssd_mobilenet_v2_coco.tflite
   wget ${download_url}/coco_labels_list.txt
   wget ${download_url}/box_priors.txt
+
+elif [[ ${model} == "object-detection-ncnn" ]]; then
+  mkdir -p ncnn_model
+  cd ncnn_model
+  wget "https://github.com/openvinotoolkit/open_model_zoo/raw/master/data/dataset_classes/voc_20cl_bkgr.txt"
+  mv voc_20cl_bkgr.txt voc_labels.txt
+  download_url="https://github.com/nihui/ncnn-assets/raw/master/models"
+  wget ${download_url}/mobilenetv2_ssdlite_voc.bin
+  wget ${download_url}/mobilenetv2_ssdlite_voc.param
 
 elif [[ ${model} == "face-detection-tflite" ]]; then
   mkdir -p tflite_model

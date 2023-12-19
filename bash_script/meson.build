@@ -23,5 +23,9 @@ subdir('example_tensor_query')
 if nns_edge_dep.found()
   subdir('example_tensor_query_mqtt')
 endif
+if have_ncnn
+  subdir('example_image_classification_ncnn')
+  subdir('example_object_detection_ncnn')
+endif
 subdir('example_audio_classification')
 subdir('example_yolo')
