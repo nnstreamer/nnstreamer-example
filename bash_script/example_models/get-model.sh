@@ -18,6 +18,7 @@ print_usage()
   echo -e "\t\tperson-detection-openvino"
   echo -e "\t\tface-detection-openvino"
   echo -e "\t\tlow-light-image-enhancement"
+  echo -e "\t\timage-style-transfer-onnx"
   exit 1
 }
 
@@ -148,6 +149,15 @@ elif [[ ${model} == "low-light-image-enhancement" ]]; then
   download_url="https://github.com/nnsuite/testcases/raw/master/DeepLearningModels/tensorflow-lite/zero_dce_tflite"
   wget ${download_url}/lite-model_zero-dce_1.tflite
 
+elif [[ ${model} == "image-style-transfer-onnx" ]]; then
+  mkdir -p onnx_image_style_transfer
+  cd onnx_image_style_transfer
+  download_url="https://raw.githubusercontent.com/microsoft/Windows-Machine-Learning/master/Samples/FNSCandyStyleTransfer/UWP/cs/Assets"
+  wget ${download_url}/candy.onnx
+  wget ${download_url}/la_muse.onnx
+  wget ${download_url}/mosaic.onnx
+  wget ${download_url}/udnie.onnx
+  
 else
   echo -e "${model}:not a valid model_name\n"
   print_usage

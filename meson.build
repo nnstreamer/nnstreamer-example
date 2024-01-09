@@ -104,6 +104,13 @@ if ncnn_dep.found()
   have_ncnn = true
 endif
 
+# Dependency for onnxruntime examples
+onnx_dep = dependency('libonnxruntime', required: false)
+have_onnx = false
+if onnx_dep.found()
+  have_onnx = true
+endif
+
 opencv_dep = dependency('opencv4', required: false)
 
 # Dependency for training offloading example
