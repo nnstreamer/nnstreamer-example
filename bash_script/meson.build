@@ -27,5 +27,8 @@ if have_ncnn
   subdir('example_image_classification_ncnn')
   subdir('example_object_detection_ncnn')
 endif
+if have_onnx
+  subdir('example_image_style_transfer_onnx')
+endif
 subdir('example_audio_classification')
 subdir('example_yolo')

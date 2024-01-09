@@ -44,3 +44,7 @@ endif
 if have_nnfw
   subdir('example_image_classification_nnfw')
 endif
+
+if have_onnx
+  subdir('example_image_style_transfer_onnx')
+endif
