@@ -124,10 +124,10 @@ main(int argc, char *argv[])
   event_callback.resume = app_resume;
   event_callback.app_control = app_control;
 
-	/**
-	 * If you want to handle more events,
-	 * please check the application life cycle guide.
-	 */
+  /**
+   * If you want to handle more events,
+   * please check the application life cycle guide.
+   */
   ui_app_add_event_handler(&handlers[APP_EVENT_LANGUAGE_CHANGED],
       APP_EVENT_LANGUAGE_CHANGED, ui_app_lang_changed, NULL);
 

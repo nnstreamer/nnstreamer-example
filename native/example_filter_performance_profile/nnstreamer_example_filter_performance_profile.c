@@ -447,7 +447,7 @@ _set_and_parse_option_info (int argc, char *argv[], nnstrmr_app_context_t * ctx)
       g_strconcat (DEFAULT_PATH_MODEL_TENSOR_FILTER,
       NAME_LIST_OF_MODEL_FILE_TENSOR_FILTER[ctx->nn_tensorfilter_desc], NULL);
   if (!g_file_test (ctx->nn_tensor_filter_model_path, G_FILE_TEST_EXISTS
-          || G_FILE_TEST_IS_REGULAR)) {
+          | G_FILE_TEST_IS_REGULAR)) {
     g_printerr ("ERR: the model file %s corresponding to %s does not exist\n",
         ctx->nn_tensor_filter_model_path,
         DESC_LIST_TENSOR_FILTER[ctx->nn_tensorfilter_desc]);
