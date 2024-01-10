@@ -6,7 +6,7 @@ Name:		nnstreamer-example
 Summary:	examples of nnstreamer (gstremaer plugins for neural networks)
 Version:	0.1.0
 Release:	1rc1
-Group:		Applications/Multimedia
+Group:		Machine Learning/ML Framework
 Packager:	MyungJoo Ham <myungjoo.ham@samsung.com>
 License:	LGPL-2.1
 Source0:	nnstreamer-example-%{version}.tar.gz

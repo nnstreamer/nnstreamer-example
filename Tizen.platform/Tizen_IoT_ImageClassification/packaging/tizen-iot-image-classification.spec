@@ -4,7 +4,7 @@ Name:		tizen-iot-image-classification
 Summary:	image-classification-sample-tizen-iot
 Version:	1.0.0
 Release:	0
-Group:		Applications/Multimedia
+Group:		Machine Learning/ML Framework
 Packager:	Gichan Jang <gichan2.jang@samsung.com>
 License:	LGPL-2.1
 Source0:	%{name}-%{version}.tar.gz
