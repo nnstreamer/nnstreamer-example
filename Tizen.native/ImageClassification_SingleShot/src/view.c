@@ -273,10 +273,10 @@ view_create_win(const char *pkg_name)
   Evas_Object *win = NULL;
 
   /**
-	 * Window
-	 * Create and initialize elm_win.
-	 * elm_win is mandatory to manipulate the window.
-	 */
+   * Window
+   * Create and initialize elm_win.
+   * elm_win is mandatory to manipulate the window.
+   */
   win = elm_win_util_standard_add(pkg_name, pkg_name);
   elm_win_conformant_set(win, EINA_TRUE);
   elm_win_autodel_set(win, EINA_TRUE);
@@ -303,11 +303,11 @@ Evas_Object *
 view_create_conformant_without_indicator(Evas_Object * win)
 {
   /**
-	 * Conformant
-	 * Create and initialize elm_conformant.
-	 * elm_conformant is mandatory for base GUI to have proper size
-	 * when indicator or virtual keypad is visible.
-	 */
+   * Conformant
+   * Create and initialize elm_conformant.
+   * elm_conformant is mandatory for base GUI to have proper size
+   * when indicator or virtual keypad is visible.
+   */
   Evas_Object *conform = NULL;
 
   if (win == NULL) {
