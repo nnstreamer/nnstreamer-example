@@ -2,7 +2,7 @@ Name:		vivante-yolov3-pipeline
 Summary:	sample-pipeline
 Version:	1.0.0
 Release:	0
-Group:		Applications/Multimedia
+Group:		Machine Learning/ML Framework
 Packager:	HyoungJoo Ahn <hello.ahn@samsung.com>
 License:	Proprietary
 Source0:	%{name}-%{version}.tar.gz
