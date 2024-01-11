@@ -6,25 +6,38 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:weightSum="3"
     tools:context=".MainActivity">
 
-    <SurfaceView
-        android:id="@+id/cameraView"
-        android:layout_width="300dp"
-        android:layout_height="300dp"
-        android:layout_gravity="center"
-        android:layout_margin="5dp"
-        android:layout_weight="1"
-        android:scaleType="centerInside" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="40sp"
+            android:textColor="#000000"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:text="NNStreamer\nAPI Examples" />
 
-    <SurfaceView
-        android:id="@+id/styled_result"
-        android:layout_width="340dp"
-        android:layout_height="340dp"
-        android:layout_gravity="center"
-        android:layout_margin="5dp"
-        android:layout_weight="1"
-        android:scaleType="centerInside" />
+    </LinearLayout>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="58dp"
+        android:layout_marginHorizontal="10dp"
+        android:id="@+id/tflite_button"
+        android:onClick="onTFLiteButtonClicked"
+        android:text="TFLite Style Transfer Model Example" />
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="58dp"
+        android:layout_marginHorizontal="10dp"
+        android:layout_marginBottom="20dp"
+        android:id="@+id/mxnet_button"
+        android:onClick="onMXNetButtonClicked"
+        android:text="MXNet Inception Model Example" />
 
 </LinearLayout>
