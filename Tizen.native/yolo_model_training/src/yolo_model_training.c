@@ -127,16 +127,16 @@ rename_images_filename (const gchar * images_path, const gchar * new_name,
   g_return_if_fail (images_list != NULL);
 
   for (i = 0; i < images_list->len; i++) {
-    GString *filename = g_string_new (NULL);
-    g_string_append_printf (filename, "%s_%03d.jpg", new_name, i);
+    gchar *filename = g_strdup_printf ("%s_%03d.jpg", new_name, i);
 
     old_path = g_array_index (images_list, gchar *, i);
-    new_path = g_build_filename (images_path, filename->str, NULL);
+    new_path = g_build_filename (images_path, filename, NULL);
     if (g_rename (old_path, new_path) == 0) {
       dlog_print (DLOG_INFO, LOG_TAG, "rename: %s -> %s", old_path, new_path);
-      //need to set label
     }
-    g_string_free (filename, TRUE);
+
+    g_free (new_path);
+    g_free (filename);
   }
 }
 
@@ -313,7 +313,7 @@ create_data_preprocess_pipeline (appdata_s * ad)
   print_list_info (annotations_list, ad->label2);
 
   /** The person using the model needs to know how to construct the model
-     and what data formats are required. 
+     and what data formats are required.
      The performance of the model is related to the construction of the model
      and the preprocessed data. */
   label_file = create_label_file (annotations_list);

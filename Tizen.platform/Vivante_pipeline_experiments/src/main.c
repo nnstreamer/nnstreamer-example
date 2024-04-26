@@ -162,7 +162,7 @@ int main (int argc, char *argv[]){
   if (enable_vnn_inception){
     vnn_inception_nb = g_strdup_printf ("/usr/share/dann/inception-v3.nb");
     vnn_inception_so = g_strdup_printf ("/usr/share/vivante/inceptionv3/libinceptionv3.so");
-    g_string_append_printf (pipeline, 
+    g_string_append_printf (pipeline,
       " t. ! queue ! videoscale ! "
       "video/x-raw,format=RGB,width=%d,height=%d ! "
       "tensor_converter ! "
@@ -176,7 +176,7 @@ int main (int argc, char *argv[]){
   if (enable_vnn_yolo){
     vnn_yolo_nb = g_strdup_printf ("/usr/share/dann/yolo-v3.nb");
     vnn_yolo_so = g_strdup_printf ("/usr/share/vivante/yolov3/libyolov3.so");
-    g_string_append_printf (pipeline, 
+    g_string_append_printf (pipeline,
       " t. ! queue ! videoscale ! "
       "video/x-raw,format=RGB,width=%d,height=%d ! "
       "tensor_converter ! "
@@ -192,7 +192,7 @@ int main (int argc, char *argv[]){
 
   if (enable_tflite_inception){
     tflite_inception_model = g_strdup_printf ("/usr/share/vivante/inception_v3_quant.tflite");
-    g_string_append_printf (pipeline, 
+    g_string_append_printf (pipeline,
       " t. ! queue ! videoscale ! "
       "video/x-raw,format=RGB,width=%d,height=%d ! "
       "tensor_converter ! "
@@ -276,7 +276,7 @@ error:
   g_free (vnn_yolo_so);
   g_free (tflite_inception_model);
 
-  g_string_free (pipeline, FALSE);
+  g_string_free (pipeline, TRUE);
 
   app_finish_time = g_get_real_time ();
   print_profile ();
