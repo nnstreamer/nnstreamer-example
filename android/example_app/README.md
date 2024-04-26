@@ -49,7 +49,7 @@ $ ls ahc tensorflow-lite
 
 #### Install built NNStreamer `aar` file
 
-To build example application, you should install pre-built NNStreamer Android Archive package(e.g. nnstreamer-[DATE].arr) into `android/example_app/api-sample/libs` folder as below. To build this, please refer [this guide](https://github.com/nnstreamer/nnstreamer/tree/master/api/android).
+To build example application, you should install pre-built NNStreamer Android Archive package(e.g. nnstreamer-[DATE].arr) into `android/example_app/api-sample/libs` folder as below. To build this, please refer [this guide](https://github.com/nnstreamer/nnstreamer/tree/main/Documentation/getting-started-android.md#build-android-api).
 
 
 ```bash
