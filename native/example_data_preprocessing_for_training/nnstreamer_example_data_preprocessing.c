@@ -175,7 +175,7 @@ main (int argc, char **argv)
   _check_cond_err (annotations_list != NULL);
 
   /** The person using the model needs to know how to construct the model
-     and what data formats are required. 
+     and what data formats are required.
      The performance of the model is related to the construction of the model
      and the preprocessed data. */
 
@@ -206,7 +206,7 @@ main (int argc, char **argv)
       "tensor_mux name=mux sync-mode=nosync ! "
       "datareposink location=yolo.data json=yolo.json", path,
       label_file);
-  g_string_free (filename, FALSE);
+  g_string_free (filename, TRUE);
   g_free (images_path);
   g_free (path);
 
@@ -304,16 +304,16 @@ rename_images_filename (const gchar * images_path, const gchar * new_name,
   g_return_if_fail (images_list != NULL);
 
   for (i = 0; i < images_list->len; i++) {
-    GString *filename = g_string_new (NULL);
-    g_string_append_printf (filename, "%s_%03d.png", new_name, i);
+    gchar *filename = g_strdup_printf ("%s_%03d.png", new_name, i);
 
     old_path = g_array_index (images_list, gchar *, i);
-    new_path = g_build_filename (images_path, filename->str, NULL);
+    new_path = g_build_filename (images_path, filename, NULL);
     if (g_rename (old_path, new_path) == 0) {
       _print_log ("rename: %s -> %s", old_path, new_path);
     }
 
-    g_string_free (filename, FALSE);
+    g_free (new_path);
+    g_free (filename);
   }
 }
 
