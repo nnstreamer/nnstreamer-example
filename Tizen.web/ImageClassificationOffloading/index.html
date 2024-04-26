@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta name="description" content="Tizen Image Classification SingleShot Example" />
+
+    <title>Tizen Image Classification Offloading Example</title>
+
+    <link rel="stylesheet" type="text/css" href="css/style.css" />
+    <script src="js/main.js"></script>
+</head>
+
+<body>
+    <h1 align="center">Image Classification</h1>
+    <div id="main" class="page" align="center">
+        <img src="res/0.jpg" />
+        <div>local </div>
+        <div id="local_time"></div>
+        <br>
+        <div>offloading </div>
+        <div id="offloading_time"></div>
+        <br>
+        <button type="button" id="local">Start Client (local)</button>
+        <br>
+        <button type="button" id="offloading">Start Client (offloading)</button>
+        <br>
+        <button type="button" id="localPush">Push data (local)</button>
+        <br>
+        <button type="button" id="offloadingPush">Push data (offloading)</button>
+        <br>
+        <br>
+        <label for="port">port:</label>
+        <input id="port" type="text" name="port" value="0">
+        <br>
+        <br>
+        <div id="label"></div>
+    </div>
+</body>
+
+</html>
