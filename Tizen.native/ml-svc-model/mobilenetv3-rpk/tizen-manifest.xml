@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns="http://tizen.org/ns/packages" api-version="6.5" package="org.resource.mobilenetv3" version="1.0.0" res-type="tizen.ai.model" res-version="1.5.0">
 	<allowed-package id="*"/>
+	<metadata key="http://tizen.org/metadata/mlops" value="SAMPLE"/>
 </manifest>

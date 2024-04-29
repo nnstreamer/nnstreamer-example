@@ -14,7 +14,7 @@
 
 ### Scenario using [Tizen Resource Package](https://docs.tizen.org/application/tizen-studio/native-tools/rpk-package/)
 
-1. When the org.resource.mobilenetv3 tizen resource package (rpk) is installed, a daemon running in the Tizen device registers model files based on the provided "model_description.json"
+1. When the org.resource.mobilenetv3 tizen resource package (rpk) is installed, a daemon running in the Tizen device registers model files based on the provided "rpk_config.json"
 2. Without any change to imgcls app, it uses newly installed model file.
 ![rpk](./mobilenetv3_600.png)
 
