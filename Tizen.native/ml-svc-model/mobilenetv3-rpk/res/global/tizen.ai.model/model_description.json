@@ -1,9 +1,0 @@
-[
-  {
-    "name" : "imgcls-mobilenet-224-224-fp",
-    "shared" : "true",
-    "model" : "lite-model_mobilenet_v3_large_100_224_fp32_1.tflite",
-    "version" : "1.0.0",
-    "description" : "Image classification model"
-  }
-]
