@@ -1,0 +1,32 @@
+name: Tizen web app build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  TIZEN_STUDIO_URL: "http://download.tizen.org/sdk/Installer/tizen-studio_5.5/web-cli_Tizen_Studio_5.5_ubuntu-64.bin"
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        app: ['ImageClassificationSingleShot', 'ImageClassificationPipeline', 'ImageClassificationOffloading']
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        ref: ${{ github.event.pull_request.head.sha }}
+        fetch-depth: -${{ github.event.pull_request.commits }}
+    - name: Install Tizen Studio
+      run: |
+        wget -nc -O ${{ github.workspace }}/installer $TIZEN_STUDIO_URL
+        chmod a+x ${{ github.workspace }}/installer
+        bash ${{ github.workspace }}/installer --accept-license ${{ github.workspace }}/tizen-studio
+    - name: Build Tizen web application
+      shell: bash
+      run: |
+        export PATH=$PATH:${{ github.workspace }}/tizen-studio/tools/ide/bin
+        tizen build-web -- ${{ github.workspace }}/Tizen.web/${{ matrix.app }}
