@@ -13,6 +13,8 @@ var localSrc;
 var remoteSrc;
 var labels;
 var startTime;
+var ctx;
+var label;
 
 /**
  * Find the index of maximum value in the given array
@@ -21,6 +23,7 @@ var startTime;
  */
 function GetMaxIdx(array) {
     if (array.length === 0) {
+        console.log('array length zero')
         return -1;
     }
 
@@ -37,11 +40,23 @@ function GetMaxIdx(array) {
 }
 
 /**
+ * Get the jpeg image path
+ * @returns image path
+ */
+function GetImgPath() {
+    const MAX_IMG_CNT = 2;
+    var imgsrc = GetImgPath.count++ % MAX_IMG_CNT;
+    imgsrc = imgsrc.toString().concat('.jpg');
+    return '/res/'.concat(imgsrc);
+}
+GetImgPath.count = 0;
+
+/**
  * Load the label from the text file and return the string array
  * @returns string array
  */
 function loadLabelInfo() {
-    var fHandle = tizen.filesystem.openFile("wgt-package/res/labels.txt", 'r');
+    var fHandle = tizen.filesystem.openFile('wgt-package/res/labels.txt', 'r');
     var labelList = fHandle.readString();
     return labelList.split('\n');
 }
@@ -51,28 +66,28 @@ function loadLabelInfo() {
  */
 function runLocal() {
     const modelPath = 'wgt-package/res/mobilenet_v1_1.0_224_quant.tflite';
-    var URI_PREFIX = 'file://';
-    var absModelPath = tizen.filesystem.toURI(modelPath).substr(URI_PREFIX.length);
+    const URI_PREFIX = 'file://';
+    const absModelPath = tizen.filesystem.toURI(modelPath).substr(URI_PREFIX.length);
 
-    var pipelineDescription = "appsrc caps=image/jpeg name=srcx ! jpegdec ! " +
-        "videoconvert ! video/x-raw,format=RGB,framerate=0/1,width=224,height=224 ! tensor_converter ! " +
-        "tensor_filter framework=tensorflow-lite model=" + absModelPath + " ! " +
-        "appsink name=sinkx_local";
+    const pipelineDescription = 'appsrc caps=image/jpeg name=srcx_local ! jpegdec ! ' +
+        'videoconvert ! video/x-raw,format=RGB,framerate=0/1,width=224,height=224 ! tensor_converter ! ' +
+        'tensor_filter framework=tensorflow-lite model=' + absModelPath + ' ! ' +
+        'appsink name=sinkx_local';
 
-    var pHandle = tizen.ml.pipeline.createPipeline(pipelineDescription);
+    const pHandle = tizen.ml.pipeline.createPipeline(pipelineDescription);
     pHandle.start();
 
-    localSrc = pHandle.getSource('srcx');
+    localSrc = pHandle.getSource('srcx_local');
 
     pHandle.registerSinkListener('sinkx_local', function(sinkName, data) {
-        var endTime = performance.now();
-        var label = document.querySelector('#label');
-        var tensorsRetData = data.getTensorRawData(0);
-        var maxIdx = GetMaxIdx(tensorsRetData.data);
+        const endTime = performance.now();
+        const label = document.getElementById('label_local')
+        const tensorsRetData = data.getTensorRawData(0);
+        const maxIdx = GetMaxIdx(tensorsRetData.data);
         label.innerText = labels[maxIdx];
 
-        var time = document.querySelector('#local_time');
-        time.innerText = endTime - startTime + " ms"
+        const time = document.getElementById('time_local');
+        time.innerText = 'local : ' + (endTime - startTime) + ' ms'
     });
 }
 
@@ -81,83 +96,99 @@ function runLocal() {
  */
 function runRemote() {
     if (document.getElementById('port').value == 0) {
-        console.log("No port number is given")
+        console.log('No port number is given')
         return
     }
 
     /* TODO : Only use internal network now */
-    var pipelineDescription = "appsrc caps=image/jpeg name=srcx ! jpegdec ! " +
-        "videoconvert ! video/x-raw,format=RGB,framerate=0/1,width=224,height=224 ! tensor_converter  ! " +
-        "other/tensor,format=static,dimension=(string)3:224:224:1,type=uint8,framerate=0/1  ! " +
-        "tensor_query_client host=192.168.50.38 port=" + document.getElementById('port').value + " dest-host=" + "192.168.50.191" + " " +
-        "dest-port=" + document.getElementById('port').value + " ! " +
-        "other/tensor,format=static,dimension=(string)1001:1,type=uint8,framerate=0/1 ! tensor_sink name=sinkx_remote";
+    const pipelineDescription = 'appsrc caps=image/jpeg name=srcx_remote ! jpegdec ! ' +
+        'videoconvert ! video/x-raw,format=RGB,framerate=0/1,width=224,height=224 ! tensor_converter  ! ' +
+        'other/tensor,format=static,dimension=(string)3:224:224:1,type=uint8,framerate=0/1  ! ' +
+        'tensor_query_client host=192.168.50.38 port=' + document.getElementById('port').value + ' dest-host=' + '192.168.50.191' + ' ' +
+        'dest-port=' + document.getElementById('port').value + ' ! ' +
+        'other/tensor,format=static,dimension=(string)1001:1,type=uint8,framerate=0/1 ! tensor_sink name=sinkx_remote';
 
-    var pHandle = tizen.ml.pipeline.createPipeline(pipelineDescription);
+    const pHandle = tizen.ml.pipeline.createPipeline(pipelineDescription);
     pHandle.start();
 
-    remoteSrc = pHandle.getSource('srcx');
+    remoteSrc = pHandle.getSource('srcx_remote');
 
     pHandle.registerSinkListener('sinkx_remote', function(sinkName, data) {
-        var endTime = performance.now();
-        var label = document.querySelector('#label');
-        var tensorsRetData = data.getTensorRawData(0);
-        var maxIdx = GetMaxIdx(tensorsRetData.data);
+        const endTime = performance.now();
+        const label = document.getElementById('label_offloading');
+        const tensorsRetData = data.getTensorRawData(0);
+        const maxIdx = GetMaxIdx(tensorsRetData.data);
         label.innerText = labels[maxIdx];
 
-        var time = document.querySelector('#offloading_time');
-        time.innerText = endTime - startTime + " ms"
+        const time = document.getElementById('time_offloading');
+        time.innerText = 'offloading : ' + (endTime - startTime) + ' ms'
     });
+}
+
+function inference(src, canvas) {
+    const img_path = GetImgPath();
+    let img = new Image();
+    img.src = img_path;
+
+    img.onload = function () {
+        const fHandle = tizen.filesystem.openFile('wgt-package' + img_path, 'r');
+        const imgUInt8Array = fHandle.readData();
+        fHandle.close();
+
+        const tensorsInfo = new tizen.ml.TensorsInfo();
+        tensorsInfo.addTensorInfo('tensor', 'UINT8', [imgUInt8Array.length]);
+        const tensorsData = tensorsInfo.getTensorsData();
+        tensorsData.setTensorRawData(0, imgUInt8Array);
+
+        startTime = performance.now()
+        src.inputData(tensorsData);
+
+        tensorsData.dispose();
+        tensorsInfo.dispose();
+
+        const ctx = canvas.getContext('2d');
+	    ctx.drawImage(img, 0, 0);
+    }
 }
 
 window.onload = function() {
     labels = loadLabelInfo();
 
-    /* TODO : Change the image for each inference */
-    var fHandle = tizen.filesystem.openFile("wgt-package/res/0.jpg", 'r');
-    var imgUInt8Array = fHandle.readData();
-    fHandle.close();
+    const btnLocal = document.getElementById('start_local');
 
-    var tensorsInfo = new tizen.ml.TensorsInfo();
-    tensorsInfo.addTensorInfo("tensor", "UINT8", [imgUInt8Array.length]);
-    var tensorsData = tensorsInfo.getTensorsData();
-    tensorsData.setTensorRawData(0, imgUInt8Array);
-
-    const btnLocal = document.querySelector("#local");
-
-    btnLocal.addEventListener("click", function() {
+    btnLocal.addEventListener('click', function() {
         runLocal();
     });
 
-    const btnOffloading = document.querySelector("#offloading");
+    const btnOffloading = document.getElementById('start_offloading');
 
-    btnOffloading.addEventListener("click", function() {
+    btnOffloading.addEventListener('click', function() {
         runRemote();
     });
 
-    const btnLocalPush = document.querySelector("#localPush");
+    const localPage = document.getElementById('local');
 
-    btnLocalPush.addEventListener("click", function() {
-        startTime = performance.now()
-        localSrc.inputData(tensorsData);
+    localPage.addEventListener('click', function() {
+        if (localSrc) {
+            inference(localSrc, document.getElementById('canvas_local'));
+        }
     });
 
-    const btnOffloadingPush = document.querySelector("#offloadingPush");
+    const offloadingPage = document.getElementById('offloading');
 
-    btnOffloadingPush.addEventListener("click", function() {
-        startTime = performance.now()
-        remoteSrc.inputData(tensorsData);
+    offloadingPage.addEventListener('click', function() {
+        if (remoteSrc) {
+            inference(remoteSrc, document.getElementById('canvas_offloading'));
+        }
     });
 
     /* add eventListener for tizenhwkey */
     document.addEventListener('tizenhwkey', function(e) {
-        if (e.keyName === "back") {
+        if (e.keyName === 'back') {
             try {
-                console.log("Pipeline is disposed!!");
+                console.log('Pipeline is disposed!!');
                 pHandle.stop();
                 pHandle.dispose();
-                tensorsData.dispose();
-                tensorsInfo.dispose();
 
                 tizen.application.getCurrentApplication().exit();
             } catch (ignore) {}

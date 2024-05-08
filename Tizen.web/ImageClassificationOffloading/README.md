@@ -5,4 +5,4 @@
 * `appsrc` and `tensor_query_client` element are used.
 
 ## Demo
-TBD
+![Alt demo](./image_classification_offloading.png)
