@@ -5,8 +5,6 @@
  * @date 30 April 2024
  * @brief Image classification Offloading example
  * @author Yelin Jeong <yelini.jeong@samsung.com>
- * @bug When pushing data to appsrc for the first time
- * after creating a pipeline, the sink listener is not called.
  */
 
 var localSrc;
@@ -105,7 +103,7 @@ function runRemote() {
         'videoconvert ! video/x-raw,format=RGB,framerate=0/1,width=224,height=224 ! tensor_converter  ! ' +
         'other/tensor,format=static,dimension=(string)3:224:224:1,type=uint8,framerate=0/1  ! ' +
         'tensor_query_client host=192.168.50.38 port=' + document.getElementById('port').value + ' dest-host=' + '192.168.50.191' + ' ' +
-        'dest-port=' + document.getElementById('port').value + ' ! ' +
+        'dest-port=' + document.getElementById('port').value + ' timeout=1000 ! ' +
         'other/tensor,format=static,dimension=(string)1001:1,type=uint8,framerate=0/1 ! tensor_sink name=sinkx_remote';
 
     const pHandle = tizen.ml.pipeline.createPipeline(pipelineDescription);
@@ -125,26 +123,41 @@ function runRemote() {
     });
 }
 
+let fHandle = null;
+let tensorsData = null;
+let tensorsInfo = null;
+
+function disposeData() {
+    if (fHandle != null) {
+        fHandle.close();
+    }
+
+    if (tensorsData != null) {
+        tensorsData.dispose();
+    }
+
+    if (tensorsInfo != null) {
+        tensorsInfo.dispose();
+    }
+}
+
 function inference(src, canvas) {
     const img_path = GetImgPath();
     let img = new Image();
     img.src = img_path;
 
     img.onload = function () {
-        const fHandle = tizen.filesystem.openFile('wgt-package' + img_path, 'r');
+        disposeData();
+        fHandle = tizen.filesystem.openFile('wgt-package' + img_path, 'r');
         const imgUInt8Array = fHandle.readData();
-        fHandle.close();
 
-        const tensorsInfo = new tizen.ml.TensorsInfo();
+        tensorsInfo = new tizen.ml.TensorsInfo();
         tensorsInfo.addTensorInfo('tensor', 'UINT8', [imgUInt8Array.length]);
-        const tensorsData = tensorsInfo.getTensorsData();
+        tensorsData = tensorsInfo.getTensorsData();
         tensorsData.setTensorRawData(0, imgUInt8Array);
 
         startTime = performance.now()
         src.inputData(tensorsData);
-
-        tensorsData.dispose();
-        tensorsInfo.dispose();
 
         const ctx = canvas.getContext('2d');
 	    ctx.drawImage(img, 0, 0);
@@ -189,6 +202,8 @@ window.onload = function() {
                 console.log('Pipeline is disposed!!');
                 pHandle.stop();
                 pHandle.dispose();
+
+                disposeData();
 
                 tizen.application.getCurrentApplication().exit();
             } catch (ignore) {}
