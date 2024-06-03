@@ -89,20 +89,47 @@ function runLocal() {
     });
 }
 
+let ip;
+async function getNetworkType() {
+    return new Promise((resolve, reject) => {
+        tizen.systeminfo.getPropertyValue("NETWORK", function (data) {
+            resolve(data.networkType);
+        });
+    });
+}
+
+async function getIpAddress(networkType) {
+    return new Promise((resolve, reject) => {
+        tizen.systeminfo.getPropertyValue(
+            networkType + "_NETWORK",
+            function (property) {
+                resolve(property.ipAddress);
+            },
+        );
+    });
+}
+
+async function setIpAddress() {
+    try {
+        const networkType = await getNetworkType();
+        ip = await getIpAddress(networkType);
+        console.log(ip);
+    }
+    catch (e) {
+        console.error("Error getting IP address:", error);
+    }
+}
+
 /**
  * Run a pipeline that uses other device's resources
  */
-function runRemote() {
-    if (document.getElementById('port').value == 0) {
-        console.log('No port number is given')
-        return
-    }
+async function runRemote() {
+    await setIpAddress();
 
-    /* TODO : Only use internal network now */
     const pipelineDescription = 'appsrc caps=image/jpeg name=srcx_remote ! jpegdec ! ' +
         'videoconvert ! video/x-raw,format=RGB,framerate=0/1,width=224,height=224 ! tensor_converter  ! ' +
         'other/tensor,format=static,dimension=(string)3:224:224:1,type=uint8,framerate=0/1  ! ' +
-        'tensor_query_client host=192.168.50.38 port=' + document.getElementById('port').value + ' dest-host=' + '192.168.50.191' + ' ' +
+        'tensor_query_client host='+ ip +' port=' + document.getElementById('port').value + ' dest-host=' + document.getElementById('ip').value + ' ' +
         'dest-port=' + document.getElementById('port').value + ' timeout=1000 ! ' +
         'other/tensor,format=static,dimension=(string)1001:1,type=uint8,framerate=0/1 ! tensor_sink name=sinkx_remote';
 
