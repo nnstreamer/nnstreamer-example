@@ -14,7 +14,7 @@ gst-launch-1.0 \
     tensor_decoder mode=bounding_boxes option1=yolov8 option2=coco.txt option3=1 option4=1000:1000 option5=320:320 ! \
     video/x-raw,width=1000,height=1000,format=RGBA ! mix.sink_0 \
   t. ! queue leaky=2 max-size-buffers=10 ! mix.sink_1 \
-  compositor name=mix sink_0::zorder=2 sink_1::zorder=1 ! videoconvert ! autovideosink sync=false
+  compositor name=mix sink_0::zorder=2 sink_1::zorder=1 ! videoconvert ! ximagesink sync=false
 
 ## Note that the `tensor_transfrom mode=transpose option=1:2:0:3`
 ## change the data layout NHWC -> NCHW:
