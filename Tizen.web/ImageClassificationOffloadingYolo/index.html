@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta name="description" content="Tizen Image Classification SingleShot Example" />
+    <title>Tizen Image Classification Offloading Yolo Example</title>
+    <link rel="stylesheet" type="text/css" href="css/style.css" />
+    <script src="js/util.js" type="module"></script>
+    <script src="js/main.js" type="module"></script>
+  </head>
+  <body>
+    <h1 align="center" margin-bottom="50px">Image Classification YoloV8</h1>
+    <div id="container">
+      <div class="element">
+        <button class="button" id="start_local">Create Local Pipeline</button>
+        <div id="local">
+          <canvas class="canvas" id="canvas_local" width="224" height="224"></canvas>
+          <div id="time_local">Tab here</div>
+        </div>
+      </div>
+      <div class="element">
+        <button class="button" id="start_offloading">Create Offloading Pipeline</button>
+        <br>
+        <input class="button" id="ip" type="text" name="ip" value="127.0.0.1"/>
+        <br>
+        <input class="button" id="port" type="text" name="port" value="3000"/>
+        <div id="offloading">
+          <canvas id="canvas_offloading" width="224" height="224"></canvas>
+          <div id="time_offloading">Tab here</div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

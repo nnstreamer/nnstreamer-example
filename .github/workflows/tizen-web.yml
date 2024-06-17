@@ -14,8 +14,11 @@ jobs:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
-        app: ['ImageClassificationSingleShot', 'ImageClassificationPipeline', 'ImageClassificationOffloading']
+        app: ['ImageClassificationSingleShot', 'ImageClassificationPipeline', 'ImageClassificationOffloading', 'ImageClassificationOffloadingYolo']
     steps:
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
     - uses: actions/checkout@v4
       with:
         ref: ${{ github.event.pull_request.head.sha }}
@@ -25,6 +28,13 @@ jobs:
         wget -nc -O ${{ github.workspace }}/installer $TIZEN_STUDIO_URL
         chmod a+x ${{ github.workspace }}/installer
         bash ${{ github.workspace }}/installer --accept-license ${{ github.workspace }}/tizen-studio
+    - name: Download tflite model
+      if: ${{ matrix.app == 'ImageClassificationOffloadingYolo' }}
+      run: |
+        pip install ultralytics
+        python3 ${{ github.workspace }}/Tizen.web/${{ matrix.app }}/get_tflite_model.py
+        mv yolov8s_saved_model/yolov8s_float32.tflite ${{ github.workspace }}/Tizen.web/${{ matrix.app }}/res
+      shell: bash
     - name: Build Tizen web application
       shell: bash
       run: |
