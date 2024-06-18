@@ -20,20 +20,20 @@
  * @returns the index of the maximum value
  */
 function GetMaxIdx(array) {
-    if (array.length === 0){
-        return -1;
-    }
+  if (array.length === 0) {
+    return -1;
+  }
 
-    var max = array[0];
-    var maxIdx = 0;
+  var max = array[0];
+  var maxIdx = 0;
 
-    for (var i = 0; i< array.length; ++i) {
-        if (array[i] > max) {
-            maxIdx = i;
-            max = array[i];
-        }
+  for (var i = 0; i < array.length; ++i) {
+    if (array[i] > max) {
+      maxIdx = i;
+      max = array[i];
     }
-    return maxIdx;
+  }
+  return maxIdx;
 }
 
 /**
@@ -41,97 +41,104 @@ function GetMaxIdx(array) {
  * @returns image path
  */
 function GetImgPath() {
-    const MAX_IMG_CNT = 2;
-    var imgsrc = GetImgPath.count++ % MAX_IMG_CNT;
-    imgsrc = imgsrc.toString().concat(".jpg");
-    return "/res/".concat(imgsrc);
+  const MAX_IMG_CNT = 2;
+  var imgsrc = GetImgPath.count++ % MAX_IMG_CNT;
+  imgsrc = imgsrc.toString().concat(".jpg");
+  return "/res/".concat(imgsrc);
 }
 GetImgPath.count = 0;
 
 /**
- * Load the label from the text file and return the string array 
- * @returns string array 
+ * Load the label from the text file and return the string array
+ * @returns string array
  */
 function loadLabelInfo() {
-    var fHandle = tizen.filesystem.openFile("wgt-package/res/labels.txt", 'r');
-    var labelList = fHandle.readString();
-    return labelList.split('\n');
+  var fHandle = tizen.filesystem.openFile("wgt-package/res/labels.txt", "r");
+  var labelList = fHandle.readString();
+  return labelList.split("\n");
 }
 
-window.onload = function() {
-    var mainPage = document.querySelector('#main');
-    var label = document.querySelector('#label');
-    var canvas = document.querySelector('#canvas');
-    var ctx = canvas.getContext('2d');
+window.onload = function () {
+  var mainPage = document.querySelector("#main");
+  var label = document.querySelector("#label");
+  var canvas = document.querySelector("#canvas");
+  var ctx = canvas.getContext("2d");
 
-    // To create the pipeline, the model path should be absoulte path.
-    const modelPath = 'wgt-package/res/mobilenet_v1_1.0_224_quant.tflite';
-    var URI_PREFIX = 'file://';
-    var absModelPath = tizen.filesystem.toURI(modelPath).substr(URI_PREFIX.length);
+  // To create the pipeline, the model path should be absoulte path.
+  const modelPath = "wgt-package/res/mobilenet_v1_1.0_224_quant.tflite";
+  var URI_PREFIX = "file://";
+  var absModelPath = tizen.filesystem
+    .toURI(modelPath)
+    .substr(URI_PREFIX.length);
 
-    // load image labels from text file
-    var labels = loadLabelInfo();
+  // load image labels from text file
+  var labels = loadLabelInfo();
 
-    // make the pipeline & start it
-    var pipelineDescription = "appsrc caps=image/jpeg name=srcx ! jpegdec ! " +
-        "videoconvert ! video/x-raw,format=RGB,framerate=0/1,width=224,height=224 ! tensor_converter ! " +
-        "tensor_filter framework=tensorflow1-lite model=" + absModelPath + " ! " +
-        "appsink name=sinkx";
-    var pHandle = tizen.ml.pipeline.createPipeline(pipelineDescription);
-    console.log("Pipeline is created!!");
-    pHandle.start();
+  // make the pipeline & start it
+  var pipelineDescription =
+    "appsrc caps=image/jpeg name=srcx ! jpegdec ! " +
+    "videoconvert ! video/x-raw,format=RGB,framerate=0/1,width=224,height=224 ! tensor_converter ! " +
+    "tensor_filter framework=tensorflow1-lite model=" +
+    absModelPath +
+    " ! " +
+    "appsink name=sinkx";
+  var pHandle = tizen.ml.pipeline.createPipeline(pipelineDescription);
+  console.log("Pipeline is created!!");
+  pHandle.start();
 
-    // get source element
-    var srcElement = pHandle.getSource('srcx');
+  // get source element
+  var srcElement = pHandle.getSource("srcx");
 
-    // register appsink callback
-    pHandle.registerSinkListener('sinkx', function(sinkName, data) {
-        // update label
-        var tensorsRetData = data.getTensorRawData(0);
-        var maxIdx = GetMaxIdx(tensorsRetData.data);
-        label.innerText = labels[maxIdx];
-    });
+  // register appsink callback
+  pHandle.registerSinkListener("sinkx", function (sinkName, data) {
+    // update label
+    var tensorsRetData = data.getTensorRawData(0);
+    var maxIdx = GetMaxIdx(tensorsRetData.data);
+    label.innerText = labels[maxIdx];
+  });
 
-    // add eventListener for tizenhwkey
-    document.addEventListener('tizenhwkey', function(e) {
-        if (e.keyName === "back") {
-            try {
-                // stop the pipeline and cleanup its handles
-                console.log("Pipeline is disposed!!");
-                pHandle.stop();
-                pHandle.dispose();
+  // add eventListener for tizenhwkey
+  document.addEventListener("tizenhwkey", function (e) {
+    if (e.keyName === "back") {
+      try {
+        // stop the pipeline and cleanup its handles
+        console.log("Pipeline is disposed!!");
+        pHandle.stop();
+        pHandle.dispose();
 
-                tizen.application.getCurrentApplication().exit();
-            } catch (ignore) {}
-        }
-    });
+        tizen.application.getCurrentApplication().exit();
+      } catch (ignore) {
+        console.log("error " + ignore);
+      }
+    }
+  });
 
-    mainPage.addEventListener("click", function() {
-        var img_path = GetImgPath();
-        var img = new Image();
-        img.src = img_path;
+  mainPage.addEventListener("click", function () {
+    var img_path = GetImgPath();
+    var img = new Image();
+    img.src = img_path;
 
-        img.onload = function () {
-            // load image file
-            var fHandle = tizen.filesystem.openFile("wgt-package/" + img_path, 'r');
-            var imgUInt8Array = fHandle.readData();
-            fHandle.close();
+    img.onload = function () {
+      // load image file
+      var fHandle = tizen.filesystem.openFile("wgt-package/" + img_path, "r");
+      var imgUInt8Array = fHandle.readData();
+      fHandle.close();
 
-            // make tensor input data
-            var tensorsInfo = new tizen.ml.TensorsInfo();
-            tensorsInfo.addTensorInfo("tensor", "UINT8", [imgUInt8Array.length]);
-            var tensorsData = tensorsInfo.getTensorsData();
-            tensorsData.setTensorRawData(0, imgUInt8Array);
+      // make tensor input data
+      var tensorsInfo = new tizen.ml.TensorsInfo();
+      tensorsInfo.addTensorInfo("tensor", "UINT8", [imgUInt8Array.length]);
+      var tensorsData = tensorsInfo.getTensorsData();
+      tensorsData.setTensorRawData(0, imgUInt8Array);
 
-            // input data
-            srcElement.inputData(tensorsData);
+      // input data
+      srcElement.inputData(tensorsData);
 
-            // cleanup
-            tensorsData.dispose();
-            tensorsInfo.dispose();
+      // cleanup
+      tensorsData.dispose();
+      tensorsInfo.dispose();
 
-            // Draw preview image
-            ctx.drawImage(img, 0, 0);
-        };
-    });
+      // Draw preview image
+      ctx.drawImage(img, 0, 0);
+    };
+  });
 };

@@ -12,11 +12,11 @@
  * @returns the network type
  */
 export async function getNetworkType() {
-    return new Promise((resolve, reject) => {
-        tizen.systeminfo.getPropertyValue("NETWORK", function (data) {
-            resolve(data.networkType);
-        });
+  return new Promise((resolve) => {
+    tizen.systeminfo.getPropertyValue("NETWORK", function (data) {
+      resolve(data.networkType);
     });
+  });
 }
 
 /**
@@ -25,14 +25,14 @@ export async function getNetworkType() {
  * @returns ip address of the network type
  */
 export async function getIpAddress(networkType) {
-    return new Promise((resolve, reject) => {
-        tizen.systeminfo.getPropertyValue(
-            networkType + "_NETWORK",
-            function (property) {
-                resolve(property.ipAddress);
-            },
-        );
-    });
+  return new Promise((resolve) => {
+    tizen.systeminfo.getPropertyValue(
+      networkType + "_NETWORK",
+      function (property) {
+        resolve(property.ipAddress);
+      },
+    );
+  });
 }
 
 /**
@@ -41,14 +41,14 @@ export async function getIpAddress(networkType) {
  * @returns the index of the maximum value
  */
 export function GetMaxIdx(array) {
-    if (array.length === 0) {
-        console.log('array length zero')
-        return -1;
-    }
+  if (array.length === 0) {
+    console.log("array length zero");
+    return -1;
+  }
 
-    let maxIdx = array.indexOf(Math.max(...array));
+  let maxIdx = array.indexOf(Math.max(...array));
 
-    return maxIdx;
+  return maxIdx;
 }
 
 /**
@@ -56,10 +56,10 @@ export function GetMaxIdx(array) {
  * @returns image path
  */
 export function GetImgPath() {
-    const MAX_IMG_CNT = 2;
-    let imgsrc = GetImgPath.count++ % MAX_IMG_CNT;
-    imgsrc = imgsrc.toString().concat('.jpg');
-    return '/res/'.concat(imgsrc);
+  const MAX_IMG_CNT = 2;
+  let imgsrc = GetImgPath.count++ % MAX_IMG_CNT;
+  imgsrc = imgsrc.toString().concat(".jpg");
+  return "/res/".concat(imgsrc);
 }
 GetImgPath.count = 0;
 
@@ -68,7 +68,7 @@ GetImgPath.count = 0;
  * @returns string array
  */
 export function loadLabelInfo() {
-    const fHandle = tizen.filesystem.openFile('wgt-package/res/labels.txt', 'r');
-    const labelList = fHandle.readString();
-    return labelList.split('\n');
+  const fHandle = tizen.filesystem.openFile("wgt-package/res/labels.txt", "r");
+  const labelList = fHandle.readString();
+  return labelList.split("\n");
 }

@@ -20,18 +20,18 @@
  * @returns the index of the maximum value
  */
 function GetMaxIdx(array) {
-    if (array.length === 0) {
-        return -1;
+  if (array.length === 0) {
+    return -1;
+  }
+  var max = array[0];
+  var maxIdx = 0;
+  for (var i = 0; i < array.length; ++i) {
+    if (array[i] > max) {
+      maxIdx = i;
+      max = array[i];
     }
-    var max = array[0];
-    var maxIdx = 0;
-    for (var i = 0; i< array.length; ++i) {
-        if (array[i] > max) {
-            maxIdx = i;
-            max = array[i];
-        }
-    }
-    return maxIdx;
+  }
+  return maxIdx;
 }
 
 /**
@@ -39,92 +39,101 @@ function GetMaxIdx(array) {
  * @returns image path
  */
 function GetImgPath() {
-    const MAX_IMG_CNT = 2;
-    if (typeof GetImgPath.count === 'undefined') {
-        GetImgPath.count = 0;
-    }
-    var imgsrc = GetImgPath.count++ % MAX_IMG_CNT;
-    imgsrc = imgsrc.toString().concat(".jpg");
-    return "/res/".concat(imgsrc);
+  const MAX_IMG_CNT = 2;
+  if (typeof GetImgPath.count === "undefined") {
+    GetImgPath.count = 0;
+  }
+  var imgsrc = GetImgPath.count++ % MAX_IMG_CNT;
+  imgsrc = imgsrc.toString().concat(".jpg");
+  return "/res/".concat(imgsrc);
 }
 
 /**
- * Load the label from the text file and return the string array 
- * @returns string array 
+ * Load the label from the text file and return the string array
+ * @returns string array
  */
 function loadLabelInfo() {
-    var fHandle = tizen.filesystem.openFile("wgt-package/res/labels.txt", 'r');
-    var labelList = fHandle.readString();
-    return labelList.split('\n');
+  var fHandle = tizen.filesystem.openFile("wgt-package/res/labels.txt", "r");
+  var labelList = fHandle.readString();
+  return labelList.split("\n");
 }
 
-window.onload = function() {
-    var mainPage = document.querySelector('#main');
-    var label = document.querySelector('#label');
-    var canvas = document.querySelector('#canvas');
-    var ctx = canvas.getContext('2d');
+window.onload = function () {
+  var mainPage = document.querySelector("#main");
+  var label = document.querySelector("#label");
+  var canvas = document.querySelector("#canvas");
+  var ctx = canvas.getContext("2d");
 
-    // load image labels from text file
-    var labels = loadLabelInfo();
+  // load image labels from text file
+  var labels = loadLabelInfo();
 
-    // Load the neural network model and create the singleshot handle
-    var model = tizen.ml.single.openModel("wgt-package/res/mobilenet_v1_1.0_224_quant.tflite", null, null, "TENSORFLOW_LITE", "ANY");
-    console.info("model handle is created.");
+  // Load the neural network model and create the singleshot handle
+  var model = tizen.ml.single.openModel(
+    "wgt-package/res/mobilenet_v1_1.0_224_quant.tflite",
+    null,
+    null,
+    "TENSORFLOW_LITE",
+    "ANY",
+  );
+  console.info("model handle is created.");
 
-    // add eventListener for tizenhwkey
-    document.addEventListener('tizenhwkey', function(e) {
-        if (e.keyName === "back") {
-            try {
-                // cleanup the singleshot handle
-                model.close();
-                console.info("model handle is disposed.");
-                
-                tizen.application.getCurrentApplication().exit();
-            } catch (ignore) {}
-        }
-    });
+  // add eventListener for tizenhwkey
+  document.addEventListener("tizenhwkey", function (e) {
+    if (e.keyName === "back") {
+      try {
+        // cleanup the singleshot handle
+        model.close();
+        console.info("model handle is disposed.");
 
-    // add click eventListener
-    mainPage.addEventListener("click", function() {
-        var img = new Image();
-        img.src = GetImgPath();
+        tizen.application.getCurrentApplication().exit();
+      } catch (ignore) {
+        console.log("error " + ignore);
+      }
+    }
+  });
 
-        img.onload = function () {
-            // Prepare input TensorsInfo & TensorsData
-            var tensorsInfo = new tizen.ml.TensorsInfo();
-            tensorsInfo.addTensorInfo("tensor", "UINT8", [224, 224, 3]);
-            var tensorsData = tensorsInfo.getTensorsData();
-            var rgb = new Uint8Array(224 * 224 * 3);
+  // add click eventListener
+  mainPage.addEventListener("click", function () {
+    var img = new Image();
+    img.src = GetImgPath();
 
-            // Workaround
-            // MobileNet v1 requires RGB format but image object from getImageData() of Canvas 2D API is RGBA format.
-            // Because of this reason, an alpha channel should be removed by directly accessing the buffer.
-            // Pipeline APIs can easily remove the bothersome code.
-            ctx.drawImage(img, 0, 0);
-            var rgba = new Uint8Array(ctx.getImageData(0, 0, 224, 224).data.buffer);
-            var s = 0, d = 0;
-            while (d < 224 * 224 * 3) {
-                rgb[d++] = rgba[s++];
-                rgb[d++] = rgba[s++];
-                rgb[d++] = rgba[s++];
-                s++;
-            }
-            tensorsData.setTensorRawData(0, rgb);
+    img.onload = function () {
+      // Prepare input TensorsInfo & TensorsData
+      var tensorsInfo = new tizen.ml.TensorsInfo();
+      tensorsInfo.addTensorInfo("tensor", "UINT8", [224, 224, 3]);
+      var tensorsData = tensorsInfo.getTensorsData();
+      var rgb = new Uint8Array(224 * 224 * 3);
 
-            try {
-                // Inference and fetch the result
-                var tensorsDataOut = model.invoke(tensorsData);
-                var tensorRawData = tensorsDataOut.getTensorRawData(0).data;
+      // Workaround
+      // MobileNet v1 requires RGB format but image object from getImageData() of Canvas 2D API is RGBA format.
+      // Because of this reason, an alpha channel should be removed by directly accessing the buffer.
+      // Pipeline APIs can easily remove the bothersome code.
+      ctx.drawImage(img, 0, 0);
+      var rgba = new Uint8Array(ctx.getImageData(0, 0, 224, 224).data.buffer);
+      var s = 0,
+        d = 0;
+      while (d < 224 * 224 * 3) {
+        rgb[d++] = rgba[s++];
+        rgb[d++] = rgba[s++];
+        rgb[d++] = rgba[s++];
+        s++;
+      }
+      tensorsData.setTensorRawData(0, rgb);
 
-                // Find label & update it
-                var maxIdx = GetMaxIdx(tensorRawData);
-                label.innerText = labels[maxIdx];
-            } finally {
-            // Cleanup
-            tensorsDataOut.dispose();
-            tensorsData.dispose();
-            tensorsInfo.dispose();
-            }
-        };
-    });
+      try {
+        // Inference and fetch the result
+        var tensorsDataOut = model.invoke(tensorsData);
+        var tensorRawData = tensorsDataOut.getTensorRawData(0).data;
+
+        // Find label & update it
+        var maxIdx = GetMaxIdx(tensorRawData);
+        label.innerText = labels[maxIdx];
+      } finally {
+        // Cleanup
+        tensorsDataOut.dispose();
+        tensorsData.dispose();
+        tensorsInfo.dispose();
+      }
+    };
+  });
 };
