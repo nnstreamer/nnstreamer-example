@@ -20,6 +20,13 @@ jobs:
       with:
         ref: ${{ github.event.pull_request.head.sha }}
         fetch-depth: -${{ github.event.pull_request.commits }}
+    - name: Lint check
+      run: |
+        pushd Tizen.web
+        npm i -g eslint
+        npm i
+        eslint --config eslint.config.mjs .
+        popd
     - name: Install Tizen Studio
       run: |
         wget -nc -O ${{ github.workspace }}/installer $TIZEN_STUDIO_URL
