@@ -11,10 +11,10 @@
  * Get absolute path for file
  */
 export function getAbsPath(fileName) {
-    const filePath = 'wgt-package/res/' + fileName;
-    const URI_PREFIX = 'file://';
-    const absPath = tizen.filesystem.toURI(filePath).substr(URI_PREFIX.length);
-    return absPath
+  const filePath = "wgt-package/res/" + fileName;
+  const URI_PREFIX = "file://";
+  const absPath = tizen.filesystem.toURI(filePath).substr(URI_PREFIX.length);
+  return absPath;
 }
 
 /**
@@ -22,11 +22,11 @@ export function getAbsPath(fileName) {
  * @returns the network type
  */
 export async function getNetworkType() {
-    return new Promise((resolve, reject) => {
-        tizen.systeminfo.getPropertyValue("NETWORK", function (data) {
-            resolve(data.networkType);
-        });
+  return new Promise((resolve) => {
+    tizen.systeminfo.getPropertyValue("NETWORK", function (data) {
+      resolve(data.networkType);
     });
+  });
 }
 
 /**
@@ -35,14 +35,14 @@ export async function getNetworkType() {
  * @returns ip address of the network type
  */
 export async function getIpAddress(networkType) {
-    return new Promise((resolve, reject) => {
-        tizen.systeminfo.getPropertyValue(
-            networkType + "_NETWORK",
-            function (property) {
-                resolve(property.ipAddress);
-            },
-        );
-    });
+  return new Promise((resolve) => {
+    tizen.systeminfo.getPropertyValue(
+      networkType + "_NETWORK",
+      function (property) {
+        resolve(property.ipAddress);
+      },
+    );
+  });
 }
 
 /**
@@ -50,9 +50,9 @@ export async function getIpAddress(networkType) {
  * @returns image path
  */
 export function GetImgPath() {
-    const MAX_IMG_CNT = 2;
-    let imgsrc = GetImgPath.count++ % MAX_IMG_CNT;
-    imgsrc = imgsrc.toString().concat('.jpg');
-    return '/res/'.concat(imgsrc);
+  const MAX_IMG_CNT = 2;
+  let imgsrc = GetImgPath.count++ % MAX_IMG_CNT;
+  imgsrc = imgsrc.toString().concat(".jpg");
+  return "/res/".concat(imgsrc);
 }
 GetImgPath.count = 0;
