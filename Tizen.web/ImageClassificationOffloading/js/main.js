@@ -153,6 +153,66 @@ function inference(isLocal) {
   };
 }
 
+let gServiceAppId = "EQmf4iSfpX.imageclassificationoffloadingservice";
+
+function launchServiceApp() {
+  function onSuccess() {
+    console.log("Service App launched successfully");
+  }
+
+  function onError(err) {
+    console.error("Service App launch failed", err);
+  }
+
+  try {
+    console.log("Launching [" + gServiceAppId + "] ...");
+    tizen.application.launch(gServiceAppId, onSuccess, onError);
+  } catch (exc) {
+    console.error("Exception while launching HybridServiceApp: " + exc.message);
+  }
+}
+
+function onGetAppsContextSuccess(contexts) {
+  let i = 0;
+  let appInfo = null;
+
+  for (i = 0; i < contexts.length; i = i + 1) {
+    try {
+      appInfo = tizen.application.getAppInfo(contexts[i].appId);
+    } catch (exc) {
+      console.error("Exception while getting application info " + exc.message);
+    }
+
+    if (appInfo.id === gServiceAppId) {
+      break;
+    }
+  }
+
+  if (i >= contexts.length) {
+    console.log("Service App not found, Trying to launch service app");
+    launchServiceApp();
+  }
+}
+
+function onGetAppsContextError(err) {
+  console.error("getAppsContext exc", err);
+}
+
+/**
+ * Starts obtaining information about applications
+ * that are currently running on a device.
+ */
+function startHybridService() {
+  try {
+    tizen.application.getAppsContext(
+      onGetAppsContextSuccess,
+      onGetAppsContextError,
+    );
+  } catch (e) {
+    console.log("Get AppContext failed, " + e);
+  }
+}
+
 let ip;
 let labels;
 
@@ -160,7 +220,7 @@ window.onload = async function () {
   const networkType = await getNetworkType();
   ip = await getIpAddress(networkType);
   labels = loadLabelInfo();
-
+  startHybridService();
   document.getElementById("start_local").addEventListener("click", function () {
     runLocal();
   });
