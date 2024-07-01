@@ -13,6 +13,7 @@ import {
   GetMaxIdx,
   GetImgPath,
   loadLabelInfo,
+  startHybridService,
 } from "./utils.js";
 
 let fHandle = null;
@@ -160,7 +161,7 @@ window.onload = async function () {
   const networkType = await getNetworkType();
   ip = await getIpAddress(networkType);
   labels = loadLabelInfo();
-
+  startHybridService();
   document.getElementById("start_local").addEventListener("click", function () {
     runLocal();
   });
