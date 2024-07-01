@@ -3,27 +3,26 @@
 
 ## 1. Yolov5
 
-### Install yolov5
+### Install ultralytics
 
 ```bash
-$ git clone https://github.com/ultralytics/yolov5
-$ cd yolov5
-$ pip install -r requirements.txt
-```
-And download weight files in https://github.com/ultralytics/yolov5/releases/tag/v7.0
-
-### Export to tflite and torchscript model
-
-```bash
-$ python export.py --weights=yolov5s.pt --img=320 --include tflite torchscript
-$ ls
-... yolov5s.torchscript yolov5s-fp16.tflite ...
+$ pip install ultralytics
 ```
 
-### Export to quantized tflite model
-```bash
-$ python export.py --weights=yolov5s.pt --img=320 --include tflite --int8
-... yolov5s-int8.tflite ...
+### Export to different model representations
+
+REF: https://github.com/ultralytics/ultralytics#documentation
+```python3
+from ultralytics import YOLO
+
+# Load a model
+model = YOLO("yolov5su.pt") # load a pretrained model
+
+# Export the model
+model.export(format="tflite", imgsz=320) # export the model to tflite format
+model.export(format="torchscript", imgsz=320) # export the model to torchscript format
+model.export(format="onnx", imgsz=320) # export the model to onnx format
+
 ```
 
 Note that setting the input image size as 320px, rather than the default 640px to increase inference speed. You can take other weight options (n, s, m, l, x) and input image size.
@@ -32,26 +31,26 @@ Note that setting the input image size as 320px, rather than the default 640px t
 
 ```bash
 $ ./gst-launch-object-detection-yolov5-tflite.sh
-$ ./gst-launch-object-detection-yolov5-tflite.sh quantize ## use quantized tflite model
 $ ./gst-launch-object-detection-yolov5-torchscript.sh
+$ ./gst-launch-object-detection-yolov5-tensorrt.sh
 ```
 
 ## 2. Yolov8
 
-### Install yolov8
+### Install ultralytics
 
 ```bash
 $ pip install ultralytics
 ```
 
-### Export to tflite and torchscript model
+### Export to different model representations
 
 REF: https://github.com/ultralytics/ultralytics#documentation
-```python
+```python3
 from ultralytics import YOLO
 
 # Load a model
-model = YOLO("yolov8s.pt") # load a pretrained model
+model = YOLO("yolov8.pt") # load a pretrained model
 
 # Export the model
 model.export(format="tflite", imgsz=320) # export the model to tflite format

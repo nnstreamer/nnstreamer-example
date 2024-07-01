@@ -12,3 +12,9 @@ if have_pytorch
     install_dir: examples_install_dir
   )
 endif
+
+if have_tensorrt
+  install_data('gst-launch-object-detection-yolov5-tensorrt.sh',
+    install_dir: examples_install_dir
+  )
+endif
