@@ -150,15 +150,15 @@ init_pipeline(appdata_s *ad)
   gchar *label_path = g_strdup_printf("%s/%s", res_path, "labels.txt");
 
   // first check if there is registered / activated model via ml-service-api
-  ml_option_h activated_model_info;
+  ml_information_h activated_model_info;
   status = ml_service_model_get_activated(key, &activated_model_info);
   if (status == ML_ERROR_NONE) {
     gchar *activated_model_path;
-    status = ml_option_get(activated_model_info, "path", (void **) &activated_model_path);
+    status = ml_information_get(activated_model_info, "path", (void **) &activated_model_path);
     dlog_print(DLOG_INFO, LOG_TAG, "activated model path: %s", activated_model_path);
 
     model_path = g_strdup(activated_model_path);
-    ml_option_destroy(activated_model_info);
+    ml_information_destroy(activated_model_info);
   } else {
     // if there is no registered model, use the default model in the app.
     model_path = g_strdup_printf("%s/%s", res_path, "lite-model_mobilenet_v1_100_224_fp32_1.tflite");
