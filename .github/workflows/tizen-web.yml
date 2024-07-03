@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 env:
-  TIZEN_STUDIO_URL: "http://download.tizen.org/sdk/Installer/tizen-studio_5.5/web-cli_Tizen_Studio_5.5_ubuntu-64.bin"
+  TIZEN_STUDIO_URL: "http://download.tizen.org/sdk/Installer/tizen-studio_5.6/web-cli_Tizen_Studio_5.6_ubuntu-64.bin"
 
 jobs:
   build:
@@ -48,6 +48,17 @@ jobs:
         export PATH=$PATH:${{ github.workspace }}/tizen-studio/tools/ide/bin
         tizen build-web -- ${{ github.workspace }}/Tizen.web/${{ matrix.app }}
         tizen package -t wgt -- ${{ github.workspace }}/Tizen.web/${{ matrix.app }}/.buildResult
+    - name: Build native service and create hybrid application
+      shell: bash
+      if: ${{ matrix.app == 'ImageClassificationOffloading' }}
+      run: |
+        export PATH=$PATH:${{ github.workspace }}/tizen-studio/tools/ide/bin:${{ github.workspace }}/tizen-studio/package-manager
+        sudo apt update
+        sudo apt install -y libpython2.7 libkf5itemmodels5 libkf5kiowidgets5 libxcb-render-util0 libkchart2 libxcb-image0 libsdl1.2debian libv4l-0 libxcb-randr0 libxcb-shape0 libxcb-icccm4 gettext bridge-utils openvpn
+        package-manager-cli.bin install NativeToolchain-Gcc-9.2 NativeCLI TIZEN-8.0 TIZEN-8.0-NativeAppDevelopment
+        tizen build-native -a arm -c llvm -C Debug -- ${{ github.workspace }}/Tizen.web/ImageClassificationOffloadingService
+        tizen package -t tpk -- ${{ github.workspace }}/Tizen.web/ImageClassificationOffloadingService/Debug
+        tizen package -t wgt -r ${{ github.workspace }}/Tizen.web/ImageClassificationOffloadingService/Debug/EQmf4iSfpX-1.0.0-arm.tpk  --  ${{ github.workspace }}/Tizen.web/${{ matrix.app }}/.buildResult/${{ matrix.app }}.wgt
     - name: Upload wgt package
       uses: actions/upload-artifact@v4
       with:
