@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns="http://tizen.org/ns/packages" api-version="7.5" package="org.example.sum_and_add" version="1.0.0">
+	<profile name="tizeniot" />
+	<ui-application appid="org.example.sum_and_add" exec="sum_and_add" type="capp" multiple="false" taskmanage="true" nodisplay="false" launch_mode="single">
+		<icon>sum_and_add.png</icon>
+		<label>sum_and_add</label>
+		<res-control resource-type="sum_and_add" min-res-version="1.0.0" max-res-version="2.0.0" auto-close="true" />
+	</ui-application>
+</manifest>
