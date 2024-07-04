@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns="http://tizen.org/ns/packages" api-version="6.5" package="org.resource.model.sum_and_add" version="1.0.0" res-type="sum_and_add" res-version="1.0.0">
+	<allowed-package id="*"/>
+	<metadata key="http://tizen.org/metadata/mlops" value="TBU"/>
+</manifest>

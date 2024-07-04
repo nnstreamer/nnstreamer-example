@@ -1,0 +1,17 @@
+{
+  "models" : [
+    {
+      "name" : "sum_and_add_model",
+      "model" : "sum_and_add_two.tflite",
+      "description" : "sum and add 2.0",
+      "activate" : "true"
+    }
+  ],
+  "resources" : [
+    {
+      "name" : "sum_and_add_resource_conf",
+      "path" : "sum_and_add.single.conf",
+      "description" : "Notes for this conf file"
+    }
+  ]
+}
