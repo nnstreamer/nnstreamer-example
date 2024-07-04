@@ -16,5 +16,7 @@
 #endif
 #define LOG_TAG "image_classification_offloading_service"
 
+#define REMOTE_APP_ID "EQmf4iSfpX.ImageClassificationOffloading"
+#define PORT_NAME "MESSAGE_PORT"
 
 #endif /* __IMAGECLASSIFICATIONOFFLOADINGSERVICE_H__ */
