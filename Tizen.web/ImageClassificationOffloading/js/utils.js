@@ -8,6 +8,7 @@
  */
 
 let gServiceAppId = "EQmf4iSfpX.imageclassificationoffloadingservice";
+export let gRemoteServices = new Map();
 
 /**
  * Get currently used network type
@@ -135,17 +136,16 @@ export function startHybridService() {
 
 export function startMessagePort() {
   try {
-    const gLocalMessagePort =
+    const localMessagePort =
       tizen.messageport.requestLocalMessagePort("MESSAGE_PORT");
-    gLocalMessagePort.addMessagePortListener(function (data) {
+    localMessagePort.addMessagePortListener(function (data) {
+      let remoteService = new Object();
+      let serviceName = "";
       for (var i = 0; i < data.length; i++) {
-        var key = data[i].key;
-        switch (key) {
-          case "command":
-            console.log("key:" + key + " / value:" + data[i].value);
-            break;
-        }
+        if (data[i].key == "name") serviceName = data[i].value;
+        else remoteService[data[i].key] = data[i].value;
       }
+      gRemoteServices.set(serviceName, remoteService);
     });
   } catch (e) {
     console.log("Failed to create local message port " + e.name);

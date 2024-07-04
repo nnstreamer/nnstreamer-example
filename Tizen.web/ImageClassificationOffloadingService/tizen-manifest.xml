@@ -5,4 +5,7 @@
         <icon>imageclassificationoffloadingservice.png</icon>
         <label>imageclassificationoffloadingservice</label>
 	</service-application>
+    <privileges>
+        <privilege>http://tizen.org/privilege/internet</privilege>
+    </privileges>
 </manifest>
