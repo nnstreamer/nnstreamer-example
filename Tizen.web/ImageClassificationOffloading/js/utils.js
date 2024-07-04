@@ -132,3 +132,22 @@ export function startHybridService() {
     console.log("Get AppContext failed, " + e);
   }
 }
+
+export function startMessagePort() {
+  try {
+    const gLocalMessagePort =
+      tizen.messageport.requestLocalMessagePort("MESSAGE_PORT");
+    gLocalMessagePort.addMessagePortListener(function (data) {
+      for (var i = 0; i < data.length; i++) {
+        var key = data[i].key;
+        switch (key) {
+          case "command":
+            console.log("key:" + key + " / value:" + data[i].value);
+            break;
+        }
+      }
+    });
+  } catch (e) {
+    console.log("Failed to create local message port " + e.name);
+  }
+}
