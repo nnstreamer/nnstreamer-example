@@ -42,10 +42,10 @@ function createPipelineDescription(isLocal, filter) {
     (isLocal ? "local" : "offloading") +
     " ! jpegdec ! " +
     "videoconvert ! video/x-raw,format=RGB,framerate=0/1,width=224,height=224 ! tensor_converter ! " +
-    "other/tensor,format=static,dimension=(string)3:224:224:1,type=uint8,framerate=0/1  ! " +
+    "other/tensors,num_tensors=1,format=static,dimension=(string)3:224:224:1,type=uint8,framerate=0/1  ! " +
     filter +
     " ! " +
-    "other/tensor,format=static,dimension=(string)1001:1,type=uint8,framerate=0/1 ! " +
+    "other/tensors,num_tensors=1,format=static,dimension=(string)1001:1,type=uint8,framerate=0/1 ! " +
     "tensor_sink name=sinkx_" +
     (isLocal ? "local" : "offloading")
   );
