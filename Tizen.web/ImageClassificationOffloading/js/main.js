@@ -15,6 +15,7 @@ import {
   loadLabelInfo,
   startHybridService,
   startMessagePort,
+  gRemoteServices,
 } from "./utils.js";
 
 let fHandle = null;
@@ -99,15 +100,25 @@ function runLocal() {
  * Run a pipeline that uses other device's resources
  */
 function runOffloading() {
+  const remoteService = gRemoteServices.get("MobileNet");
+  if (
+    !gRemoteServices.has("MobileNet") ||
+    !Object.prototype.hasOwnProperty.call(remoteService, "ip") ||
+    !Object.prototype.hasOwnProperty.call(remoteService, "port")
+  ) {
+    console.log("No remote service available");
+    return;
+  }
+
   const filter =
     "tensor_query_client host=" +
     ip +
     " port=" +
-    document.getElementById("port").value +
+    remoteService["port"] +
     " dest-host=" +
-    document.getElementById("ip").value +
+    remoteService["ip"] +
     " dest-port=" +
-    document.getElementById("port").value +
+    remoteService["port"] +
     " timeout=1000";
 
   const pipelineDescription = createPipelineDescription(false, filter);
