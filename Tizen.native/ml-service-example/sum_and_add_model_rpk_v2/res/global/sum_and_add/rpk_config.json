@@ -12,6 +12,11 @@
       "name" : "sum_and_add_resource_conf",
       "path" : "sum_and_add.single.conf",
       "description" : "Notes for this conf file"
+    },
+    {
+      "name" : "sum_and_add_resource_pipeline_conf",
+      "path" : "sum_and_add.pipeline.conf",
+      "description" : "Notes for this conf file"
     }
   ]
 }

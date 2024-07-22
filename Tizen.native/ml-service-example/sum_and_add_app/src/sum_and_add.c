@@ -32,6 +32,9 @@ typedef struct appdata {
   ml_tensors_info_h output_info;
   ml_tensors_data_h input_data_h;
 
+  gchar *input_node_name;
+  gchar *output_node_name;
+
 } appdata_s;
 
 Ecore_Pipe *data_output_pipe;
@@ -43,7 +46,7 @@ _invoke_request_loop (void *user_data)
   appdata_s *ad = (appdata_s *) user_data;
   while (1) {
     if (ad->is_running == 1) {
-      ml_service_request (ad->service_handle, NULL, ad->input_data_h);
+      ml_service_request (ad->service_handle, ad->input_node_name, ad->input_data_h);
     }
 
     g_usleep (1000 * 1000); /* request every 1 sec */
@@ -216,7 +219,8 @@ init_ml_service (appdata_s *ad)
   ml_information_list_h res_info_list;
 
   // get conf file from rpk using key for the file
-  const char *conf_key = "sum_and_add_resource_conf";
+  // const char *conf_key = "sum_and_add_resource_conf"; // use single conf
+  const char *conf_key = "sum_and_add_resource_pipeline_conf"; // use pipeline conf
   status = ml_service_resource_get (conf_key, &res_info_list);
   unsigned int info_length = 0U;
   if (status!= ML_ERROR_NONE) {
@@ -254,15 +258,27 @@ init_ml_service (appdata_s *ad)
     return status;
   }
 
+  // get input_node_name and output_node_name from conf file (it's running pipeline NOT single)
+  status = ml_service_get_information (ad->service_handle, "input_node_name", &ad->input_node_name);
+  if (status!= ML_ERROR_NONE) {
+    dlog_print (DLOG_INFO, LOG_TAG, "No input_node_name given. It's single!");
+    ad->input_node_name = NULL;
+  }
+  status = ml_service_get_information (ad->service_handle, "output_node_name", &ad->output_node_name);
+  if (status!= ML_ERROR_NONE) {
+    dlog_print (DLOG_INFO, LOG_TAG, "No output_node_name given. It's single!");
+    output_node_name = NULL;
+  }
+
   // get input information
-  status = ml_service_get_input_information (ad->service_handle, NULL, &ad->input_info);
+  status = ml_service_get_input_information (ad->service_handle, ad->input_node_name, &ad->input_info);
   if (status!= ML_ERROR_NONE) {
     dlog_print (DLOG_ERROR, LOG_TAG, "ml_service_get_input_information failed");
     return status;
   }
 
   // get output information
-  status = ml_service_get_output_information (ad->service_handle, NULL, &ad->output_info);
+  status = ml_service_get_output_information (ad->service_handle, ad->output_node_name, &ad->output_info);
   if (status!= ML_ERROR_NONE) {
     dlog_print (DLOG_ERROR, LOG_TAG, "ml_service_get_output_information failed");
     return status;
