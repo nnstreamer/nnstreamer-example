@@ -1,4 +1,4 @@
-name: Tizen web app build
+name: Tizen app build
 
 on:
   push:
@@ -10,7 +10,41 @@ env:
   TIZEN_STUDIO_URL: "http://download.tizen.org/sdk/Installer/tizen-studio_5.6/web-cli_Tizen_Studio_5.6_ubuntu-64.bin"
 
 jobs:
-  build:
+  native:
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        # Only support tizen-8.0 application for now
+        app: ['yolo_model_training']
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        ref: ${{ github.event.pull_request.head.sha }}
+        fetch-depth: -${{ github.event.pull_request.commits }}
+    - name: Install Tizen Studio
+      shell: bash
+      run: |
+        wget -nc -O ${{ github.workspace }}/installer $TIZEN_STUDIO_URL
+        chmod a+x ${{ github.workspace }}/installer
+        bash ${{ github.workspace }}/installer --accept-license ${{ github.workspace }}/tizen-studio
+
+        export PATH=$PATH:${{ github.workspace }}/tizen-studio/package-manager
+        sudo apt update
+        sudo apt install -y libpython2.7 libkf5itemmodels5 libkf5kiowidgets5 libxcb-render-util0 libkchart2 libxcb-image0 libsdl1.2debian libv4l-0 libxcb-randr0 libxcb-shape0 libxcb-icccm4 gettext bridge-utils openvpn
+        package-manager-cli.bin install NativeToolchain-Gcc-9.2 NativeCLI TIZEN-8.0 TIZEN-8.0-NativeAppDevelopment
+    - name: Build Tizen native application
+      shell: bash
+      run: |
+        export PATH=$PATH:${{ github.workspace }}/tizen-studio/tools/ide/bin
+        tizen build-native -a arm -c llvm -C Debug -- ${{ github.workspace }}/Tizen.native/${{ matrix.app }}
+        tizen package -t tpk -- ${{ github.workspace }}/Tizen.native/${{ matrix.app }}/Debug
+        mv ${{ github.workspace }}/Tizen.native/${{ matrix.app }}/Debug/*${{ matrix.app }}*.tpk ${{ matrix.app }}.tpk
+    - name: Upload tpk package
+      uses: actions/upload-artifact@v4
+      with:
+        name: tizen_native_${{ matrix.app }}
+        path: ${{ matrix.app }}.tpk
+  web:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
@@ -64,3 +98,31 @@ jobs:
       with:
         name: tizen_web_${{ matrix.app }}
         path: ${{ github.workspace }}/Tizen.web/${{ matrix.app }}/.buildResult/${{ matrix.app }}.wgt
+  csharp:
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        app: ['TextClassification', 'OrientationDetection']
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        ref: ${{ github.event.pull_request.head.sha }}
+        fetch-depth: -${{ github.event.pull_request.commits }}
+    - name: Install Tizen Studio
+      shell: bash
+      run: |
+        wget -nc -O ${{ github.workspace }}/installer $TIZEN_STUDIO_URL
+        chmod a+x ${{ github.workspace }}/installer
+        bash ${{ github.workspace }}/installer --accept-license ${{ github.workspace }}/tizen-studio
+    - name: Build Tizen .NET application
+      shell: bash
+      run: |
+        export PATH=$PATH:${{ github.workspace }}/tizen-studio/tools/ide/bin
+        tizen build-cs -- ${{ github.workspace }}/Tizen.NET/${{ matrix.app }}
+        mkdir -p ${{ github.workspace }}/Tizen.NET/${{ matrix.app }}/tpk
+        find . -name '*.tpk' -exec mv {} ${{ github.workspace }}/Tizen.NET/${{ matrix.app }}/tpk \;
+    - name: Upload tpk package
+      uses: actions/upload-artifact@v4
+      with:
+        name: tizen_cs_${{ matrix.app }}
+        path: ${{ github.workspace }}/Tizen.NET/${{ matrix.app }}/tpk
