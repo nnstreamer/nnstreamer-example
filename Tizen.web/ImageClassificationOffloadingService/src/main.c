@@ -41,7 +41,7 @@ static void _app_control_cb(app_control_h app_control, void *user_data) {
 /**
  * @brief Send dnssd remote service information
  */
-void _dnssd_send_found(dnssd_service_h dnssd_remote_service) {
+void _dnssd_send_found(dnssd_service_h dnssd_remote_service, bool is_available) {
   char *service_name = NULL;
   char *service_type = NULL;
   char *ip_v4_address = NULL;
@@ -81,10 +81,14 @@ void _dnssd_send_found(dnssd_service_h dnssd_remote_service) {
   bundle_add_str(b, "ip", ip_v4_address);
   bundle_add_str(b, "port", port_buffer);
 
-  ret = message_port_send_message(REMOTE_APP_ID, PORT_NAME, b);
+  if (is_available)
+    ret = message_port_send_message(REMOTE_APP_ID, "STATE_AVAILABLE", b);
+  else
+    ret = message_port_send_message(REMOTE_APP_ID, "STATE_UNAVAILABLE", b);
+
   if (ret != MESSAGE_PORT_ERROR_NONE) {
-    dlog_print(DLOG_ERROR, LOG_TAG, "Failed to send message to %s:%s",
-               REMOTE_APP_ID, PORT_NAME);
+    dlog_print(DLOG_ERROR, LOG_TAG, "Failed to send message to %s",
+               REMOTE_APP_ID);
   }
   bundle_free(b);
 
@@ -106,11 +110,11 @@ void _found_cb(dnssd_service_state_e state,
   switch (state) {
   case DNSSD_SERVICE_STATE_AVAILABLE:
     /* DNS-SD service found */
-    _dnssd_send_found(dnssd_remote_service);
+    _dnssd_send_found(dnssd_remote_service, true);
     break;
   case DNSSD_SERVICE_STATE_UNAVAILABLE:
     /* DNS-SD service becomes unavailable */
-    /* ToDo : Handle unavailable remote service */
+    _dnssd_send_found(dnssd_remote_service, false);
     break;
   case DNSSD_SERVICE_STATE_NAME_LOOKUP_FAILED:
     /* Browsing failed */
@@ -155,7 +159,12 @@ int main(int argc, char *argv[]) {
   if (ret == DNSSD_ERROR_NONE)
     dlog_print(DLOG_DEBUG, LOG_TAG, "Start browsing");
 
-  ret = message_port_check_remote_port(REMOTE_APP_ID, PORT_NAME, &found);
+  ret = message_port_check_remote_port(REMOTE_APP_ID, "STATE_AVAILABLE", &found);
+  if (ret != MESSAGE_PORT_ERROR_NONE || !found) {
+    dlog_print(DLOG_ERROR, LOG_TAG, "Failed to check remote port");
+  }
+
+  ret = message_port_check_remote_port(REMOTE_APP_ID, "STATE_UNAVAILABLE", &found);
   if (ret != MESSAGE_PORT_ERROR_NONE || !found) {
     dlog_print(DLOG_ERROR, LOG_TAG, "Failed to check remote port");
   }

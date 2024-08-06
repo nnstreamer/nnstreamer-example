@@ -18,6 +18,7 @@ import {
   gRemoteServices,
 } from "./utils.js";
 
+const serviceName = "MobileNet";
 let fHandle = null;
 let tensorsData = null;
 let tensorsInfo = null;
@@ -100,9 +101,9 @@ function runLocal() {
  * Run a pipeline that uses other device's resources
  */
 function runOffloading() {
-  const remoteService = gRemoteServices.get("MobileNet");
+  const remoteService = gRemoteServices.get(serviceName);
   if (
-    !gRemoteServices.has("MobileNet") ||
+    !gRemoteServices.has(serviceName) ||
     !Object.prototype.hasOwnProperty.call(remoteService, "ip") ||
     !Object.prototype.hasOwnProperty.call(remoteService, "port")
   ) {
@@ -137,6 +138,11 @@ let startTime;
  * Run a pipeline that uses other device's resources
  */
 function inference(isLocal) {
+  if (!isLocal && !gRemoteServices.has(serviceName)) {
+    console.log("Offloading service is disappeared");
+    return;
+  }
+
   const img_path = GetImgPath();
   let img = new Image();
   img.src = img_path;
