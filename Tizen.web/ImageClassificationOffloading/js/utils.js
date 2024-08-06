@@ -136,9 +136,9 @@ export function startHybridService() {
 
 export function startMessagePort() {
   try {
-    const localMessagePort =
-      tizen.messageport.requestLocalMessagePort("MESSAGE_PORT");
-    localMessagePort.addMessagePortListener(function (data) {
+    const addService =
+      tizen.messageport.requestLocalMessagePort("STATE_AVAILABLE");
+    addService.addMessagePortListener(function (data) {
       let remoteService = new Object();
       let serviceName = "";
       for (var i = 0; i < data.length; i++) {
@@ -146,6 +146,16 @@ export function startMessagePort() {
         else remoteService[data[i].key] = data[i].value;
       }
       gRemoteServices.set(serviceName, remoteService);
+    });
+
+    const removeService =
+      tizen.messageport.requestLocalMessagePort("STATE_UNAVAILABLE");
+    removeService.addMessagePortListener(function (data) {
+      let serviceName = "";
+      for (var i = 0; i < data.length; i++) {
+        if (data[i].key == "name") serviceName = data[i].value;
+      }
+      gRemoteServices.delete(serviceName);
     });
   } catch (e) {
     console.log("Failed to create local message port " + e.name);
