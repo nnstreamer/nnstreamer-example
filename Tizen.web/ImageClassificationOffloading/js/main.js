@@ -18,7 +18,7 @@ import {
   gRemoteServices,
 } from "./utils.js";
 
-const serviceName = "MobileNet";
+const serviceName = "mobilenet_v1_1.0_224_quant";
 let fHandle = null;
 let tensorsData = null;
 let tensorsInfo = null;
