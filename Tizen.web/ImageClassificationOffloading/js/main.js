@@ -75,7 +75,7 @@ function sinkListenerCallback(sinkName, data) {
   label.innerText = labels[maxIdx];
 
   const time = document.getElementById("time_" + type);
-  time.innerText = type + " : " + (endTime - startTime) + " ms";
+  time.innerText = type + " : " + (endTime - startTime).toFixed(3) + " ms";
 }
 
 /**
