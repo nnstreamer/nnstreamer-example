@@ -73,7 +73,7 @@ jobs:
     - name: Download tflite model
       if: ${{ matrix.app == 'ImageClassificationOffloadingYolo' }}
       run: |
-        pip install ultralytics
+        pip install ultralytics==8.3.3
         python3 ${{ github.workspace }}/Tizen.web/${{ matrix.app }}/get_tflite_model.py
         mv yolov8s_saved_model/yolov8s_float32.tflite ${{ github.workspace }}/Tizen.web/${{ matrix.app }}/res
       shell: bash
