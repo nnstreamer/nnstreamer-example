@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<widget xmlns:tizen="http://tizen.org/ns/widgets" xmlns="http://www.w3.org/ns/widgets" id="http://yourdomain/Llama2" version="1.0.0" viewmodes="maximized">
+    <tizen:application id="lfebC6UrMY.Llama2" package="lfebC6UrMY" required_version="8.0"/>
+    <content src="index.html"/>
+    <feature name="http://tizen.org/feature/screen.size.all"/>
+    <icon src="icon.png"/>
+    <name>Llama2</name>
+    <tizen:profile name="tizen"/>
+</widget>
