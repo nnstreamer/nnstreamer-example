@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns="http://tizen.org/ns/packages" api-version="8.0" package="lfebC6UrMY.nsdservice" version="1.0.0">
+    <profile name="tizen" />
+    <service-application appid="lfebC6UrMY.nsdservice" exec="nsdservice" type="capp" multiple="false" taskmanage="false" nodisplay="true">
+        <icon>nsdservice.png</icon>
+        <label>nsdservice</label>
+	</service-application>
+    <privileges>
+        <privilege>http://tizen.org/privilege/internet</privilege>
+    </privileges>
+</manifest>
