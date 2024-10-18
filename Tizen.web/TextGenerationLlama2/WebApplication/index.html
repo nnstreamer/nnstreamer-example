@@ -6,17 +6,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
     <meta name="description" content="Tizen Mobile Web Basic Template" />
 
-    <title>Tizen Mobile Web Basic Application</title>
+    <title>Tizen Text Generation Offloading Example</title>
 
     <link rel="stylesheet" type="text/css" href="css/style.css" />
-    <script src="js/main.js"></script>
+    <script src="js/utils.js" type="module"></script>
+    <script src="js/main.js" type="module"></script>
 </head>
 
 <body>
     <div id="main" class="page">
-        <div class="contents">
-            <span id="content-text">Basic</span>
-        </div>
+        <button class="button" id="start">Start Service</button>
+        <button class="button" id="run">Generate Text</button><br/><br/>
+        <input class="input" id="prompt" placeholder="Prompt"><br/><br/>
+        <div class="output" id="output"></div>
     </div>
 </body>
 
