@@ -1,0 +1,53 @@
+name: Meson build
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: read
+
+jobs:
+  native:
+    name: native examples (${{ matrix.config }})
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - config: nnstreamer and nnstreamer-edge
+            nnstreamer_dev: nnstreamer-dev
+            edge_examples: 'yes'
+          - config: nnstreamer-edge only
+            nnstreamer_dev: ''
+            edge_examples: 'no'
+    steps:
+    - uses: actions/checkout@v4
+    - name: Install the build dependencies
+      run: |
+        sudo add-apt-repository -y ppa:nnstreamer/ppa
+        sudo apt-get update
+        sudo apt-get install -y meson ninja-build pkg-config \
+          libglib2.0-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
+          libunwind-dev libcairo2-dev nnstreamer-edge-dev ${{ matrix.nnstreamer_dev }}
+    - name: Build the native examples
+      run: |
+        meson setup build
+        meson compile -C build
+    - name: Check that the built examples match the dependencies
+      # nnstreamer-edge.pc puts /usr/include/nnstreamer on the command line on
+      # its own, so an edge example entered without nnstreamer fails on a
+      # missing header rather than on a missing dependency.
+      # https://github.com/nnstreamer/nnstreamer/issues/5017
+      run: |
+        for name in performance_benchmark_query performance_benchmark_broadcast; do
+          bin="build/native/edgeAI_performance_benchmark/${name}"
+          if [ '${{ matrix.edge_examples }}' = 'yes' ]; then
+            test -x "${bin}"
+          else
+            test ! -e "${bin}"
+          fi
+        done

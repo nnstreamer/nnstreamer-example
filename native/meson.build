@@ -30,11 +30,11 @@ if have_tensorflow_lite
   subdir('example_low_light_image_enhancement')
 endif
 
-if nns_edge_dep.found()
+if nns_edge_dep.found() and nns_dep.found()
   subdir('edgeAI_performance_benchmark')
-if nntrainer_dep.found()
-  subdir('example_training_offloading')
-endif
+  if nntrainer_dep.found()
+    subdir('example_training_offloading')
+  endif
 endif
 
 if have_caffe2

@@ -12,7 +12,7 @@ env:
 
 jobs:
   native:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         # Only support tizen-8.0 application for now
@@ -30,8 +30,17 @@ jobs:
         bash ${{ github.workspace }}/installer --accept-license ${{ github.workspace }}/tizen-studio
 
         export PATH=$PATH:${{ github.workspace }}/tizen-studio/package-manager
+        # python3.8 and the equivs name shims are for noble; drop them once the SDK supports it.
+        sudo add-apt-repository -y ppa:deadsnakes/ppa
         sudo apt update
-        sudo apt install -y libpython2.7 libkf5itemmodels5 libkf5kiowidgets5 libxcb-render-util0 libkchart2 libxcb-image0 libsdl1.2debian libv4l-0 libxcb-randr0 libxcb-shape0 libxcb-icccm4 gettext bridge-utils openvpn
+        sudo apt install -y python3.8 libpython3.8 equivs libkf5itemmodels5 libkf5kiowidgets5 libxcb-render-util0 libkchart2 libxcb-image0 libsdl1.2debian libv4l-0 libxcb-randr0 libxcb-shape0 libxcb-icccm4 gettext bridge-utils openvpn libcurl3-gnutls libglib2.0-0
+        shims="${RUNNER_TEMP}/tizen-sdk-shims"
+        mkdir -p "${shims}"
+        for name in libcurl3-gnutls libglib2.0-0 libv4l-0; do
+          printf '%s\n' "Section: misc" "Priority: optional" "Standards-Version: 3.9.2" "Package: ${name}" "Version: 99:0" "Description: name shim for the Tizen SDK dependency check" > "${shims}/${name}.ctl"
+          (cd "${shims}" && equivs-build "${name}.ctl")
+        done
+        sudo dpkg -i "${shims}"/*.deb
         package-manager-cli.bin install NativeToolchain-Gcc-9.2 NativeCLI TIZEN-8.0 TIZEN-8.0-NativeAppDevelopment
     - name: Build Tizen native application
       shell: bash
@@ -46,7 +55,7 @@ jobs:
         name: tizen_native_${{ matrix.app }}
         path: ${{ matrix.app }}.tpk
   web:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         app: ['ImageClassificationSingleShot', 'ImageClassificationPipeline', 'ImageClassificationOffloading', 'ImageClassificationOffloadingYolo']
@@ -73,7 +82,7 @@ jobs:
     - name: Download tflite model
       if: ${{ matrix.app == 'ImageClassificationOffloadingYolo' }}
       run: |
-        pip install ultralytics==8.3.3
+        pip install ultralytics==8.3.3 torch==2.4.1 torchvision==0.19.1
         python3 ${{ github.workspace }}/Tizen.web/${{ matrix.app }}/get_tflite_model.py
         mv yolov8s_saved_model/yolov8s_float32.tflite ${{ github.workspace }}/Tizen.web/${{ matrix.app }}/res
       shell: bash
@@ -88,8 +97,17 @@ jobs:
       if: ${{ matrix.app == 'ImageClassificationOffloading' }}
       run: |
         export PATH=$PATH:${{ github.workspace }}/tizen-studio/tools/ide/bin:${{ github.workspace }}/tizen-studio/package-manager
+        # python3.8 and the equivs name shims are for noble; drop them once the SDK supports it.
+        sudo add-apt-repository -y ppa:deadsnakes/ppa
         sudo apt update
-        sudo apt install -y libpython2.7 libkf5itemmodels5 libkf5kiowidgets5 libxcb-render-util0 libkchart2 libxcb-image0 libsdl1.2debian libv4l-0 libxcb-randr0 libxcb-shape0 libxcb-icccm4 gettext bridge-utils openvpn
+        sudo apt install -y python3.8 libpython3.8 equivs libkf5itemmodels5 libkf5kiowidgets5 libxcb-render-util0 libkchart2 libxcb-image0 libsdl1.2debian libv4l-0 libxcb-randr0 libxcb-shape0 libxcb-icccm4 gettext bridge-utils openvpn libcurl3-gnutls libglib2.0-0
+        shims="${RUNNER_TEMP}/tizen-sdk-shims"
+        mkdir -p "${shims}"
+        for name in libcurl3-gnutls libglib2.0-0 libv4l-0; do
+          printf '%s\n' "Section: misc" "Priority: optional" "Standards-Version: 3.9.2" "Package: ${name}" "Version: 99:0" "Description: name shim for the Tizen SDK dependency check" > "${shims}/${name}.ctl"
+          (cd "${shims}" && equivs-build "${name}.ctl")
+        done
+        sudo dpkg -i "${shims}"/*.deb
         package-manager-cli.bin install NativeToolchain-Gcc-9.2 NativeCLI TIZEN-8.0 TIZEN-8.0-NativeAppDevelopment
         tizen build-native -a arm -c llvm -C Debug -- ${{ github.workspace }}/Tizen.web/ImageClassificationOffloadingService
         tizen package -t tpk -- ${{ github.workspace }}/Tizen.web/ImageClassificationOffloadingService/Debug
@@ -100,7 +118,7 @@ jobs:
         name: tizen_web_${{ matrix.app }}
         path: ${{ github.workspace }}/Tizen.web/${{ matrix.app }}/.buildResult/${{ matrix.app }}.wgt
   csharp:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         app: ['TextClassification', 'OrientationDetection']
